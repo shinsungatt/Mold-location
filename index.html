@@ -324,8 +324,8 @@ var LS_DATE_KEY = 'ssautotech_mold_date';
 var SECTIONS = [
   ['P', 40,-28,'shelf', 2,2,2], ['Q', 44,-28,'shelf', 2,2,2], ['R', 48,-28,'shelf', 2,2,2],
   ['S', 40,-24,'shelf', 2,2,2], ['T', 44,-24,'shelf', 2,2,2], ['U', 48,-24,'shelf', 2,2,2],
-  ['H', 40,-20,'shelf', 2,2,2], ['G', 44,-20,'shelf', 2,2,2], ['F', 48,-20,'shelf', 2,2,2],
-  ['E', 40,-16,'shelf', 2,2,2], ['D', 44,-16,'shelf', 2,2,2], ['C', 48,-16,'shelf', 2,2,2],
+  ['H', 40,-20,'shelf', 2,3,5], ['G', 44,-20,'shelf', 2,3,5], ['F', 48,-20,'shelf', 2,3,5],
+  ['E', 40,-16,'shelf', 2,3,5], ['D', 44,-16,'shelf', 2,3,5], ['C', 48,-16,'shelf', 2,3,5],
   ['BA',54,-28,'medium',2,2,2], ['BB',59,-28,'medium',2,2,2], ['BC',64,-28,'medium',2,2,2],
   ['BD',69,-28,'medium',2,2,2], ['BE',74,-28,'medium',2,2,2],
   ['BJ',54,-22,'medium',2,2,2], ['BI',59,-22,'medium',2,2,2], ['BH',64,-22,'medium',2,2,2],
@@ -334,15 +334,17 @@ var SECTIONS = [
   ['K',-44, 5,'shelf', 3,3,2], ['L',-39, 5,'shelf', 3,3,2],
   ['M',-34, 5,'shelf', 3,3,2], ['N',-29, 5,'shelf', 3,3,2], ['J',-24, 5,'shelf', 3,3,2],
   ['O',-10, 5,'shelf', 3,3,2], ['I', -5, 5,'shelf', 3,3,2],
-  ['중1',-55,18,'medium',3,2,2], ['중2',-50,18,'medium',3,2,2],
-  ['중3',-45,18,'medium',3,2,2], ['중4',-40,18,'medium',3,2,2],
-  ['중5',-35,18,'medium',3,2,2], ['중6',-30,18,'medium',3,2,2],
-  ['중파1',-25,18,'medium',3,2,2], ['중파2',-20,18,'medium',3,2,2],
-  ['중파3',-15,18,'medium',3,2,2], ['중파4',-10,18,'medium',3,2,2],
-  ['중파5', -5,18,'medium',3,2,2],
-  ['중파6',-55,26,'medium',3,2,2], ['중파7',-50,26,'medium',3,2,2],
-  ['중파8',-45,26,'medium',3,2,2], ['중파9',-40,26,'medium',3,2,2],
-  ['중파10',-35,26,'medium',3,2,2],
+  // 중 구역: 팔렛 1단, 좌우2열×앞뒤3깊이 (shelves=1 → 키 형식: 섹션-열-깊이)
+  ['중1',-55,18,'medium',3,2,1], ['중2',-50,18,'medium',3,2,1],
+  ['중3',-45,18,'medium',3,2,1], ['중4',-40,18,'medium',3,2,1],
+  ['중5',-35,18,'medium',3,2,1], ['중6',-30,18,'medium',3,2,1],
+  // 중파 구역: 2층 팔렛 1단 (shelves=1 → 키 형식: 섹션-열-깊이)
+  ['중파1',-25,18,'medium',3,2,1], ['중파2',-20,18,'medium',3,2,1],
+  ['중파3',-15,18,'medium',3,2,1], ['중파4',-10,18,'medium',3,2,1],
+  ['중파5', -5,18,'medium',3,2,1],
+  ['중파6',-55,26,'medium',3,2,1], ['중파7',-50,26,'medium',3,2,1],
+  ['중파8',-45,26,'medium',3,2,1], ['중파9',-40,26,'medium',3,2,1],
+  ['중파10',-35,26,'medium',3,2,1],
 ];
 
 var SLOT = {
@@ -364,12 +366,17 @@ function parseLocation(raw) {
   for (var i = 0; i < EXT_KW.length; i++)
     if (s.indexOf(EXT_KW[i]) >= 0) return { type:'ext', raw:s };
   var m;
-  m = s.match(/^(중파\d+)-(\d+)-(\d+)(?:-(\d+))?$/);
-  if (m) return { type:'int', sec:m[1], r:+m[2], c:+m[3], sh:m[4]?+m[4]:1 };
-  m = s.match(/^(중\d+)-(\d+)-(\d+)(?:-(\d+))?$/);
-  if (m) return { type:'int', sec:m[1], r:+m[2], c:+m[3], sh:m[4]?+m[4]:1 };
-  m = s.match(/^([A-Za-z]+)-(\d+)-(\d+)(?:-(\d+))?$/);
-  if (m) return { type:'int', sec:m[1].toUpperCase(), r:+m[2], c:+m[3], sh:m[4]?+m[4]:1 };
+  // 중파N-열-깊이 (2층 팔렛, 단 없음): 중파8-3-3
+  m = s.match(/^(중파\d+)-(\d+)-(\d+)$/);
+  if (m) return { type:'int', sec:m[1], sh:0, c:+m[2], depth:+m[3], noShelf:true };
+  // 중N-열-깊이 (중층 팔렛, 단 없음): 중6-2-3
+  m = s.match(/^(중\d+)-(\d+)-(\d+)$/);
+  if (m) return { type:'int', sec:m[1], sh:0, c:+m[2], depth:+m[3], noShelf:true };
+  // 일반 랙: 섹션-단-열 또는 섹션-단-열-앞뒤
+  // U-2-2 → sh=2, c=2, depth=1(기본)
+  // U-3-1-2 → sh=3, c=1, depth=2
+  m = s.match(/^([A-Za-z]+\d*)-(\d+)-(\d+)(?:-(\d+))?$/);
+  if (m) return { type:'int', sec:m[1].toUpperCase(), sh:+m[2], c:+m[3], depth:m[4]?+m[4]:1 };
   return { type:'unk', raw:s };
 }
 
@@ -630,8 +637,16 @@ function buildSection(name,sx,sz,type,rows,cols,shelves) {
         scene.add(tag);
 
         var wp=new THREE.Vector3(mx,my,mz);
-        var k4=name+'-'+(r+1)+'-'+(c+1)+'-'+(sh+1);
-        var k3=name+'-'+(r+1)+'-'+(c+1);
+        // 키 형식: shelves==1(중/중파 팔렛) → 섹션-열-앞뒤
+        //          shelves>1 (일반 랙)      → 섹션-단-열-앞뒤
+        var k4, k3;
+        if (shelves===1) {
+          k4 = name+'-'+(c+1)+'-'+(r+1);   // 섹션-열-앞뒤
+          k3 = name+'-'+(c+1);              // 섹션-열
+        } else {
+          k4 = name+'-'+(sh+1)+'-'+(c+1)+'-'+(r+1);  // 섹션-단-열-앞뒤
+          k3 = name+'-'+(sh+1)+'-'+(c+1);              // 섹션-단-열
+        }
         var entry={
           mesh:moldMesh, worldPos:wp, sprite:tag,
           moldData:null, locKey:k4, baseColor:0x6c7585,
@@ -760,8 +775,16 @@ function assignMoldsToSlots() {
   moldData.forEach(function(mold){
     if(!mold.parsed||mold.parsed.type!=='int') return;
     var p=mold.parsed;
-    var k4=p.sec+'-'+p.r+'-'+p.c+'-'+p.sh;
-    var k3=p.sec+'-'+p.r+'-'+p.c;
+    var k4, k3;
+    if (p.noShelf) {
+      // 중/중파: 섹션-열-깊이
+      k4 = p.sec+'-'+p.c+'-'+p.depth;
+      k3 = p.sec+'-'+p.c;
+    } else {
+      // 일반 랙: 섹션-단-열-앞뒤
+      k4 = p.sec+'-'+p.sh+'-'+p.c+'-'+p.depth;
+      k3 = p.sec+'-'+p.sh+'-'+p.c;
+    }
     var entry=slotReg[k4]||slotReg[k3];
     if(entry&&!entry.moldData){
       entry.moldData=mold; entry.baseColor=0x5a7090;
