@@ -405,8 +405,9 @@ sun.shadow.mapSize.width = sun.shadow.mapSize.height = 2048;
 sun.shadow.camera.left=-100; sun.shadow.camera.right=100;
 sun.shadow.camera.top=80;    sun.shadow.camera.bottom=-80;
 sun.shadow.camera.far=300; scene.add(sun);
-scene.add(Object.assign(new THREE.DirectionalLight(0x1030c0, 0.28),
-  { position: new THREE.Vector3(-30, 20, -20) }));
+var fillLight = new THREE.DirectionalLight(0x1030c0, 0.28);
+fillLight.position.set(-30, 20, -20);
+scene.add(fillLight);
 
 window.addEventListener('resize', function() {
   camera.aspect = cvDiv.clientWidth / cvDiv.clientHeight;
