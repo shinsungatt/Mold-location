@@ -43,7 +43,7 @@ body { background:#080c18; color:#e0e8ff; font-family:'Malgun Gothic','맑은 �
 .ac-pn  { font-size:11px; color:#ffb040; margin-top:1px; }
 .ac-sub { font-size:11px; color:rgba(255,255,255,0.36); margin-top:1px; }
 
-/* ── 툴바 버튼 그룹 ── */
+/* ── 툴바 버튼 ── */
 #floor-btns { display:flex; gap:5px; }
 .f-btn {
   padding:6px 12px; background:rgba(255,255,255,0.05);
@@ -63,13 +63,9 @@ body { background:#080c18; color:#e0e8ff; font-family:'Malgun Gothic','맑은 �
   padding:6px 11px; border-radius:6px; cursor:pointer;
   font-size:12px; font-weight:600; transition:all .2s; border:1px solid;
 }
-.xl-upload {
-  background:rgba(50,200,100,0.1); border-color:rgba(50,200,100,0.3); color:#50e896;
-}
+.xl-upload   { background:rgba(50,200,100,0.1); border-color:rgba(50,200,100,0.3); color:#50e896; }
 .xl-upload:hover { background:rgba(50,200,100,0.2); border-color:#50e896; }
-.xl-download {
-  background:rgba(80,140,255,0.1); border-color:rgba(80,140,255,0.3); color:#7eb8f7;
-}
+.xl-download { background:rgba(80,140,255,0.1); border-color:rgba(80,140,255,0.3); color:#7eb8f7; }
 .xl-download:hover { background:rgba(80,140,255,0.2); border-color:#7eb8f7; }
 
 /* ── Canvas ── */
@@ -83,7 +79,7 @@ body { background:#080c18; color:#e0e8ff; font-family:'Malgun Gothic','맑은 �
   display:flex; flex-direction:column;
 }
 #results-area { flex:1; overflow-y:auto; padding:10px; }
-.r-header { font-size:11px; color:rgba(255,255,255,0.32); padding:6px 4px 10px; }
+.r-header { font-size:11px; color:rgba(255,255,255,0.32); padding:6px 4px 10px; line-height:1.6; }
 .r-item {
   padding:10px 11px; background:rgba(255,255,255,0.03);
   border:1px solid rgba(80,140,255,0.1); border-radius:7px;
@@ -129,9 +125,14 @@ body { background:#080c18; color:#e0e8ff; font-family:'Malgun Gothic','맑은 �
 }
 .drop-logo { font-size:26px; font-weight:700; color:#5a9ef8; margin-bottom:5px; }
 .drop-logo span { color:#ff8c00; }
-.drop-sub { font-size:12px; color:rgba(255,255,255,0.26); margin-bottom:44px; letter-spacing:2px; }
+.drop-sub { font-size:12px; color:rgba(255,255,255,0.26); margin-bottom:10px; letter-spacing:2px; }
+.drop-notice {
+  font-size:11px; color:rgba(255,200,80,0.55); margin-bottom:34px;
+  background:rgba(255,200,0,0.05); border:1px solid rgba(255,200,0,0.15);
+  border-radius:6px; padding:6px 18px; text-align:center; line-height:1.7;
+}
 #drop-zone {
-  width:370px; height:200px;
+  width:370px; height:190px;
   border:2px dashed rgba(80,140,255,0.36); border-radius:15px;
   display:flex; flex-direction:column; align-items:center; justify-content:center;
   cursor:pointer; transition:all .28s; background:rgba(80,140,255,0.04);
@@ -140,7 +141,7 @@ body { background:#080c18; color:#e0e8ff; font-family:'Malgun Gothic','맑은 �
   border-color:#5a9ef8; background:rgba(80,140,255,0.1);
   box-shadow:0 0 50px rgba(80,140,255,0.16);
 }
-.dz-icon { font-size:48px; margin-bottom:12px; }
+.dz-icon { font-size:44px; margin-bottom:10px; }
 .dz-text { font-size:14px; color:rgba(255,255,255,0.56); }
 .dz-sub  { font-size:12px; color:rgba(255,255,255,0.26); margin-top:6px; }
 #file-in { display:none; }
@@ -192,10 +193,9 @@ body { background:#080c18; color:#e0e8ff; font-family:'Malgun Gothic','맑은 �
 }
 #slot-modal-input:focus { border-color:rgba(80,140,255,0.7); }
 #slot-modal-ac {
-  background:#0d1428;
-  border:1px solid rgba(80,140,255,0.2);
-  border-radius:7px; max-height:170px;
-  overflow-y:auto; margin-bottom:10px; display:none;
+  background:#0d1428; border:1px solid rgba(80,140,255,0.2);
+  border-radius:7px; max-height:170px; overflow-y:auto;
+  margin-bottom:10px; display:none;
 }
 .sm-ac-item {
   padding:7px 11px; cursor:pointer;
@@ -207,10 +207,9 @@ body { background:#080c18; color:#e0e8ff; font-family:'Malgun Gothic','맑은 �
 .sm-ac-sub { font-size:11px; color:rgba(255,255,255,0.36); margin-top:2px; }
 .sm-btns { display:flex; gap:8px; margin-top:2px; }
 .sm-btn {
-  flex:1; padding:8px; border-radius:6px;
-  cursor:pointer; font-size:12px; font-weight:600;
-  border:1px solid; text-align:center; transition:all .2s;
-  font-family:'Malgun Gothic',sans-serif;
+  flex:1; padding:8px; border-radius:6px; cursor:pointer;
+  font-size:12px; font-weight:600; border:1px solid;
+  text-align:center; transition:all .2s; font-family:'Malgun Gothic',sans-serif;
 }
 .sm-btn-ok     { background:rgba(80,140,255,0.15); border-color:rgba(80,140,255,0.45); color:#7eb8f7; }
 .sm-btn-ok:hover { background:rgba(80,140,255,0.3); }
@@ -229,6 +228,10 @@ body { background:#080c18; color:#e0e8ff; font-family:'Malgun Gothic','맑은 �
 <div id="drop">
   <div class="drop-logo">⚙ 신성오토텍 <span>금형위치</span></div>
   <div class="drop-sub">3D SMART FACTORY LOCATION SYSTEM</div>
+  <div class="drop-notice">
+    최초 1회 업로드 후 자동 저장됩니다<br>
+    새 파일로 교체할 때만 재업로드 하세요
+  </div>
   <div id="drop-zone">
     <div class="dz-icon">📂</div>
     <div class="dz-text">엑셀 파일을 드래그하거나 클릭하세요</div>
@@ -251,7 +254,7 @@ body { background:#080c18; color:#e0e8ff; font-family:'Malgun Gothic','맑은 �
     <button class="f-btn reset" id="btnReset">전체보기</button>
   </div>
   <div id="excel-btns">
-    <div class="xl-btn xl-upload" id="btn-upload" title="엑셀 파일 업로드">
+    <div class="xl-btn xl-upload" id="btn-upload" title="새 엑셀 파일로 업데이트">
       <span>⬆</span> 업로드
     </div>
     <div class="xl-btn xl-download" id="btn-download" title="현재 데이터 다운로드">
@@ -282,7 +285,7 @@ body { background:#080c18; color:#e0e8ff; font-family:'Malgun Gothic','맑은 �
 <div id="hint">🖱 드래그:회전 &nbsp;|&nbsp; 스크롤:줌 &nbsp;|&nbsp; 금형 클릭:상세정보 &nbsp;|&nbsp; 빈칸 클릭:등록</div>
 <div id="loading">📊 데이터 불러오는 중...</div>
 
-<!-- ────── 숨긴 업로드 input ────── -->
+<!-- ────── 숨긴 input ────── -->
 <input type="file" id="upload-in" accept=".xlsx,.xls" style="display:none">
 
 <!-- ────── 슬롯 등록 모달 ────── -->
@@ -310,40 +313,30 @@ body { background:#080c18; color:#e0e8ff; font-family:'Malgun Gothic','맑은 �
 'use strict';
 
 // ══════════════════════════════════════════════════════════════
-//  § 1. 실제 레이아웃 맵 기반 섹션 위치 정의
+//  § 1. localStorage 키
 // ══════════════════════════════════════════════════════════════
+var LS_KEY      = 'ssautotech_mold_v2';
+var LS_DATE_KEY = 'ssautotech_mold_date';
 
-// 각 섹션: [이름, x, z, type, rows, cols, shelves]
+// ══════════════════════════════════════════════════════════════
+//  § 2. 섹션 위치 정의
+// ══════════════════════════════════════════════════════════════
 var SECTIONS = [
-  // ── 우측 랙 블록: PQRSTU / HGFEDC (3열×4행) ──
   ['P', 40,-28,'shelf', 2,2,2], ['Q', 44,-28,'shelf', 2,2,2], ['R', 48,-28,'shelf', 2,2,2],
   ['S', 40,-24,'shelf', 2,2,2], ['T', 44,-24,'shelf', 2,2,2], ['U', 48,-24,'shelf', 2,2,2],
   ['H', 40,-20,'shelf', 2,2,2], ['G', 44,-20,'shelf', 2,2,2], ['F', 48,-20,'shelf', 2,2,2],
   ['E', 40,-16,'shelf', 2,2,2], ['D', 44,-16,'shelf', 2,2,2], ['C', 48,-16,'shelf', 2,2,2],
-
-  // ── 우측 랙 블록: BA-BJ (5열×2행) ──
   ['BA',54,-28,'medium',2,2,2], ['BB',59,-28,'medium',2,2,2], ['BC',64,-28,'medium',2,2,2],
   ['BD',69,-28,'medium',2,2,2], ['BE',74,-28,'medium',2,2,2],
   ['BJ',54,-22,'medium',2,2,2], ['BI',59,-22,'medium',2,2,2], ['BH',64,-22,'medium',2,2,2],
   ['BG',69,-22,'medium',2,2,2], ['BF',74,-22,'medium',2,2,2],
-
-  // ── 하단 좌측: B, A ──
   ['B',-58, 5,'shelf', 3,3,2], ['A',-52, 5,'shelf', 3,3,2],
-
-  // ── 하단 중앙좌: K L M N J ──
   ['K',-44, 5,'shelf', 3,3,2], ['L',-39, 5,'shelf', 3,3,2],
-  ['M',-34, 5,'shelf', 3,3,2], ['N',-29, 5,'shelf', 3,3,2],
-  ['J',-24, 5,'shelf', 3,3,2],
-
-  // ── 하단 중앙: O, I ──
+  ['M',-34, 5,'shelf', 3,3,2], ['N',-29, 5,'shelf', 3,3,2], ['J',-24, 5,'shelf', 3,3,2],
   ['O',-10, 5,'shelf', 3,3,2], ['I', -5, 5,'shelf', 3,3,2],
-
-  // ── 중형 랙 ──
   ['중1',-55,18,'medium',3,2,2], ['중2',-50,18,'medium',3,2,2],
   ['중3',-45,18,'medium',3,2,2], ['중4',-40,18,'medium',3,2,2],
   ['중5',-35,18,'medium',3,2,2], ['중6',-30,18,'medium',3,2,2],
-
-  // ── 중파 랙 ──
   ['중파1',-25,18,'medium',3,2,2], ['중파2',-20,18,'medium',3,2,2],
   ['중파3',-15,18,'medium',3,2,2], ['중파4',-10,18,'medium',3,2,2],
   ['중파5', -5,18,'medium',3,2,2],
@@ -352,19 +345,17 @@ var SECTIONS = [
   ['중파10',-35,26,'medium',3,2,2],
 ];
 
-// 슬롯 크기
 var SLOT = {
   shelf:    { w:1.40, d:1.40, h:1.10 },
   medium:   { w:1.65, d:1.65, h:1.40 },
   standing: { w:2.10, d:2.60, h:2.60 },
 };
 
-// 외부 위치 키워드
 var EXT_KW = ['금형창고','경기 화성','경기화성','LG평택','LG B-','MTX창고',
               '금형폐기','반납','사출현장','모베이스','금형실','하이게인','인팩'];
 
 // ══════════════════════════════════════════════════════════════
-//  § 2. 위치 코드 파서
+//  § 3. 위치 코드 파서
 // ══════════════════════════════════════════════════════════════
 function parseLocation(raw) {
   if (!raw) return null;
@@ -383,7 +374,7 @@ function parseLocation(raw) {
 }
 
 // ══════════════════════════════════════════════════════════════
-//  § 3. Three.js 초기화
+//  § 4. Three.js 초기화
 // ══════════════════════════════════════════════════════════════
 var cvDiv = document.getElementById('cv');
 var scene = new THREE.Scene();
@@ -402,26 +393,20 @@ cvDiv.appendChild(renderer.domElement);
 
 var controls = new THREE.OrbitControls(camera, renderer.domElement);
 controls.target.set(5, 0, -5);
-controls.enableDamping = true;
-controls.dampingFactor = 0.07;
-controls.minDistance = 4;
-controls.maxDistance = 250;
+controls.enableDamping = true; controls.dampingFactor = 0.07;
+controls.minDistance = 4; controls.maxDistance = 250;
 controls.maxPolarAngle = Math.PI / 2.05;
 controls.update();
 
-// 조명
 scene.add(new THREE.AmbientLight(0x223080, 0.85));
 var sun = new THREE.DirectionalLight(0xffffff, 0.75);
-sun.position.set(20, 60, 30);
-sun.castShadow = true;
+sun.position.set(20, 60, 30); sun.castShadow = true;
 sun.shadow.mapSize.width = sun.shadow.mapSize.height = 2048;
 sun.shadow.camera.left=-100; sun.shadow.camera.right=100;
 sun.shadow.camera.top=80;    sun.shadow.camera.bottom=-80;
-sun.shadow.camera.far=300;
-scene.add(sun);
-scene.add(Object.assign(new THREE.DirectionalLight(0x1030c0, 0.28), {
-  position: new THREE.Vector3(-30, 20, -20)
-}));
+sun.shadow.camera.far=300; scene.add(sun);
+scene.add(Object.assign(new THREE.DirectionalLight(0x1030c0, 0.28),
+  { position: new THREE.Vector3(-30, 20, -20) }));
 
 window.addEventListener('resize', function() {
   camera.aspect = cvDiv.clientWidth / cvDiv.clientHeight;
@@ -429,29 +414,40 @@ window.addEventListener('resize', function() {
   renderer.setSize(cvDiv.clientWidth, cvDiv.clientHeight);
 });
 
+// 파일 드래그가 브라우저를 이동시키는 것 방지
+window.addEventListener('dragover', function(e) { e.preventDefault(); });
+window.addEventListener('drop',     function(e) { e.preventDefault(); });
+
 // ══════════════════════════════════════════════════════════════
-//  § 4. 재료 헬퍼
+//  § 5. 재료
 // ══════════════════════════════════════════════════════════════
 function mat(hex, rough, met) {
   return new THREE.MeshStandardMaterial({
-    color: hex,
-    roughness: rough !== undefined ? rough : 0.6,
-    metalness: met  !== undefined ? met   : 0.1
+    color:hex, roughness:rough!==undefined?rough:.6, metalness:met!==undefined?met:.1
   });
 }
 var MAT_FLOOR  = mat(0x10162a, .88, .05);
 var MAT_WALL   = mat(0x0b0f1c, .9);
 var MAT_BEAM   = mat(0x1c2540, .9);
-var MAT_SAFETY = new THREE.MeshStandardMaterial({color:0xffd600, emissive:0x664400, emissiveIntensity:.4});
+var MAT_SAFETY = new THREE.MeshStandardMaterial({color:0xffd600,emissive:0x664400,emissiveIntensity:.4});
 var MAT_MOLD   = mat(0x6c7585, .28, .78);
 var MAT_EJEC   = mat(0x384050, .5, .9);
 var MAT_CTRL   = mat(0x18222e, .8);
 var MAT_OFFICE = mat(0x1e2a3a, .8);
-var MAT_YELLOW = mat(0x3a2e00, .9);
-var MAT_GREEN2 = mat(0x0f2010, .9);
+
+// 빈 슬롯 공유 스프라이트 재질 (한 번만 생성 → 성능 절약)
+var EMPTY_TAG_MAT = (function() {
+  var c = document.createElement('canvas');
+  c.width = 64; c.height = 24;
+  var ctx = c.getContext('2d');
+  ctx.font = '8px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillStyle = 'rgba(90,140,220,0.20)';
+  ctx.fillText('+ 등록', 32, 12);
+  return new THREE.SpriteMaterial({ map:new THREE.CanvasTexture(c), transparent:true, depthTest:false });
+}());
 
 // ══════════════════════════════════════════════════════════════
-//  § 5. 지오메트리 헬퍼
+//  § 6. 지오메트리 헬퍼
 // ══════════════════════════════════════════════════════════════
 function addBox(x,y,z, w,h,d, material, shadow) {
   var mesh = new THREE.Mesh(new THREE.BoxGeometry(w,h,d), material);
@@ -459,56 +455,26 @@ function addBox(x,y,z, w,h,d, material, shadow) {
   if (shadow !== false) { mesh.castShadow = true; mesh.receiveShadow = true; }
   scene.add(mesh); return mesh;
 }
-
 function makeSprite(text, color, size) {
-  var c = document.createElement('canvas');
-  c.width=192; c.height=64;
+  var c = document.createElement('canvas'); c.width=192; c.height=64;
   var ctx = c.getContext('2d');
   ctx.font = 'bold '+(size||18)+'px Malgun Gothic,Arial';
   ctx.textAlign='center'; ctx.textBaseline='middle';
   ctx.fillStyle = color||'#7eb8f7';
   ctx.shadowColor='rgba(0,0,0,0.95)'; ctx.shadowBlur=8;
   ctx.fillText(text,96,32);
-  var sp = new THREE.Sprite(new THREE.SpriteMaterial({
-    map: new THREE.CanvasTexture(c), transparent:true, depthTest:false
+  return new THREE.Sprite(new THREE.SpriteMaterial({
+    map:new THREE.CanvasTexture(c), transparent:true, depthTest:false
   }));
-  return sp;
 }
-
 function addLabel(text, x, y, z, color, scaleX, scaleY) {
   var sp = makeSprite(text, color, 18);
-  sp.position.set(x,y,z);
-  sp.scale.set(scaleX||3.5, scaleY||1.4, 1);
+  sp.position.set(x,y,z); sp.scale.set(scaleX||3.5, scaleY||1.4, 1);
   scene.add(sp); return sp;
 }
 
-// 슬롯 네임택 스프라이트 생성
-function makeSlotTag(text) {
-  var c = document.createElement('canvas');
-  c.width = 128; c.height = 36;
-  var ctx = c.getContext('2d');
-  ctx.clearRect(0, 0, 128, 36);
-  if (text) {
-    ctx.font = 'bold 10px Malgun Gothic,Arial';
-    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillStyle = '#7eb8f7';
-    ctx.shadowColor = 'rgba(0,0,0,0.95)'; ctx.shadowBlur = 5;
-    var display = text.length > 16 ? text.slice(0,16)+'…' : text;
-    ctx.fillText(display, 64, 18);
-  } else {
-    ctx.font = '9px Arial';
-    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillStyle = 'rgba(90,140,220,0.22)';
-    ctx.fillText('+ 등록', 64, 18);
-  }
-  var sp = new THREE.Sprite(new THREE.SpriteMaterial({
-    map: new THREE.CanvasTexture(c), transparent:true, depthTest:false
-  }));
-  return sp;
-}
-
 // ══════════════════════════════════════════════════════════════
-//  § 6. 공장 기본 구조
+//  § 7. 공장 기본 구조
 // ══════════════════════════════════════════════════════════════
 function buildFactory() {
   var fl = new THREE.Mesh(new THREE.PlaneGeometry(170,105), MAT_FLOOR);
@@ -523,60 +489,45 @@ function buildFactory() {
   for (var z=-45; z<=48; z+=20) addBox(0, 9.5, z, 170,.4,.4, MAT_BEAM, false);
   for (var x=-80; x<=80; x+=20) addBox(x, 9.5, 0, .4,.4,105, MAT_BEAM, false);
 
-  addBox(0, .015, -2, 120,.02,.15, MAT_SAFETY, false);
-  addBox(0, .015,  2,  38,.02,.15, MAT_SAFETY, false);
+  addBox(0,.015,-2,120,.02,.15,MAT_SAFETY,false);
+  addBox(0,.015, 2, 38,.02,.15,MAT_SAFETY,false);
   for (var ax=-58; ax<=38; ax+=9)
-    addBox(ax, .015, 16, .1,.02,50, MAT_SAFETY, false);
+    addBox(ax,.015,16,.1,.02,50,MAT_SAFETY,false);
 
-  buildZoneAreas();
-  buildMachines();
-  buildAllRacks();
+  buildZoneAreas(); buildMachines(); buildAllRacks();
 }
 
-// ══════════════════════════════════════════════════════════════
-//  § 7. 구역 바닥 표시
-// ══════════════════════════════════════════════════════════════
 function buildZoneAreas() {
-  addBox(-63, .8,-12, 10,1.6,18, MAT_OFFICE, false);
-  addLabel('사무동',  -63,1.7,-12, '#90a0c0',4,1.2);
-
-  addBox(62, .5,-28, 12,1,10, mat(0x0a1a4a,.9), false);
-  addLabel('금형대차', 62,1.1,-28, '#4288f0',4,1.2);
-
-  addBox(-58, .04, 33, 22,.08,20, mat(0x403000,.9), false);
-  addLabel('재고품\n(자재)', -58, .5, 33, '#ffd600', 4, 1.4);
-
-  addBox(-22, .04, 30, 36,.08,24, mat(0x082010,.9), false);
-  addBox(-22, .12, 30, 36,.04,24, mat(0x0a3015,.9), false);
-  addLabel('준2층 단층금형', -22, .8, 30, '#50e896', 7, 1.5);
-
-  addBox(25, .8, 30, 10,1.6,18, MAT_OFFICE, false);
-  addLabel('원재료실', 25,1.7,30, '#90a0c0',4,1.2);
-
-  addBox(60, .04, 28, 24,.08,50, mat(0x3a2800,.9), false);
-  addLabel('부자재 재고품', 60, .6, 28, '#ffd600', 6, 1.4);
-
-  addBox(36, .5, 2, 8,1,14, mat(0x182838,.9), false);
-  addLabel('입고검사', 36, 1.1, 2, '#80b0e0', 3.5, 1.2);
-
-  var eqMat = mat(0x1a2030,.8);
-  addBox(10,.5,8, 4,1,4, eqMat);  addLabel('방전기',  10,.7,8, '#a0b8d0',3,1);
-  addBox(15,.5,8, 4,1,4, eqMat);  addLabel('밀링',    15,.7,8, '#a0b8d0',2.5,1);
-  addBox(20,.5,8, 4,1,4, eqMat);  addLabel('선반',    20,.7,8, '#a0b8d0',2.5,1);
-  addBox(10,.5,14,4,1,4, eqMat);  addLabel('연마기',  10,.7,14,'#a0b8d0',3,1);
-  addBox(15,.5,14,4,1,4, eqMat);  addLabel('초음파세척기',15,.7,14,'#a0b8d0',4.5,1);
-  addBox( 5,.5,8, 4,1,5, mat(0x1a2535,.7));
-  addLabel('PC/책상', 5,.7,8, '#6080a0',3,1);
-
-  addLabel('출입구', -75, .8, 40, '#60a0ff', 4, 1.2);
-  addLabel('리프트',  75, .8, 40, '#60a0ff', 3.5, 1.2);
-  addLabel('계단',    70, .8, 46, '#60a0ff', 3, 1.2);
-
-  addBox(-15, .3, 5, 8,.6,8, mat(0x3a3000,.8), false);
-  addLabel('공 BOX 대차', -15, .8, 5, '#ffd600', 4, 1.1);
-
-  addBox(-25, .04, 2, 12,.04,7, mat(0x0a200a,.9), false);
-  addLabel('금형대기', -25, .5, 2, '#60c060', 4, 1.1);
+  addBox(-63,.8,-12,10,1.6,18,MAT_OFFICE,false);
+  addLabel('사무동',-63,1.7,-12,'#90a0c0',4,1.2);
+  addBox(62,.5,-28,12,1,10,mat(0x0a1a4a,.9),false);
+  addLabel('금형대차',62,1.1,-28,'#4288f0',4,1.2);
+  addBox(-58,.04,33,22,.08,20,mat(0x403000,.9),false);
+  addLabel('재고품\n(자재)',-58,.5,33,'#ffd600',4,1.4);
+  addBox(-22,.04,30,36,.08,24,mat(0x082010,.9),false);
+  addBox(-22,.12,30,36,.04,24,mat(0x0a3015,.9),false);
+  addLabel('준2층 단층금형',-22,.8,30,'#50e896',7,1.5);
+  addBox(25,.8,30,10,1.6,18,MAT_OFFICE,false);
+  addLabel('원재료실',25,1.7,30,'#90a0c0',4,1.2);
+  addBox(60,.04,28,24,.08,50,mat(0x3a2800,.9),false);
+  addLabel('부자재 재고품',60,.6,28,'#ffd600',6,1.4);
+  addBox(36,.5,2,8,1,14,mat(0x182838,.9),false);
+  addLabel('입고검사',36,1.1,2,'#80b0e0',3.5,1.2);
+  var eqMat=mat(0x1a2030,.8);
+  addBox(10,.5,8,4,1,4,eqMat);  addLabel('방전기',  10,.7, 8,'#a0b8d0',3,1);
+  addBox(15,.5,8,4,1,4,eqMat);  addLabel('밀링',    15,.7, 8,'#a0b8d0',2.5,1);
+  addBox(20,.5,8,4,1,4,eqMat);  addLabel('선반',    20,.7, 8,'#a0b8d0',2.5,1);
+  addBox(10,.5,14,4,1,4,eqMat); addLabel('연마기',  10,.7,14,'#a0b8d0',3,1);
+  addBox(15,.5,14,4,1,4,eqMat); addLabel('초음파세척기',15,.7,14,'#a0b8d0',4.5,1);
+  addBox(5,.5,8,4,1,5,mat(0x1a2535,.7));
+  addLabel('PC/책상',5,.7,8,'#6080a0',3,1);
+  addLabel('출입구',-75,.8,40,'#60a0ff',4,1.2);
+  addLabel('리프트', 75,.8,40,'#60a0ff',3.5,1.2);
+  addLabel('계단',   70,.8,46,'#60a0ff',3,1.2);
+  addBox(-15,.3,5,8,.6,8,mat(0x3a3000,.8),false);
+  addLabel('공 BOX 대차',-15,.8,5,'#ffd600',4,1.1);
+  addBox(-25,.04,2,12,.04,7,mat(0x0a200a,.9),false);
+  addLabel('금형대기',-25,.5,2,'#60c060',4,1.1);
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -584,445 +535,409 @@ function buildZoneAreas() {
 // ══════════════════════════════════════════════════════════════
 function buildMachines() {
   var topRow = [
-    { n:12, t:60,   x:-55, w:5,  h:3.0, c:0x0d3d8a },
-    { n:11, t:80,   x:-49, w:5,  h:3.2, c:0x0d3d8a },
-    { n:10, t:80,   x:-43, w:5,  h:3.2, c:0x0d3d8a },
-    { n: 9, t:80,   x:-37, w:5,  h:3.2, c:0x0d3d8a },
-    { n: 8, t:0,    x:-31, w:5,  h:3.4, c:0x0d3d8a },
-    { n: 7, t:60,   x:-25, w:5,  h:3.0, c:0x0d3d8a },
-    { n: 6, t:60,   x:-19, w:5,  h:3.0, c:0x0d3d8a },
-    { n: 5, t:450,  x: -4, w:13, h:5.5, c:0x0a2a6a },
-    { n: 3, t:330,  x: 13, w:10, h:5.0, c:0x0a2a6a },
-    { n: 2, t:330,  x: 25, w:10, h:5.0, c:0x0a2a6a },
-    { n: 1, t:900,  x: 40, w:15, h:6.5, c:0x071840 },
+    {n:12,t:60,x:-55,w:5,h:3.0,c:0x0d3d8a},{n:11,t:80,x:-49,w:5,h:3.2,c:0x0d3d8a},
+    {n:10,t:80,x:-43,w:5,h:3.2,c:0x0d3d8a},{n: 9,t:80,x:-37,w:5,h:3.2,c:0x0d3d8a},
+    {n: 8,t:0, x:-31,w:5,h:3.4,c:0x0d3d8a},{n: 7,t:60,x:-25,w:5,h:3.0,c:0x0d3d8a},
+    {n: 6,t:60,x:-19,w:5,h:3.0,c:0x0d3d8a},{n: 5,t:450,x:-4,w:13,h:5.5,c:0x0a2a6a},
+    {n: 3,t:330,x:13,w:10,h:5.0,c:0x0a2a6a},{n:2,t:330,x:25,w:10,h:5.0,c:0x0a2a6a},
+    {n: 1,t:900,x:40,w:15,h:6.5,c:0x071840},
   ];
-  topRow.forEach(function(m) { drawMachine(m.x, -28, m.w, 8, m.h, m.n, m.t, m.c); });
-
+  topRow.forEach(function(m){drawMachine(m.x,-28,m.w,8,m.h,m.n,m.t,m.c);});
   var midRow = [
-    { n:13, t:100,  x:-50, w:5,  h:3.8, c:0x0d3d8a },
-    { n:14, t:110,  x:-44, w:5,  h:4.0, c:0x0d3d8a },
-    { n:15, t:150,  x:-38, w:5,  h:4.2, c:0x0d3d8a },
-    { n:16, t:150,  x:-32, w:5,  h:4.2, c:0x0d3d8a },
-    { n:17, t:350,  x:-24, w:8,  h:5.2, c:0x0a2a6a },
-    { n:18, t:170,  x:-15, w:5,  h:4.3, c:0x0d3d8a },
-    { n:19, t:280,  x: -6, w:7,  h:4.8, c:0x0a2a6a },
-    { n:20, t:250,  x:  2, w:6,  h:4.5, c:0x0d3d8a },
-    { n:21, t:250,  x:  9, w:6,  h:4.5, c:0x0d3d8a },
-    { n:22, t:250,  x: 16, w:6,  h:4.5, c:0x0d3d8a },
-    { n:23, t:250,  x: 23, w:6,  h:4.5, c:0x0d3d8a },
-    { n:24, t:60,   x: 30, w:5,  h:3.0, c:0x0d3d8a },
+    {n:13,t:100,x:-50,w:5,h:3.8,c:0x0d3d8a},{n:14,t:110,x:-44,w:5,h:4.0,c:0x0d3d8a},
+    {n:15,t:150,x:-38,w:5,h:4.2,c:0x0d3d8a},{n:16,t:150,x:-32,w:5,h:4.2,c:0x0d3d8a},
+    {n:17,t:350,x:-24,w:8,h:5.2,c:0x0a2a6a},{n:18,t:170,x:-15,w:5,h:4.3,c:0x0d3d8a},
+    {n:19,t:280,x:-6, w:7,h:4.8,c:0x0a2a6a},{n:20,t:250,x:2,  w:6,h:4.5,c:0x0d3d8a},
+    {n:21,t:250,x:9,  w:6,h:4.5,c:0x0d3d8a},{n:22,t:250,x:16, w:6,h:4.5,c:0x0d3d8a},
+    {n:23,t:250,x:23, w:6,h:4.5,c:0x0d3d8a},{n:24,t:60, x:30, w:5,h:3.0,c:0x0d3d8a},
   ];
-  midRow.forEach(function(m) { drawMachine(m.x, -14, m.w, 7, m.h, m.n, m.t, m.c); });
-
-  var hFrameX = [-45,-39,-33,-27,-20,-12,-3, 5,12,19,26];
-  hFrameX.forEach(function(hx) {
-    var hm = mat(0x1b5e20,.6,.3);
-    addBox(hx, 1.8,-8, 1.5,3.5,1.5, hm);
-    addBox(hx, 3.2,-8, 1.8,.2,1.5, hm);
+  midRow.forEach(function(m){drawMachine(m.x,-14,m.w,7,m.h,m.n,m.t,m.c);});
+  var hFrameX=[-45,-39,-33,-27,-20,-12,-3,5,12,19,26];
+  hFrameX.forEach(function(hx){
+    var hm=mat(0x1b5e20,.6,.3);
+    addBox(hx,1.8,-8,1.5,3.5,1.5,hm); addBox(hx,3.2,-8,1.8,.2,1.5,hm);
   });
 }
-
-function drawMachine(cx, cz, w, d, h, num, ton, color) {
-  var bm = mat(color,.5,.4);
-  var am = mat(0x1565c0,.38,.58);
-  addBox(cx, h/2,   cz,      w,   h,   d,   bm);
-  addBox(cx, h+.35, cz,      w*.5,.7,  d*.5,am);
-  addBox(cx, h*.42, cz-d*.4, .28, h*.55,d*.2,MAT_CTRL);
+function drawMachine(cx,cz,w,d,h,num,ton,color){
+  var bm=mat(color,.5,.4); var am=mat(0x1565c0,.38,.58);
+  addBox(cx,h/2,cz,w,h,d,bm); addBox(cx,h+.35,cz,w*.5,.7,d*.5,am);
+  addBox(cx,h*.42,cz-d*.4,.28,h*.55,d*.2,MAT_CTRL);
   addBox(cx+w*.35,h*.5,cz-d*.32,.16,h*.42,d*.2,MAT_CTRL);
-  var el = mat(0x00e5ff,.3,.1);
-  var cy = new THREE.Mesh(new THREE.CylinderGeometry(.1,.1,.4,8), el);
-  cy.position.set(cx, h+.8, cz); cy.castShadow=true; scene.add(cy);
-  var tonStr = ton > 0 ? num+'호기\n'+ton+'T' : num+'호기';
-  var lbl = makeSprite(tonStr.replace('\n',' '), h>5?'#42a5f5':'#5ba8d8', 13);
-  lbl.position.set(cx, h+1.7, cz);
-  lbl.scale.set(h>4?5.5:4, 1.5, 1); scene.add(lbl);
+  var cy=new THREE.Mesh(new THREE.CylinderGeometry(.1,.1,.4,8),mat(0x00e5ff,.3,.1));
+  cy.position.set(cx,h+.8,cz); cy.castShadow=true; scene.add(cy);
+  var lbl=makeSprite((ton>0?num+'호기 '+ton+'T':num+'호기'),h>5?'#42a5f5':'#5ba8d8',13);
+  lbl.position.set(cx,h+1.7,cz); lbl.scale.set(h>4?5.5:4,1.5,1); scene.add(lbl);
 }
 
 // ══════════════════════════════════════════════════════════════
 //  § 9. 랙 전체 구축
 // ══════════════════════════════════════════════════════════════
-var slotReg      = {};   // locationKey → entry
-var allSlots     = [];   // 모든 슬롯 entry 배열
-var allSlotMeshes= [];   // 레이캐스팅용 메시 배열
-var meshToSlot   = {};   // mesh.uuid → entry
+var slotReg       = {};
+var allSlots      = [];
+var allSlotMeshes = [];
+var meshToSlot    = {};
 
 function buildAllRacks() {
-  SECTIONS.forEach(function(def) {
-    buildSection(def[0], def[1], def[2], def[3], def[4], def[5], def[6]);
+  SECTIONS.forEach(function(def){
+    buildSection(def[0],def[1],def[2],def[3],def[4],def[5],def[6]);
   });
 }
 
-function buildSection(name, sx, sz, type, rows, cols, shelves) {
-  var sl = SLOT[type];
-  var tw = cols*sl.w + (cols-1)*.07;
-  var td = rows*sl.d + (rows-1)*.07;
-  var th = shelves*sl.h + .28;
+function buildSection(name,sx,sz,type,rows,cols,shelves) {
+  var sl=SLOT[type];
+  var tw=cols*sl.w+(cols-1)*.07, td=rows*sl.d+(rows-1)*.07, th=shelves*sl.h+.28;
+  var gcol=(type==='standing')?0x1b5e20:(type==='medium')?0x2e7d32:0x388e3c;
+  var gm=mat(gcol,.6,.22); var ph=th+.12; var PR=.06;
 
-  var gcol = (type==='standing') ? 0x1b5e20 : (type==='medium') ? 0x2e7d32 : 0x388e3c;
-  var gm   = mat(gcol, .6, .22);
-  var ph   = th + .12;
-  var PR   = .06;
-
-  // 코너 포스트
-  [[0,0],[tw,0],[0,td],[tw,td]].forEach(function(d) {
-    addBox(sx+d[0], ph/2, sz+d[1], PR*2, ph, PR*2, gm);
+  [[0,0],[tw,0],[0,td],[tw,td]].forEach(function(d){
+    addBox(sx+d[0],ph/2,sz+d[1],PR*2,ph,PR*2,gm);
   });
-
-  // 수평 빔 & 선반
-  var BT = .065;
-  for (var s=0; s<=shelves; s++) {
-    var by = s*sl.h + .045;
-    addBox(sx+tw/2, by, sz,     tw, BT, BT, gm, false);
-    addBox(sx+tw/2, by, sz+td,  tw, BT, BT, gm, false);
-    addBox(sx,      by, sz+td/2,BT, BT, td, gm, false);
-    addBox(sx+tw,   by, sz+td/2,BT, BT, td, gm, false);
-    if (s < shelves) {
-      addBox(sx+tw/2, by+.042, sz+td/2,
-             tw-.02, .042, td-.02, mat(gcol-.08,.75,.05), false);
-    }
+  var BT=.065;
+  for (var s=0;s<=shelves;s++){
+    var by=s*sl.h+.045;
+    addBox(sx+tw/2,by,sz,    tw,BT,BT,gm,false);
+    addBox(sx+tw/2,by,sz+td, tw,BT,BT,gm,false);
+    addBox(sx,     by,sz+td/2,BT,BT,td,gm,false);
+    addBox(sx+tw,  by,sz+td/2,BT,BT,td,gm,false);
+    if (s<shelves) addBox(sx+tw/2,by+.042,sz+td/2,tw-.02,.042,td-.02,mat(gcol-.08,.75,.05),false);
   }
+  var lc=(type==='medium')?'#81c784':'#aed6f1';
+  var lbl=makeSprite(name,lc,17);
+  lbl.position.set(sx+tw/2,th+.9,sz+td/2); lbl.scale.set(2.8,1.2,1); scene.add(lbl);
 
-  // 섹션 레이블
-  var lc = (type==='medium') ? '#81c784' : '#aed6f1';
-  var lbl = makeSprite(name, lc, 17);
-  lbl.position.set(sx+tw/2, th+.9, sz+td/2);
-  lbl.scale.set(2.8, 1.2, 1); scene.add(lbl);
+  for (var r=0;r<rows;r++) {
+    for (var c=0;c<cols;c++) {
+      for (var sh=0;sh<shelves;sh++) {
+        var mx=sx+c*(sl.w+.07)+sl.w/2;
+        var mz=sz+r*(sl.d+.07)+sl.d/2;
+        var my=sh*sl.h+sl.h/2+.10;
+        var mw,mh,md;
+        if (type==='standing'){mw=sl.w*.56;mh=sl.h*.86;md=sl.d*.5;}
+        else                  {mw=sl.w*.70;mh=sl.h*.60;md=sl.d*.70;}
 
-  // 금형 슬롯 메쉬 + 네임택 생성
-  for (var r=0; r<rows; r++) {
-    for (var c=0; c<cols; c++) {
-      for (var sh=0; sh<shelves; sh++) {
-        var mx = sx + c*(sl.w+.07) + sl.w/2;
-        var mz = sz + r*(sl.d+.07) + sl.d/2;
-        var my = sh*sl.h + sl.h/2 + .10;
-        var mw, mh, md;
-        if (type==='standing') { mw=sl.w*.56; mh=sl.h*.86; md=sl.d*.5; }
-        else                   { mw=sl.w*.70; mh=sl.h*.60; md=sl.d*.70; }
-
-        var moldMesh = new THREE.Mesh(
-          new THREE.BoxGeometry(mw, mh, md), MAT_MOLD.clone()
-        );
-        moldMesh.position.set(mx, my, mz);
-        moldMesh.castShadow = true; moldMesh.receiveShadow = true;
+        var moldMesh=new THREE.Mesh(new THREE.BoxGeometry(mw,mh,md),MAT_MOLD.clone());
+        moldMesh.position.set(mx,my,mz); moldMesh.castShadow=true; moldMesh.receiveShadow=true;
         scene.add(moldMesh);
 
-        // 이젝터 핀
-        var ej = new THREE.Mesh(
-          new THREE.CylinderGeometry(mw*.09, mw*.09, .035, 8), MAT_EJEC
-        );
-        ej.rotation.x = Math.PI/2;
-        ej.position.set(mx, my+mh*.12, mz-md/2-.004);
-        scene.add(ej);
+        var ej=new THREE.Mesh(new THREE.CylinderGeometry(mw*.09,mw*.09,.035,8),MAT_EJEC);
+        ej.rotation.x=Math.PI/2; ej.position.set(mx,my+mh*.12,mz-md/2-.004); scene.add(ej);
 
-        // 네임택 스프라이트
-        var tag = makeSlotTag('');
-        tag.position.set(mx, my + mh/2 + 0.25, mz);
-        tag.scale.set(sl.w * 0.90, sl.h * 0.20, 1);
+        // 빈 슬롯은 공유 재질 스프라이트 사용 (텍스처 1개 절약)
+        var tag=new THREE.Sprite(EMPTY_TAG_MAT);
+        tag.position.set(mx,my+mh/2+0.25,mz);
+        tag.scale.set(sl.w*.90,sl.h*.20,1);
         scene.add(tag);
 
-        // 슬롯 엔트리 등록
-        var wp = new THREE.Vector3(mx, my, mz);
-        var k4 = name+'-'+(r+1)+'-'+(c+1)+'-'+(sh+1);
-        var k3 = name+'-'+(r+1)+'-'+(c+1);
-        var entry = {
-          mesh:      moldMesh,
-          worldPos:  wp,
-          sprite:    tag,
-          moldData:  null,
-          locKey:    k4,
-          baseColor: 0x6c7585
+        var wp=new THREE.Vector3(mx,my,mz);
+        var k4=name+'-'+(r+1)+'-'+(c+1)+'-'+(sh+1);
+        var k3=name+'-'+(r+1)+'-'+(c+1);
+        var entry={
+          mesh:moldMesh, worldPos:wp, sprite:tag,
+          moldData:null, locKey:k4, baseColor:0x6c7585,
+          spriteIsShared:true
         };
-        slotReg[k4] = entry;
-        if (!slotReg[k3]) slotReg[k3] = entry;
+        slotReg[k4]=entry;
+        if (!slotReg[k3]) slotReg[k3]=entry;
         allSlots.push(entry);
         allSlotMeshes.push(moldMesh);
-        meshToSlot[moldMesh.uuid] = entry;
+        meshToSlot[moldMesh.uuid]=entry;
       }
     }
   }
 }
 
 // ══════════════════════════════════════════════════════════════
-//  § 10. 2층 (준2층) 그룹
+//  § 10. 2층
 // ══════════════════════════════════════════════════════════════
-var f2g = new THREE.Group();
-scene.add(f2g); f2g.visible = false;
-var f2built = false;
-
-function build2F() {
-  if (f2built) return; f2built = true;
-  var yOff = 6.5;
-  var pf = new THREE.Mesh(new THREE.PlaneGeometry(90,55), mat(0x0e1620,.85));
+var f2g=new THREE.Group(); scene.add(f2g); f2g.visible=false; var f2built=false;
+function build2F(){
+  if(f2built)return; f2built=true;
+  var yOff=6.5;
+  var pf=new THREE.Mesh(new THREE.PlaneGeometry(90,55),mat(0x0e1620,.85));
   pf.rotation.x=-Math.PI/2; pf.position.set(-5,yOff,-5); pf.receiveShadow=true; f2g.add(pf);
-  var rm = mat(0x8090b0,.6,.5);
+  var rm=mat(0x8090b0,.6,.5);
   [[-5,yOff+.5,-32.5,90,.1,.1],[-5,yOff+.5,22.5,90,.1,.1],
    [-50,yOff+.5,-5,.1,.1,55],[40,yOff+.5,-5,.1,.1,55]].forEach(function(d){
     var mm=new THREE.Mesh(new THREE.BoxGeometry(d[3],d[4],d[5]),rm);
     mm.position.set(d[0],d[1],d[2]); f2g.add(mm);
   });
-  for (var s=0; s<7; s++) {
+  for(var s=0;s<7;s++){
     var sm=new THREE.Mesh(new THREE.BoxGeometry(3,.38,1.1),mat(0x252f40,.7));
-    sm.position.set(42, .18+s*.88, -25+s*1.6); f2g.add(sm);
+    sm.position.set(42,.18+s*.88,-25+s*1.6); f2g.add(sm);
   }
-  var mm2 = mat(0x7a8898,.28,.75);
-  for (var i=0; i<16; i++) {
-    var bx=new THREE.Mesh(
-      new THREE.BoxGeometry(1.8, 3.2+Math.random()*.9, 2.2+Math.random()*.5),
-      mm2.clone()
-    );
-    bx.position.set(-44+i*5.5, yOff+2.1, -15+Math.random()*5);
-    bx.castShadow=true; f2g.add(bx);
+  var mm2=mat(0x7a8898,.28,.75);
+  for(var i=0;i<16;i++){
+    var bx=new THREE.Mesh(new THREE.BoxGeometry(1.8,3.2+Math.random()*.9,2.2+Math.random()*.5),mm2.clone());
+    bx.position.set(-44+i*5.5,yOff+2.1,-15+Math.random()*5); bx.castShadow=true; f2g.add(bx);
   }
 }
 
 // ══════════════════════════════════════════════════════════════
 //  § 11. 하이라이트
 // ══════════════════════════════════════════════════════════════
-var HL = { mesh:null, light:null, aura:null };
+var HL={mesh:null,light:null,aura:null};
 
-function clearHL() {
-  if (HL.mesh) {
-    var hlEntry = meshToSlot[HL.mesh.uuid];
-    var baseColor = (hlEntry && hlEntry.baseColor !== undefined) ? hlEntry.baseColor : 0x6c7585;
-    HL.mesh.material.color.set(baseColor);
+function clearHL(){
+  if(HL.mesh){
+    var hlEntry=meshToSlot[HL.mesh.uuid];
+    HL.mesh.material.color.set(hlEntry?hlEntry.baseColor:0x6c7585);
     HL.mesh.material.emissive.set(0x000000);
-    HL.mesh.material.emissiveIntensity = 0;
-    HL.mesh = null;
+    HL.mesh.material.emissiveIntensity=0;
+    HL.mesh=null;
   }
-  if (HL.light) { scene.remove(HL.light); HL.light = null; }
-  if (HL.aura)  { scene.remove(HL.aura);  HL.aura  = null; }
+  if(HL.light){scene.remove(HL.light);HL.light=null;}
+  if(HL.aura) {scene.remove(HL.aura); HL.aura=null;}
 }
-
-function doHighlight(entry) {
+function doHighlight(entry){
   clearHL();
-  var pos = entry.worldPos;
-  HL.mesh = entry.mesh;
+  HL.mesh=entry.mesh;
   HL.mesh.material.color.set(0xff6600);
   HL.mesh.material.emissive.set(0xff3300);
-  HL.mesh.material.emissiveIntensity = .8;
-
-  HL.light = new THREE.PointLight(0xff6600, 7, 13);
-  HL.light.position.copy(pos).add(new THREE.Vector3(0,1.3,0));
+  HL.mesh.material.emissiveIntensity=.8;
+  HL.light=new THREE.PointLight(0xff6600,7,13);
+  HL.light.position.copy(entry.worldPos).add(new THREE.Vector3(0,1.3,0));
   scene.add(HL.light);
-
-  HL.aura = new THREE.Mesh(
-    new THREE.SphereGeometry(1.5, 12, 8),
-    new THREE.MeshStandardMaterial({
-      color:0xff4400, transparent:true, opacity:.14,
-      emissive:0xff3300, emissiveIntensity:.5
-    })
+  HL.aura=new THREE.Mesh(
+    new THREE.SphereGeometry(1.5,12,8),
+    new THREE.MeshStandardMaterial({color:0xff4400,transparent:true,opacity:.14,emissive:0xff3300,emissiveIntensity:.5})
   );
-  HL.aura.position.copy(pos); scene.add(HL.aura);
+  HL.aura.position.copy(entry.worldPos); scene.add(HL.aura);
 }
 
 // ══════════════════════════════════════════════════════════════
-//  § 11.5. 슬롯 관리 (네임택 / 매핑 / 클릭 처리)
+//  § 12. 슬롯 관리 (네임택 / 매핑 / 클릭)
 // ══════════════════════════════════════════════════════════════
 
-// 슬롯 네임택 텍스트 갱신
+// 슬롯 스프라이트 업데이트 (공유 재질 ↔ 개별 재질)
 function updateSlotSprite(entry, text) {
   if (!entry.sprite) return;
-  var c = document.createElement('canvas');
-  c.width = 128; c.height = 36;
-  var ctx = c.getContext('2d');
-  ctx.clearRect(0, 0, 128, 36);
-  if (text) {
-    ctx.font = 'bold 10px Malgun Gothic,Arial';
-    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillStyle = '#7eb8f7';
-    ctx.shadowColor = 'rgba(0,0,0,0.95)'; ctx.shadowBlur = 5;
-    var display = text.length > 16 ? text.slice(0,16)+'…' : text;
-    ctx.fillText(display, 64, 18);
-  } else {
-    ctx.font = '9px Arial';
-    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillStyle = 'rgba(90,140,220,0.22)';
-    ctx.fillText('+ 등록', 64, 18);
+  if (!text) {
+    // 빈 슬롯 → 공유 재질로 복원 (texture 생성 없음)
+    if (!entry.spriteIsShared) {
+      var old=entry.sprite.material;
+      entry.sprite.material=EMPTY_TAG_MAT;
+      if(old.map) old.map.dispose();
+      old.dispose();
+      entry.spriteIsShared=true;
+    }
+    return;
   }
-  var oldMap = entry.sprite.material.map;
-  entry.sprite.material.map = new THREE.CanvasTexture(c);
-  entry.sprite.material.needsUpdate = true;
-  if (oldMap) oldMap.dispose();
+  // 점유 슬롯 → 개별 텍스처 생성
+  var c=document.createElement('canvas'); c.width=128; c.height=36;
+  var ctx=c.getContext('2d');
+  ctx.clearRect(0,0,128,36);
+  ctx.font='bold 10px Malgun Gothic,Arial';
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillStyle='#7eb8f7';
+  ctx.shadowColor='rgba(0,0,0,0.95)'; ctx.shadowBlur=5;
+  ctx.fillText(text.length>16?text.slice(0,16)+'…':text, 64,18);
+  var newMat=new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),transparent:true,depthTest:false});
+  if(!entry.spriteIsShared){
+    entry.sprite.material.map && entry.sprite.material.map.dispose();
+    entry.sprite.material.dispose();
+  }
+  entry.sprite.material=newMat;
+  entry.spriteIsShared=false;
 }
 
-// 엑셀 데이터 → 슬롯 매핑
+// 엑셀 데이터 → 슬롯 매핑 (배치 처리로 UI 프리즈 방지)
 function assignMoldsToSlots() {
-  // 전체 초기화
-  allSlots.forEach(function(entry) {
-    entry.moldData  = null;
-    entry.baseColor = 0x6c7585;
+  // 1단계: 전체 초기화 (공유 재질 → 매우 빠름)
+  allSlots.forEach(function(entry){
+    entry.moldData=null; entry.baseColor=0x6c7585;
     entry.mesh.material.color.set(0x6c7585);
-    updateSlotSprite(entry, '');
-  });
-  // 금형 데이터 → 슬롯 할당
-  moldData.forEach(function(mold) {
-    if (!mold.parsed || mold.parsed.type !== 'int') return;
-    var p = mold.parsed;
-    var k4 = p.sec+'-'+p.r+'-'+p.c+'-'+p.sh;
-    var k3 = p.sec+'-'+p.r+'-'+p.c;
-    var entry = slotReg[k4] || slotReg[k3];
-    if (entry && !entry.moldData) {
-      entry.moldData  = mold;
-      entry.baseColor = 0x5a7090; // 점유 슬롯 색상
-      entry.mesh.material.color.set(0x5a7090);
-      updateSlotSprite(entry, mold.moldNum);
+    if(!entry.spriteIsShared){
+      entry.sprite.material.map && entry.sprite.material.map.dispose();
+      entry.sprite.material.dispose();
+      entry.sprite.material=EMPTY_TAG_MAT;
+      entry.spriteIsShared=true;
     }
   });
+
+  // 2단계: 점유 슬롯 수집 (색상 즉시 적용)
+  var occupied=[];
+  moldData.forEach(function(mold){
+    if(!mold.parsed||mold.parsed.type!=='int') return;
+    var p=mold.parsed;
+    var k4=p.sec+'-'+p.r+'-'+p.c+'-'+p.sh;
+    var k3=p.sec+'-'+p.r+'-'+p.c;
+    var entry=slotReg[k4]||slotReg[k3];
+    if(entry&&!entry.moldData){
+      entry.moldData=mold; entry.baseColor=0x5a7090;
+      entry.mesh.material.color.set(0x5a7090);
+      occupied.push({entry:entry, text:mold.moldNum});
+    }
+  });
+
+  // 3단계: 스프라이트 텍스처는 rAF 배치 처리 (30개/프레임)
+  var idx=0;
+  function processBatch(){
+    var end=Math.min(idx+30, occupied.length);
+    for(;idx<end;idx++) updateSlotSprite(occupied[idx].entry, occupied[idx].text);
+    if(idx<occupied.length) requestAnimationFrame(processBatch);
+  }
+  if(occupied.length) requestAnimationFrame(processBatch);
 }
 
-// 3D 슬롯 클릭 처리
-function onSlotClick(entry) {
-  if (entry.moldData) {
-    // 점유 슬롯 → 상세정보 표시
-    var m = entry.moldData;
+// 3D 슬롯 클릭
+function onSlotClick(entry){
+  if(entry.moldData){
+    var m=entry.moldData;
     var badge;
-    if (!m.location || m.location==='undefined')
-      badge='<span class="r-loc none">위치 미등록</span>';
-    else if (m.parsed && m.parsed.type==='int')
-      badge='<span class="r-loc">'+esc(m.location)+'</span>';
-    else
-      badge='<span class="r-loc ext">'+esc(m.location)+'</span>';
-    var pnHtml = m.custPN ? '<div class="r-pn">P/N: '+esc(m.custPN)+'</div>' : '';
-    document.getElementById('results-area').innerHTML =
+    if(!m.location||m.location==='undefined') badge='<span class="r-loc none">위치 미등록</span>';
+    else if(m.parsed&&m.parsed.type==='int')  badge='<span class="r-loc">'+esc(m.location)+'</span>';
+    else                                       badge='<span class="r-loc ext">'+esc(m.location)+'</span>';
+    var pnHtml=m.custPN?'<div class="r-pn">P/N: '+esc(m.custPN)+'</div>':'';
+    document.getElementById('results-area').innerHTML=
       '<div class="r-header">3D 클릭 선택</div>'
-      + '<div class="r-item sel">'
-      + '<div class="r-top"><div class="r-num">'+esc(m.moldNum)+'</div>'+pnHtml+'</div>'
-      + badge
-      + '<div class="r-info">'+esc(m.partName||'-')+' · '+esc(m.customer||'-')+'</div>'
-      + '</div>';
-    curResults = [m]; selIdx = 0;
-    showDetail(m);
-    doHighlight(entry);
-    flyTo(entry.worldPos);
+      +'<div class="r-item sel">'
+      +'<div class="r-top"><div class="r-num">'+esc(m.moldNum)+'</div>'+pnHtml+'</div>'
+      +badge+'<div class="r-info">'+esc(m.partName||'-')+' · '+esc(m.customer||'-')+'</div></div>';
+    curResults=[m]; selIdx=0;
+    showDetail(m); doHighlight(entry); flyTo(entry.worldPos);
   } else {
-    // 빈 슬롯 → 등록 모달
     showInputModal(entry);
   }
 }
 
 // 빈 슬롯 등록 모달
-var currentModalSlot = null;
-var currentModalMold = null;
+var currentModalSlot=null, currentModalMold=null;
 
-function showInputModal(entry) {
-  currentModalSlot = entry;
-  currentModalMold = null;
-  document.getElementById('sm-loc-text').textContent = '슬롯 위치: ' + entry.locKey;
-  document.getElementById('slot-modal-input').value = '';
-  var ac = document.getElementById('slot-modal-ac');
-  ac.style.display = 'none'; ac.innerHTML = '';
-  document.getElementById('modal-backdrop').style.display = 'block';
-  document.getElementById('slot-modal').style.display = 'block';
-  setTimeout(function() { document.getElementById('slot-modal-input').focus(); }, 60);
+function showInputModal(entry){
+  currentModalSlot=entry; currentModalMold=null;
+  document.getElementById('sm-loc-text').textContent='슬롯 위치: '+entry.locKey;
+  document.getElementById('slot-modal-input').value='';
+  var ac=document.getElementById('slot-modal-ac');
+  ac.style.display='none'; ac.innerHTML='';
+  document.getElementById('modal-backdrop').style.display='block';
+  document.getElementById('slot-modal').style.display='block';
+  setTimeout(function(){document.getElementById('slot-modal-input').focus();},60);
 }
-
-function closeInputModal() {
-  document.getElementById('modal-backdrop').style.display = 'none';
-  document.getElementById('slot-modal').style.display = 'none';
-  currentModalSlot = null;
-  currentModalMold = null;
+function closeInputModal(){
+  document.getElementById('modal-backdrop').style.display='none';
+  document.getElementById('slot-modal').style.display='none';
+  currentModalSlot=null; currentModalMold=null;
 }
-
-function assignMoldToSlot(slot, mold) {
-  mold.location = slot.locKey;
-  mold.parsed   = parseLocation(slot.locKey);
-  // 전체 재매핑 (중복 방지)
+function assignMoldToSlot(slot,mold){
+  mold.location=slot.locKey; mold.parsed=parseLocation(slot.locKey);
   assignMoldsToSlots();
-  showDetail(mold);
-  doHighlight(slot);
-  flyTo(slot.worldPos);
+  saveToStorage();
+  showDetail(mold); doHighlight(slot); flyTo(slot.worldPos);
   closeInputModal();
 }
 
-// 레이캐스터 & 마우스
-var raycaster    = new THREE.Raycaster();
-var mouseDownPos = { x:0, y:0 };
-var lastHoverTime = 0;
+// 레이캐스터
+var raycaster=new THREE.Raycaster();
+var mouseDownPos={x:0,y:0};
+var lastHoverTime=0;
 
-function onCanvasClick(e) {
-  var rect = renderer.domElement.getBoundingClientRect();
-  var mouse = new THREE.Vector2(
-    ((e.clientX - rect.left) / rect.width)  * 2 - 1,
-    -((e.clientY - rect.top) / rect.height) * 2 + 1
+function onCanvasClick(e){
+  var rect=renderer.domElement.getBoundingClientRect();
+  var mouse=new THREE.Vector2(
+    ((e.clientX-rect.left)/rect.width)*2-1,
+    -((e.clientY-rect.top)/rect.height)*2+1
   );
-  raycaster.setFromCamera(mouse, camera);
-  var hits = raycaster.intersectObjects(allSlotMeshes);
-  if (hits.length > 0) {
-    var entry = meshToSlot[hits[0].object.uuid];
-    if (entry) onSlotClick(entry);
-  }
+  raycaster.setFromCamera(mouse,camera);
+  var hits=raycaster.intersectObjects(allSlotMeshes);
+  if(hits.length>0){var entry=meshToSlot[hits[0].object.uuid]; if(entry) onSlotClick(entry);}
 }
 
 // ══════════════════════════════════════════════════════════════
-//  § 12. 카메라 애니메이션
+//  § 13. 카메라
 // ══════════════════════════════════════════════════════════════
-var DEF_CAM = { x:10, y:75, z:80 };
-var DEF_TGT = { x: 5, y: 0, z:-5 };
+var DEF_CAM={x:10,y:75,z:80}, DEF_TGT={x:5,y:0,z:-5};
 
-function flyTo(pos) {
-  gsap.to(controls.target, { x:pos.x, y:pos.y, z:pos.z, duration:1.3, ease:'power3.inOut' });
-  gsap.to(camera.position, {
-    x:pos.x+5, y:pos.y+9, z:pos.z+13,
-    duration:1.3, ease:'power3.inOut'
-  });
+function flyTo(pos){
+  gsap.to(controls.target,{x:pos.x,y:pos.y,z:pos.z,duration:1.3,ease:'power3.inOut'});
+  gsap.to(camera.position,{x:pos.x+5,y:pos.y+9,z:pos.z+13,duration:1.3,ease:'power3.inOut'});
 }
-
-function resetCam() {
-  gsap.to(camera.position, { x:DEF_CAM.x,y:DEF_CAM.y,z:DEF_CAM.z, duration:1.2, ease:'power2.inOut' });
-  gsap.to(controls.target, { x:DEF_TGT.x,y:DEF_TGT.y,z:DEF_TGT.z, duration:1.2, ease:'power2.inOut' });
+function resetCam(){
+  gsap.to(camera.position,{x:DEF_CAM.x,y:DEF_CAM.y,z:DEF_CAM.z,duration:1.2,ease:'power2.inOut'});
+  gsap.to(controls.target,{x:DEF_TGT.x,y:DEF_TGT.y,z:DEF_TGT.z,duration:1.2,ease:'power2.inOut'});
   clearHL(); deselectAll();
 }
-
-function switchFloor(f) {
-  document.getElementById('btn1').classList.toggle('active', f===1);
-  document.getElementById('btn2').classList.toggle('active', f===2);
-  if (f===2) {
+function switchFloor(f){
+  document.getElementById('btn1').classList.toggle('active',f===1);
+  document.getElementById('btn2').classList.toggle('active',f===2);
+  if(f===2){
     build2F(); f2g.visible=true;
     gsap.to(camera.position,{x:0,y:50,z:40,duration:1.1,ease:'power2.inOut'});
     gsap.to(controls.target,{x:0,y:7,z:-5,duration:1.1,ease:'power2.inOut'});
-  } else {
-    f2g.visible=false; resetCam();
-  }
+  } else { f2g.visible=false; resetCam(); }
 }
 
 // ══════════════════════════════════════════════════════════════
-//  § 13. 데이터
+//  § 14. 데이터 (Excel + localStorage)
 // ══════════════════════════════════════════════════════════════
-var moldData   = [];
-var curResults = [];
-var selIdx     = -1;
+var moldData=[], curResults=[], selIdx=-1;
 
-function loadExcel(file) {
+// localStorage 저장
+function saveToStorage(){
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify(moldData));
+    localStorage.setItem(LS_DATE_KEY, new Date().toLocaleDateString('ko-KR',
+      {year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}));
+  } catch(e){ console.warn('저장 실패:', e.message); }
+}
+
+// localStorage 불러오기 (페이지 로드 시)
+function loadFromStorage(){
+  try {
+    var saved=localStorage.getItem(LS_KEY);
+    if(!saved) return false;
+    var data=JSON.parse(saved);
+    if(!data||!data.length) return false;
+    moldData=data;
+    // parsed 필드 복원
+    moldData.forEach(function(m){ if(!m.parsed) m.parsed=parseLocation(m.location); });
+    var savedDate=localStorage.getItem(LS_DATE_KEY)||'알 수 없음';
+    document.getElementById('drop').style.display='none';
+    document.getElementById('results-area').innerHTML=
+      '<div class="r-header">총 '+moldData.length+'개 금형'
+      +'<br><span style="color:rgba(255,180,60,0.6);font-size:10px">마지막 업데이트: '+savedDate
+      +'</span><br><span style="color:rgba(255,255,255,0.25);font-size:10px">'
+      +'새 파일 반영 시 ⬆ 업로드 버튼 사용</span></div>';
+    assignMoldsToSlots();
+    return true;
+  } catch(e){ return false; }
+}
+
+// Excel 파일 읽기
+function loadExcel(file){
   document.getElementById('loading').style.display='block';
-  var rd = new FileReader();
-  rd.onload = function(e) {
+  var rd=new FileReader();
+  rd.onload=function(e){
     try {
-      var wb   = XLSX.read(e.target.result, { type:'binary' });
-      var ws   = wb.Sheets[wb.SheetNames[0]];
-      var rows = XLSX.utils.sheet_to_json(ws);
-      moldData = rows.map(function(row) {
+      var wb=XLSX.read(e.target.result,{type:'binary'});
+      var ws=wb.Sheets[wb.SheetNames[0]];
+      var rows=XLSX.utils.sheet_to_json(ws);
+      moldData=rows.map(function(row){
         return {
-          moldNum:   String(row['금형번호']     || ''),
-          location:  String(row['금형위치']     || ''),
-          parsed:    parseLocation(row['금형위치']),
-          customer:  String(row['고객사명']     || ''),
-          partName:  String(row['부품명']       || ''),
-          partCode:  String(row['부품코드']     || ''),
-          custPN:    String(row['고객사 P/N']   || ''),
-          model:     String(row['품종(MODEL)']  || ''),
-          grade:     String(row['금형등급']     || ''),
-          category:  String(row['금형구분']     || ''),
-          totalShot: Number(row['금형보증SHOT수'] || 0),
-          usedShot:  Number(row['금형사용SHOT수'] || 0),
+          moldNum:  String(row['금형번호']     ||''),
+          location: String(row['금형위치']     ||''),
+          parsed:   parseLocation(row['금형위치']),
+          customer: String(row['고객사명']     ||''),
+          partName: String(row['부품명']       ||''),
+          partCode: String(row['부품코드']     ||''),
+          custPN:   String(row['고객사 P/N']   ||''),
+          model:    String(row['품종(MODEL)']  ||''),
+          grade:    String(row['금형등급']     ||''),
+          category: String(row['금형구분']     ||''),
+          totalShot:Number(row['금형보증SHOT수']||0),
+          usedShot: Number(row['금형사용SHOT수']||0),
         };
       });
       document.getElementById('loading').style.display='none';
       document.getElementById('drop').style.display='none';
+      var savedDate=new Date().toLocaleDateString('ko-KR',
+        {year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
       document.getElementById('results-area').innerHTML=
-        '<div class="r-header">총 '+moldData.length+'개 금형 로드됨 — 검색어를 입력하세요</div>';
-      // 슬롯 네임택 매핑
+        '<div class="r-header">총 '+moldData.length+'개 금형 로드됨'
+        +'<br><span style="color:rgba(255,180,60,0.6);font-size:10px">업데이트: '+savedDate+'</span></div>';
+      // 저장 및 3D 매핑
+      saveToStorage();
       assignMoldsToSlots();
-    } catch(err) {
+    } catch(err){
       alert('파일 읽기 오류: '+err.message);
       document.getElementById('loading').style.display='none';
     }
@@ -1031,310 +946,236 @@ function loadExcel(file) {
 }
 
 // ══════════════════════════════════════════════════════════════
-//  § 14. 검색 & 결과
+//  § 15. 검색 & 결과
 // ══════════════════════════════════════════════════════════════
-function filterMolds(q) {
-  if (!q) return [];
-  var lq = q.toLowerCase();
-  return moldData.filter(function(m) {
-    return m.moldNum.toLowerCase().indexOf(lq)  >= 0 ||
-           m.partName.toLowerCase().indexOf(lq) >= 0 ||
-           m.customer.toLowerCase().indexOf(lq) >= 0 ||
-           m.custPN.toLowerCase().indexOf(lq)   >= 0 ||
-           m.model.toLowerCase().indexOf(lq)    >= 0 ||
-           m.location.toLowerCase().indexOf(lq) >= 0;
+function filterMolds(q){
+  if(!q) return [];
+  var lq=q.toLowerCase();
+  return moldData.filter(function(m){
+    return m.moldNum.toLowerCase().indexOf(lq)>=0||
+           m.partName.toLowerCase().indexOf(lq)>=0||
+           m.customer.toLowerCase().indexOf(lq)>=0||
+           m.custPN.toLowerCase().indexOf(lq)>=0||
+           m.model.toLowerCase().indexOf(lq)>=0||
+           m.location.toLowerCase().indexOf(lq)>=0;
   });
 }
-
-function doSearch(q) {
-  if (!q || !q.trim()) { clearResults(); return; }
-  curResults = filterMolds(q.trim());
-  renderResults(curResults);
-  if (curResults.length > 0) pickResult(0);
+function doSearch(q){
+  if(!q||!q.trim()){clearResults();return;}
+  curResults=filterMolds(q.trim()); renderResults(curResults);
+  if(curResults.length>0) pickResult(0);
 }
-
-function renderResults(arr) {
-  var ra = document.getElementById('results-area');
-  if (!arr.length) { ra.innerHTML='<div class="r-header">검색 결과 없음</div>'; return; }
-  var html = '<div class="r-header">'+arr.length+'개 금형 검색됨</div>';
-  arr.slice(0,40).forEach(function(m,i) {
+function renderResults(arr){
+  var ra=document.getElementById('results-area');
+  if(!arr.length){ra.innerHTML='<div class="r-header">검색 결과 없음</div>';return;}
+  var html='<div class="r-header">'+arr.length+'개 금형 검색됨</div>';
+  arr.slice(0,40).forEach(function(m,i){
     var badge;
-    var loc = m.location;
-    if (!loc || loc==='undefined')             badge='<span class="r-loc none">위치 미등록</span>';
-    else if (m.parsed && m.parsed.type==='int') badge='<span class="r-loc">'+esc(loc)+'</span>';
-    else                                        badge='<span class="r-loc ext">'+esc(loc)+'</span>';
-    var pnHtml = m.custPN ? '<div class="r-pn">P/N: '+esc(m.custPN)+'</div>' : '';
-    html += '<div class="r-item" data-i="'+i+'">'
-          + '<div class="r-top">'
-          + '<div class="r-num">'+esc(m.moldNum)+'</div>'
-          + pnHtml
-          + '</div>'
-          + badge
-          + '<div class="r-info">'+esc(m.partName||'-')+' · '+esc(m.customer||'-')+'</div>'
-          + '</div>';
+    if(!m.location||m.location==='undefined') badge='<span class="r-loc none">위치 미등록</span>';
+    else if(m.parsed&&m.parsed.type==='int')  badge='<span class="r-loc">'+esc(m.location)+'</span>';
+    else                                       badge='<span class="r-loc ext">'+esc(m.location)+'</span>';
+    var pnHtml=m.custPN?'<div class="r-pn">P/N: '+esc(m.custPN)+'</div>':'';
+    html+='<div class="r-item" data-i="'+i+'">'
+      +'<div class="r-top"><div class="r-num">'+esc(m.moldNum)+'</div>'+pnHtml+'</div>'
+      +badge+'<div class="r-info">'+esc(m.partName||'-')+' · '+esc(m.customer||'-')+'</div></div>';
   });
-  ra.innerHTML = html;
+  ra.innerHTML=html;
 }
-
-function deselectAll() {
-  document.querySelectorAll('.r-item.sel').forEach(function(el){ el.classList.remove('sel'); });
-}
-
-function pickResult(i) {
-  selIdx = i; deselectAll();
-  var el = document.querySelector('.r-item[data-i="'+i+'"]');
-  if (el) { el.classList.add('sel'); el.scrollIntoView({block:'nearest'}); }
-  var m = curResults[i]; if (!m) return;
+function deselectAll(){ document.querySelectorAll('.r-item.sel').forEach(function(el){el.classList.remove('sel');}); }
+function pickResult(i){
+  selIdx=i; deselectAll();
+  var el=document.querySelector('.r-item[data-i="'+i+'"]');
+  if(el){el.classList.add('sel');el.scrollIntoView({block:'nearest'});}
+  var m=curResults[i]; if(!m) return;
   showDetail(m); navigateTo(m);
 }
-
-function showDetail(m) {
-  var dv = document.getElementById('detail');
-  var sp = m.totalShot>0 ? Math.min(100,Math.round(m.usedShot/m.totalShot*100)) : 0;
-  var sc = sp>80?'#ff4444':sp>60?'#ffaa00':'#50e896';
-  var locCls = (!m.location)?'':((m.parsed&&m.parsed.type==='int')?' ok':' ext');
+function showDetail(m){
+  var dv=document.getElementById('detail');
+  var sp=m.totalShot>0?Math.min(100,Math.round(m.usedShot/m.totalShot*100)):0;
+  var sc=sp>80?'#ff4444':sp>60?'#ffaa00':'#50e896';
+  var locCls=(!m.location)?'':((m.parsed&&m.parsed.type==='int')?' ok':' ext');
   dv.style.display='block';
-  dv.innerHTML =
+  dv.innerHTML=
     '<div class="d-title">⚙ '+esc(m.moldNum)+'</div>'
-   +'<div class="d-row"><span class="d-lbl">위치</span><span class="d-val'+locCls+'">'+esc(m.location||'미등록')+'</span></div>'
-   +(m.custPN?'<div class="d-row"><span class="d-lbl">고객사 P/N</span><span class="d-val pn">'+esc(m.custPN)+'</span></div>':'')
-   +'<div class="d-row"><span class="d-lbl">부품명</span><span class="d-val">'+esc(m.partName||'-')+'</span></div>'
-   +'<div class="d-row"><span class="d-lbl">고객사</span><span class="d-val">'+esc(m.customer||'-')+'</span></div>'
-   +'<div class="d-row"><span class="d-lbl">모델</span><span class="d-val">'+esc(m.model||'-')+'</span></div>'
-   +'<div class="d-row"><span class="d-lbl">구분</span><span class="d-val">'+esc(m.category||'-')+'</span></div>'
-   +'<div class="d-row"><span class="d-lbl">등급</span><span class="d-val">'+esc(m.grade||'-')+'</span></div>'
-   +'<div class="d-row"><span class="d-lbl">SHOT 사용률</span>'
-   +'<span class="d-val" style="color:'+sc+'">'+sp+'%'
-   +'<div class="shot-bar"><div class="shot-fill" style="width:'+sp+'%;background:'+sc+'"></div></div>'
-   +'</span></div>';
+    +'<div class="d-row"><span class="d-lbl">위치</span><span class="d-val'+locCls+'">'+esc(m.location||'미등록')+'</span></div>'
+    +(m.custPN?'<div class="d-row"><span class="d-lbl">고객사 P/N</span><span class="d-val pn">'+esc(m.custPN)+'</span></div>':'')
+    +'<div class="d-row"><span class="d-lbl">부품명</span><span class="d-val">'+esc(m.partName||'-')+'</span></div>'
+    +'<div class="d-row"><span class="d-lbl">고객사</span><span class="d-val">'+esc(m.customer||'-')+'</span></div>'
+    +'<div class="d-row"><span class="d-lbl">모델</span><span class="d-val">'+esc(m.model||'-')+'</span></div>'
+    +'<div class="d-row"><span class="d-lbl">구분</span><span class="d-val">'+esc(m.category||'-')+'</span></div>'
+    +'<div class="d-row"><span class="d-lbl">등급</span><span class="d-val">'+esc(m.grade||'-')+'</span></div>'
+    +'<div class="d-row"><span class="d-lbl">SHOT 사용률</span>'
+    +'<span class="d-val" style="color:'+sc+'">'+sp+'%'
+    +'<div class="shot-bar"><div class="shot-fill" style="width:'+sp+'%;background:'+sc+'"></div></div>'
+    +'</span></div>';
 }
-
-function navigateTo(m) {
+function navigateTo(m){
   clearHL();
-  var p = m.parsed; if (!p || p.type!=='int') return;
-  var k4=p.sec+'-'+p.r+'-'+p.c+'-'+p.sh;
-  var k3=p.sec+'-'+p.r+'-'+p.c;
-  var entry=slotReg[k4]||slotReg[k3];
-  if (!entry) return;
+  var p=m.parsed; if(!p||p.type!=='int') return;
+  var entry=slotReg[p.sec+'-'+p.r+'-'+p.c+'-'+p.sh]||slotReg[p.sec+'-'+p.r+'-'+p.c];
+  if(!entry) return;
   doHighlight(entry); flyTo(entry.worldPos);
 }
-
-function clearResults() {
+function clearResults(){
   curResults=[]; selIdx=-1;
   document.getElementById('results-area').innerHTML='<div class="r-header">검색 결과가 여기에 표시됩니다</div>';
   document.getElementById('detail').style.display='none';
   clearHL();
 }
-
-function esc(s) {
+function esc(s){
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 // ══════════════════════════════════════════════════════════════
-//  § 15. Excel 다운로드
+//  § 16. Excel 다운로드
 // ══════════════════════════════════════════════════════════════
-function downloadExcel() {
-  if (!moldData.length) { alert('먼저 엑셀 파일을 업로드하세요.'); return; }
-  var wsData = [
-    ['금형번호','금형위치','고객사명','고객사 P/N','부품명','품종(MODEL)','금형구분','금형등급','금형보증SHOT수','금형사용SHOT수']
-  ];
-  moldData.forEach(function(m) {
-    wsData.push([m.moldNum, m.location, m.customer, m.custPN, m.partName,
-                 m.model, m.category, m.grade, m.totalShot, m.usedShot]);
+function downloadExcel(){
+  if(!moldData.length){alert('먼저 엑셀 파일을 업로드하세요.');return;}
+  var wsData=[['금형번호','금형위치','고객사명','고객사 P/N','부품명','품종(MODEL)','금형구분','금형등급','금형보증SHOT수','금형사용SHOT수']];
+  moldData.forEach(function(m){
+    wsData.push([m.moldNum,m.location,m.customer,m.custPN,m.partName,m.model,m.category,m.grade,m.totalShot,m.usedShot]);
   });
-  var wb = XLSX.utils.book_new();
-  var ws = XLSX.utils.aoa_to_sheet(wsData);
-  XLSX.utils.book_append_sheet(wb, ws, 'grdList');
-  XLSX.writeFile(wb, '신성오토텍_금형위치_'+new Date().toISOString().slice(0,10)+'.xlsx');
+  var wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(wsData),'grdList');
+  XLSX.writeFile(wb,'신성오토텍_금형위치_'+new Date().toISOString().slice(0,10)+'.xlsx');
 }
 
 // ══════════════════════════════════════════════════════════════
-//  § 16. UI 이벤트 바인딩
+//  § 17. UI 이벤트
 // ══════════════════════════════════════════════════════════════
-var searchInput  = document.getElementById('search-input');
-var searchClear  = document.getElementById('search-clear');
-var autoComplete = document.getElementById('autocomplete');
+var searchInput=document.getElementById('search-input');
+var searchClear=document.getElementById('search-clear');
+var autoComplete=document.getElementById('autocomplete');
 
-searchInput.addEventListener('input', function() {
-  var q = searchInput.value.trim();
-  searchClear.style.display = q ? 'block' : 'none';
-  if (!q) { autoComplete.style.display='none'; clearResults(); return; }
-  var hits = filterMolds(q).slice(0, 8);
-  if (!hits.length) { autoComplete.style.display='none'; return; }
-  autoComplete.innerHTML = hits.map(function(m) {
-    var pnHtml = m.custPN ? '<div class="ac-pn">P/N: '+esc(m.custPN)+'</div>' : '';
-    return '<div class="ac-item" data-num="'+esc(m.moldNum)+'">'
-         + '<div class="ac-num">'+esc(m.moldNum)+'</div>'
-         + pnHtml
-         + '<div class="ac-sub">'+esc(m.partName||'-')+' · '+esc(m.location||'위치미상')+'</div>'
-         + '</div>';
+searchInput.addEventListener('input',function(){
+  var q=searchInput.value.trim();
+  searchClear.style.display=q?'block':'none';
+  if(!q){autoComplete.style.display='none';clearResults();return;}
+  var hits=filterMolds(q).slice(0,8);
+  if(!hits.length){autoComplete.style.display='none';return;}
+  autoComplete.innerHTML=hits.map(function(m){
+    var pnHtml=m.custPN?'<div class="ac-pn">P/N: '+esc(m.custPN)+'</div>':'';
+    return '<div class="ac-item" data-num="'+esc(m.moldNum)+'"><div class="ac-num">'+esc(m.moldNum)+'</div>'
+      +pnHtml+'<div class="ac-sub">'+esc(m.partName||'-')+' · '+esc(m.location||'위치미상')+'</div></div>';
   }).join('');
   autoComplete.style.display='block';
 });
-
-autoComplete.addEventListener('click', function(e) {
-  var item = e.target.closest('.ac-item'); if (!item) return;
-  var num = item.dataset.num;
-  searchInput.value=num; searchClear.style.display='block';
-  autoComplete.style.display='none'; doSearch(num);
+autoComplete.addEventListener('click',function(e){
+  var item=e.target.closest('.ac-item'); if(!item) return;
+  searchInput.value=item.dataset.num; searchClear.style.display='block';
+  autoComplete.style.display='none'; doSearch(item.dataset.num);
 });
-
-searchInput.addEventListener('keydown', function(e) {
-  if (e.key==='Enter')  { autoComplete.style.display='none'; doSearch(searchInput.value); }
-  if (e.key==='Escape') {
-    searchInput.value=''; searchClear.style.display='none';
-    autoComplete.style.display='none'; clearResults();
-  }
+searchInput.addEventListener('keydown',function(e){
+  if(e.key==='Enter'){autoComplete.style.display='none';doSearch(searchInput.value);}
+  if(e.key==='Escape'){searchInput.value='';searchClear.style.display='none';autoComplete.style.display='none';clearResults();}
 });
-searchClear.addEventListener('click', function() {
-  searchInput.value=''; searchClear.style.display='none';
-  autoComplete.style.display='none'; clearResults();
+searchClear.addEventListener('click',function(){
+  searchInput.value='';searchClear.style.display='none';autoComplete.style.display='none';clearResults();
 });
-document.addEventListener('click', function(e) {
-  if (!e.target.closest('#search-wrap')) autoComplete.style.display='none';
-});
-
-// 결과 클릭 (이벤트 위임)
-document.getElementById('results-area').addEventListener('click', function(e) {
-  var item = e.target.closest('.r-item'); if (!item) return;
+document.addEventListener('click',function(e){if(!e.target.closest('#search-wrap'))autoComplete.style.display='none';});
+document.getElementById('results-area').addEventListener('click',function(e){
+  var item=e.target.closest('.r-item'); if(!item) return;
   pickResult(+item.dataset.i);
 });
 
-// 층 버튼
-document.getElementById('btn1').addEventListener('click', function()    { switchFloor(1); });
-document.getElementById('btn2').addEventListener('click', function()    { switchFloor(2); });
-document.getElementById('btnReset').addEventListener('click', function(){ resetCam(); });
+document.getElementById('btn1').addEventListener('click',function(){switchFloor(1);});
+document.getElementById('btn2').addEventListener('click',function(){switchFloor(2);});
+document.getElementById('btnReset').addEventListener('click',function(){resetCam();});
 
-// Excel 버튼
-document.getElementById('btn-upload').addEventListener('click', function() {
-  document.getElementById('upload-in').click();
-});
-document.getElementById('btn-download').addEventListener('click', downloadExcel);
-document.getElementById('upload-in').addEventListener('change', function(e) {
-  var f = e.target.files[0]; if (f) loadExcel(f); e.target.value='';
+document.getElementById('btn-upload').addEventListener('click',function(){document.getElementById('upload-in').click();});
+document.getElementById('btn-download').addEventListener('click',downloadExcel);
+document.getElementById('upload-in').addEventListener('change',function(e){
+  var f=e.target.files[0]; if(f) loadExcel(f); e.target.value='';
 });
 
-// 파일 드롭 (시작 화면)
-var dropZone = document.getElementById('drop-zone');
-var fileIn   = document.getElementById('file-in');
-dropZone.addEventListener('click', function()  { fileIn.click(); });
-dropZone.addEventListener('dragover',  function(e){ e.preventDefault(); dropZone.classList.add('over'); });
-dropZone.addEventListener('dragleave', function() { dropZone.classList.remove('over'); });
-dropZone.addEventListener('drop', function(e) {
-  e.preventDefault(); dropZone.classList.remove('over');
-  var f = e.dataTransfer.files[0]; if (f) loadExcel(f);
+var dropZone=document.getElementById('drop-zone');
+var fileIn=document.getElementById('file-in');
+dropZone.addEventListener('click',function(){fileIn.click();});
+dropZone.addEventListener('dragover',function(e){e.preventDefault();dropZone.classList.add('over');});
+dropZone.addEventListener('dragleave',function(){dropZone.classList.remove('over');});
+dropZone.addEventListener('drop',function(e){
+  e.preventDefault();dropZone.classList.remove('over');
+  var f=e.dataTransfer.files[0]; if(f) loadExcel(f);
 });
-fileIn.addEventListener('change', function(e) {
-  var f = e.target.files[0]; if (f) loadExcel(f);
-});
+fileIn.addEventListener('change',function(e){var f=e.target.files[0]; if(f) loadExcel(f);});
 
-// ── 3D 캔버스 마우스 이벤트 ──
-renderer.domElement.addEventListener('mousedown', function(e) {
-  mouseDownPos.x = e.clientX; mouseDownPos.y = e.clientY;
-});
-
-renderer.domElement.addEventListener('click', function(e) {
-  // 드래그(회전) 시 클릭 무시
-  var dx = e.clientX - mouseDownPos.x;
-  var dy = e.clientY - mouseDownPos.y;
-  if (dx*dx + dy*dy > 25) return;
-  // 모달 열려있으면 닫기
-  if (document.getElementById('slot-modal').style.display === 'block') {
-    closeInputModal(); return;
-  }
+// 3D 캔버스 클릭
+renderer.domElement.addEventListener('mousedown',function(e){mouseDownPos.x=e.clientX;mouseDownPos.y=e.clientY;});
+renderer.domElement.addEventListener('click',function(e){
+  var dx=e.clientX-mouseDownPos.x, dy=e.clientY-mouseDownPos.y;
+  if(dx*dx+dy*dy>25) return;
+  if(document.getElementById('slot-modal').style.display==='block'){closeInputModal();return;}
   onCanvasClick(e);
 });
-
-renderer.domElement.addEventListener('mousemove', function(e) {
-  if (e.buttons > 0 || !allSlotMeshes.length) return;
-  var now = Date.now();
-  if (now - lastHoverTime < 40) return; // ~25fps 제한
-  lastHoverTime = now;
-  var rect = renderer.domElement.getBoundingClientRect();
-  var mouse = new THREE.Vector2(
-    ((e.clientX - rect.left) / rect.width)  * 2 - 1,
-    -((e.clientY - rect.top) / rect.height) * 2 + 1
-  );
-  raycaster.setFromCamera(mouse, camera);
-  var hits = raycaster.intersectObjects(allSlotMeshes);
-  renderer.domElement.style.cursor = hits.length > 0 ? 'pointer' : 'default';
+renderer.domElement.addEventListener('mousemove',function(e){
+  if(e.buttons>0||!allSlotMeshes.length) return;
+  var now=Date.now(); if(now-lastHoverTime<40) return;
+  lastHoverTime=now;
+  var rect=renderer.domElement.getBoundingClientRect();
+  raycaster.setFromCamera(new THREE.Vector2(
+    ((e.clientX-rect.left)/rect.width)*2-1,
+    -((e.clientY-rect.top)/rect.height)*2+1
+  ), camera);
+  renderer.domElement.style.cursor=
+    raycaster.intersectObjects(allSlotMeshes).length>0?'pointer':'default';
 });
 
-// ── 슬롯 모달 이벤트 ──
-document.getElementById('modal-backdrop').addEventListener('click', closeInputModal);
-
-var smInput = document.getElementById('slot-modal-input');
-var smAc    = document.getElementById('slot-modal-ac');
-
-smInput.addEventListener('input', function() {
-  var q = this.value.trim();
-  currentModalMold = null;
-  if (!q || !moldData.length) { smAc.style.display='none'; return; }
-  // 미배정 금형 우선 → 전체 fallback
-  var hits = filterMolds(q).filter(function(m) {
-    return !m.parsed || m.parsed.type !== 'int';
-  }).slice(0, 6);
-  if (!hits.length) hits = filterMolds(q).slice(0, 6);
-  if (!hits.length) { smAc.style.display='none'; return; }
-  smAc._hits = hits;
-  smAc.innerHTML = hits.map(function(m, i) {
-    return '<div class="sm-ac-item" data-i="'+i+'">'
-         + '<div class="sm-ac-num">'+esc(m.moldNum)+'</div>'
-         + '<div class="sm-ac-sub">'+esc(m.partName||'-')+' · '+esc(m.customer||'-')+'</div>'
-         + '</div>';
+// 슬롯 모달
+document.getElementById('modal-backdrop').addEventListener('click',closeInputModal);
+var smInput=document.getElementById('slot-modal-input');
+var smAc=document.getElementById('slot-modal-ac');
+smInput.addEventListener('input',function(){
+  var q=this.value.trim(); currentModalMold=null;
+  if(!q||!moldData.length){smAc.style.display='none';return;}
+  var hits=filterMolds(q).filter(function(m){return!m.parsed||m.parsed.type!=='int';}).slice(0,6);
+  if(!hits.length) hits=filterMolds(q).slice(0,6);
+  if(!hits.length){smAc.style.display='none';return;}
+  smAc._hits=hits;
+  smAc.innerHTML=hits.map(function(m,i){
+    return '<div class="sm-ac-item" data-i="'+i+'"><div class="sm-ac-num">'+esc(m.moldNum)+'</div>'
+      +'<div class="sm-ac-sub">'+esc(m.partName||'-')+' · '+esc(m.customer||'-')+'</div></div>';
   }).join('');
-  smAc.style.display = 'block';
+  smAc.style.display='block';
 });
-
-smInput.addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') { e.preventDefault(); document.getElementById('sm-btn-ok').click(); }
-  if (e.key === 'Escape') closeInputModal();
+smInput.addEventListener('keydown',function(e){
+  if(e.key==='Enter'){e.preventDefault();document.getElementById('sm-btn-ok').click();}
+  if(e.key==='Escape') closeInputModal();
 });
-
-smAc.addEventListener('click', function(e) {
-  var item = e.target.closest('.sm-ac-item'); if (!item) return;
-  var mold = this._hits[+item.dataset.i];
-  if (mold) {
-    currentModalMold = mold;
-    smInput.value = mold.moldNum;
-    smAc.style.display = 'none';
-  }
+smAc.addEventListener('click',function(e){
+  var item=e.target.closest('.sm-ac-item'); if(!item) return;
+  var mold=this._hits[+item.dataset.i];
+  if(mold){currentModalMold=mold; smInput.value=mold.moldNum; smAc.style.display='none';}
 });
-
-document.getElementById('sm-btn-ok').addEventListener('click', function() {
-  var mold = currentModalMold;
-  if (!mold) {
-    var q = smInput.value.trim();
-    var found = moldData.filter(function(m) { return m.moldNum === q; });
-    if (found.length) mold = found[0];
+document.getElementById('sm-btn-ok').addEventListener('click',function(){
+  var mold=currentModalMold;
+  if(!mold){
+    var q=smInput.value.trim();
+    var found=moldData.filter(function(m){return m.moldNum===q;});
+    if(found.length) mold=found[0];
   }
-  if (!mold || !currentModalSlot) {
-    alert('금형번호를 선택하거나 정확히 입력하세요.');
-    return;
-  }
+  if(!mold||!currentModalSlot){alert('금형번호를 선택하거나 정확히 입력하세요.');return;}
   assignMoldToSlot(currentModalSlot, mold);
 });
-
-document.getElementById('sm-btn-cancel').addEventListener('click', closeInputModal);
+document.getElementById('sm-btn-cancel').addEventListener('click',closeInputModal);
 
 // ══════════════════════════════════════════════════════════════
-//  § 17. 렌더 루프
+//  § 18. 렌더 루프
 // ══════════════════════════════════════════════════════════════
-var clock = new THREE.Clock();
-(function tick() {
+var clock=new THREE.Clock();
+(function tick(){
   requestAnimationFrame(tick);
-  var t = clock.getElapsedTime();
-  if (HL.light) HL.light.intensity = 5 + Math.sin(t*5)*3;
-  if (HL.aura)  { HL.aura.material.opacity=.12+Math.sin(t*4)*.07; HL.aura.scale.setScalar(1+Math.sin(t*3)*.1); }
-  if (HL.mesh)  HL.mesh.material.emissiveIntensity = .6+Math.sin(t*5)*.3;
-  controls.update();
-  renderer.render(scene, camera);
+  var t=clock.getElapsedTime();
+  if(HL.light) HL.light.intensity=5+Math.sin(t*5)*3;
+  if(HL.aura)  {HL.aura.material.opacity=.12+Math.sin(t*4)*.07;HL.aura.scale.setScalar(1+Math.sin(t*3)*.1);}
+  if(HL.mesh)  HL.mesh.material.emissiveIntensity=.6+Math.sin(t*5)*.3;
+  controls.update(); renderer.render(scene,camera);
 })();
 
 // ══════════════════════════════════════════════════════════════
-//  § 18. 씬 구축
+//  § 19. 씬 구축 + 저장 데이터 로드
 // ══════════════════════════════════════════════════════════════
 buildFactory();
+loadFromStorage(); // 저장된 데이터 있으면 자동 로드
 
 })();
 </script>
