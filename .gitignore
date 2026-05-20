@@ -1,0 +1,15 @@
+# 민감 정보
+config.json
+.env
+*.env
+
+# bkit 내부 파일
+.bkit/
+
+# 참조 자료 (이미지 등 대용량)
+참조자료/
+screenshot/
+
+# 시스템 파일
+Thumbs.db
+.DS_Store

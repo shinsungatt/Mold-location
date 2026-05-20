@@ -1,0 +1,41 @@
+{
+  "version": "2.0",
+  "lastUpdated": "2026-05-20T08:23:39.247Z",
+  "activeFeatures": [
+    "Mold location"
+  ],
+  "primaryFeature": "Mold location",
+  "features": {
+    "Mold location": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-05-20T08:23:39.247Z",
+        "lastUpdated": "2026-05-20T08:23:39.247Z"
+      },
+      "lastFile": "C:\\Users\\최석열\\Projects\\Mold location\\make_shortcut.ps1"
+    }
+  },
+  "pipeline": {
+    "currentPhase": 1,
+    "level": "Dynamic",
+    "phaseHistory": []
+  },
+  "session": {
+    "startedAt": "2026-05-20T06:30:45.403Z",
+    "onboardingCompleted": false,
+    "lastActivity": "2026-05-20T08:23:39.247Z"
+  },
+  "history": [
+    {
+      "timestamp": "2026-05-20T08:23:39.247Z",
+      "feature": "Mold location",
+      "phase": "do",
+      "action": "updated"
+    }
+  ]
+}
