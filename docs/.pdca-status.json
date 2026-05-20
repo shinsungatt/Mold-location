@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "lastUpdated": "2026-05-20T08:23:39.247Z",
+  "lastUpdated": "2026-05-20T09:16:17.384Z",
   "activeFeatures": [
     "Mold location"
   ],
@@ -15,9 +15,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-05-20T08:23:39.247Z",
-        "lastUpdated": "2026-05-20T08:23:39.247Z"
+        "lastUpdated": "2026-05-20T09:16:17.383Z"
       },
-      "lastFile": "C:\\Users\\최석열\\Projects\\Mold location\\make_shortcut.ps1"
+      "lastFile": "C:\\Users\\최석열\\Projects\\Mold location\\실행.bat"
     }
   },
   "pipeline": {
@@ -28,11 +28,17 @@
   "session": {
     "startedAt": "2026-05-20T06:30:45.403Z",
     "onboardingCompleted": false,
-    "lastActivity": "2026-05-20T08:23:39.247Z"
+    "lastActivity": "2026-05-20T09:16:17.384Z"
   },
   "history": [
     {
       "timestamp": "2026-05-20T08:23:39.247Z",
+      "feature": "Mold location",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-20T09:16:17.383Z",
       "feature": "Mold location",
       "phase": "do",
       "action": "updated"
