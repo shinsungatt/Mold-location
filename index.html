@@ -303,10 +303,10 @@ body { background:#080c18; color:#e0e8ff; font-family:'Malgun Gothic','맑은 �
 </div>
 
 <!-- ────── 라이브러리 ────── -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="libs/three.min.js"></script>
+<script src="libs/OrbitControls.js"></script>
+<script src="libs/gsap.min.js"></script>
+<script src="libs/xlsx.full.min.js"></script>
 
 <script>
 (function() {
@@ -908,7 +908,7 @@ function loadExcel(file){
   var rd=new FileReader();
   rd.onload=function(e){
     try {
-      var wb=XLSX.read(e.target.result,{type:'binary'});
+      var wb=XLSX.read(new Uint8Array(e.target.result),{type:'array'});
       var ws=wb.Sheets[wb.SheetNames[0]];
       var rows=XLSX.utils.sheet_to_json(ws);
       moldData=rows.map(function(row){
@@ -942,7 +942,7 @@ function loadExcel(file){
       document.getElementById('loading').style.display='none';
     }
   };
-  rd.readAsBinaryString(file);
+  rd.readAsArrayBuffer(file);
 }
 
 // ══════════════════════════════════════════════════════════════
