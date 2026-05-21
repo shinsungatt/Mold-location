@@ -6,7 +6,7 @@
 <title>신성오토텍 금형 위치 관리 시스템</title>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
-body { background:#080c18; color:#e0e8ff; font-family:'Malgun Gothic','맑은 고딕',sans-serif; overflow:hidden; height:100vh; }
+body { background:#0f1c35; color:#e0e8ff; font-family:'Malgun Gothic','맑은 고딕',sans-serif; overflow:hidden; height:100vh; }
 
 /* ── Top Bar ── */
 #top-bar {
@@ -119,7 +119,7 @@ body { background:#080c18; color:#e0e8ff; font-family:'Malgun Gothic','맑은 �
 /* ── Drop Overlay ── */
 #drop {
   position:fixed; inset:0;
-  background:radial-gradient(ellipse at 50% 40%, #0d1530 0%, #080c18 70%);
+  background:radial-gradient(ellipse at 50% 40%, #0d1530 0%, #0f1c35 70%);
   display:flex; flex-direction:column; align-items:center; justify-content:center;
   z-index:1000;
 }
@@ -224,7 +224,7 @@ body { background:#080c18; color:#e0e8ff; font-family:'Malgun Gothic','맑은 �
 /* ── 레이아웃 편집기 ── */
 #layout-editor {
   position:fixed; inset:0; z-index:2000;
-  background:#080c18; display:none; flex-direction:column;
+  background:#0f1c35; display:none; flex-direction:column;
 }
 #le-topbar {
   height:52px; background:rgba(8,12,24,0.98);
@@ -290,6 +290,37 @@ body { background:#080c18; color:#e0e8ff; font-family:'Malgun Gothic','맑은 �
 .le-dlg-cancel-btn:hover { background:rgba(255,255,255,0.1); }
 .xl-btn.xl-layout { border-color:rgba(100,210,100,0.28); }
 .xl-btn.xl-layout span { font-style:normal; }
+/* 레이블 관련 */
+.le-lbl-add-btn {
+  width:100%; padding:7px; background:rgba(80,220,255,0.08); color:#60d0ff;
+  border:1px solid rgba(80,220,255,0.22); border-radius:5px; cursor:pointer;
+  font-size:12px; margin-bottom:4px;
+}
+.le-lbl-add-btn:hover { background:rgba(80,220,255,0.18); }
+.le-lbl-item {
+  padding:5px 7px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06);
+  border-radius:4px; margin-bottom:3px; font-size:11px; display:flex; align-items:center; gap:6px; cursor:pointer;
+}
+.le-lbl-item:hover { background:rgba(80,220,255,0.08); }
+.le-lbl-item.active { border-color:rgba(80,220,255,0.45); background:rgba(80,220,255,0.1); }
+.le-lbl-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.le-lbl-txt { flex:1; color:rgba(255,255,255,0.7); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.le-lbl-sz { color:rgba(255,255,255,0.28); font-size:10px; }
+#le-lbl-dialog {
+  position:fixed; inset:0; z-index:3000;
+  background:rgba(0,0,0,0.72); display:none; align-items:center; justify-content:center;
+}
+#le-lbl-dlg-box {
+  background:#0d1428; border:1px solid rgba(80,140,255,0.3);
+  border-radius:12px; padding:22px 24px; width:290px;
+}
+.le-lbl-range { width:100%; margin-top:4px; accent-color:#5a9ef8; }
+#le-lbl-colors { display:flex; gap:7px; flex-wrap:wrap; margin-top:6px; }
+.le-lbl-swatch {
+  width:22px; height:22px; border-radius:4px; cursor:pointer;
+  border:2px solid transparent; transition:border-color .15s; box-sizing:border-box;
+}
+.le-lbl-swatch.active { border-color:#fff !important; }
 </style>
 </head>
 <body>
@@ -373,6 +404,9 @@ body { background:#080c18; color:#e0e8ff; font-family:'Malgun Gothic','맑은 �
       <div id="le-type-list"></div>
       <div class="le-stitle" style="margin-top:10px">선택된 보관대</div>
       <div id="le-sel-panel"><div class="le-sel-empty">유형 선택 후<br>지도를 클릭하거나<br>보관대를 클릭하세요</div></div>
+      <div class="le-stitle" style="margin-top:12px">텍스트 레이블</div>
+      <button class="le-lbl-add-btn" id="le-lbl-add">+ 레이블 추가</button>
+      <div id="le-lbl-panel"></div>
     </div>
   </div>
 </div>
@@ -410,6 +444,34 @@ body { background:#080c18; color:#e0e8ff; font-family:'Malgun Gothic','맑은 �
   </div>
 </div>
 
+<!-- ────── 레이블 추가/편집 다이얼로그 ────── -->
+<div id="le-lbl-dialog">
+  <div id="le-lbl-dlg-box">
+    <div id="le-lbl-dlg-title" style="font-size:14px;font-weight:700;color:#5a9ef8;margin-bottom:14px;">레이블 추가</div>
+    <div class="le-fr">
+      <label>텍스트</label>
+      <input type="text" id="le-lbl-text" placeholder="예: 1호기, 금형대기, 공BOX 대차">
+    </div>
+    <div class="le-fr">
+      <label>폰트 크기 (<span id="le-lbl-size-val">18</span>px)</label>
+      <input type="range" class="le-lbl-range" id="le-lbl-size" min="10" max="48" value="18" step="2">
+    </div>
+    <div class="le-fr">
+      <label>색상</label>
+      <div id="le-lbl-colors"></div>
+    </div>
+    <div class="le-fr3" style="margin-top:4px;">
+      <div class="le-fr"><label>X 위치</label><input type="number" id="le-lbl-x" step="2" value="0"></div>
+      <div class="le-fr"><label>Z 위치</label><input type="number" id="le-lbl-z" step="2" value="0"></div>
+      <div></div>
+    </div>
+    <div class="le-dlg-btns">
+      <button class="le-dlg-cancel-btn" id="le-lbl-dlg-cancel">취소</button>
+      <button class="le-dlg-ok" id="le-lbl-dlg-ok">확인</button>
+    </div>
+  </div>
+</div>
+
 <!-- ────── 숨긴 input ────── -->
 <input type="file" id="upload-in" accept=".xlsx,.xls" style="display:none">
 
@@ -443,6 +505,7 @@ body { background:#080c18; color:#e0e8ff; font-family:'Malgun Gothic','맑은 �
 var LS_KEY      = 'ssautotech_mold_v2';
 var LS_DATE_KEY = 'ssautotech_mold_date';
 var LS_SEC_KEY  = 'ssautotech_sections_v1';
+var LS_LBL_KEY  = 'ssautotech_labels_v1';
 
 // ══════════════════════════════════════════════════════════════
 //  § 2. 섹션 위치 정의
@@ -473,6 +536,13 @@ var SECTIONS = (function(){
     ['중파8',-45,26,'medium',3,2,1], ['중파9',-40,26,'medium',3,2,1],
     ['중파10',-35,26,'medium',3,2,1],
   ];
+}());
+
+// 커스텀 텍스트 레이블 [text, worldX, worldZ, fontSize, colorHex]
+var CUSTOM_LABELS = (function(){
+  var _s=localStorage.getItem(LS_LBL_KEY);
+  if(_s){try{var _p=JSON.parse(_s);if(_p&&_p.length)return _p;}catch(_e){}}
+  return [];
 }());
 
 var SLOT = {
@@ -513,8 +583,8 @@ function parseLocation(raw) {
 // ══════════════════════════════════════════════════════════════
 var cvDiv = document.getElementById('cv');
 var scene = new THREE.Scene();
-scene.background = new THREE.Color(0x080c18);
-scene.fog = new THREE.FogExp2(0x080c18, 0.004);
+scene.background = new THREE.Color(0x0f1c35);
+scene.fog = new THREE.FogExp2(0x0f1c35, 0.004);
 
 var camera = new THREE.PerspectiveCamera(50, cvDiv.clientWidth/cvDiv.clientHeight, 0.1, 700);
 camera.position.set(10, 75, 80);
@@ -533,8 +603,8 @@ controls.minDistance = 4; controls.maxDistance = 250;
 controls.maxPolarAngle = Math.PI / 2.05;
 controls.update();
 
-scene.add(new THREE.AmbientLight(0x223080, 0.85));
-var sun = new THREE.DirectionalLight(0xffffff, 0.75);
+scene.add(new THREE.AmbientLight(0x304090, 1.2));
+var sun = new THREE.DirectionalLight(0xffffff, 1.0);
 sun.position.set(20, 60, 30); sun.castShadow = true;
 sun.shadow.mapSize.width = sun.shadow.mapSize.height = 2048;
 sun.shadow.camera.left=-100; sun.shadow.camera.right=100;
@@ -592,13 +662,13 @@ function addBox(x,y,z, w,h,d, material, shadow) {
   scene.add(mesh); return mesh;
 }
 function makeSprite(text, color, size) {
-  var c = document.createElement('canvas'); c.width=192; c.height=64;
+  var c = document.createElement('canvas'); c.width=256; c.height=80;
   var ctx = c.getContext('2d');
   ctx.font = 'bold '+(size||18)+'px Malgun Gothic,Arial';
   ctx.textAlign='center'; ctx.textBaseline='middle';
   ctx.fillStyle = color||'#7eb8f7';
-  ctx.shadowColor='rgba(0,0,0,0.95)'; ctx.shadowBlur=8;
-  ctx.fillText(text,96,32);
+  ctx.shadowColor='rgba(0,0,0,0.95)'; ctx.shadowBlur=10;
+  ctx.fillText(text,128,40);
   return new THREE.Sprite(new THREE.SpriteMaterial({
     map:new THREE.CanvasTexture(c), transparent:true, depthTest:false
   }));
@@ -630,7 +700,18 @@ function buildFactory() {
   for (var ax=-58; ax<=38; ax+=9)
     addBox(ax,.015,16,.1,.02,50,MAT_SAFETY,false);
 
-  buildZoneAreas(); buildMachines(); buildAllRacks();
+  buildZoneAreas(); buildMachines(); buildAllRacks(); buildCustomLabels();
+}
+
+function buildCustomLabels() {
+  CUSTOM_LABELS.forEach(function(lb) {
+    var text=lb[0], wx=lb[1], wz=lb[2], fsize=+(lb[3]||18), col=lb[4]||'#ffffff';
+    var sp = makeSprite(text, col, fsize);
+    var sc = fsize / 18;
+    sp.position.set(wx, 2.5, wz);
+    sp.scale.set(5.5*sc, 2.0*sc, 1);
+    scene.add(sp);
+  });
 }
 
 function buildZoneAreas() {
@@ -701,8 +782,8 @@ function drawMachine(cx,cz,w,d,h,num,ton,color){
   addBox(cx+w*.35,h*.5,cz-d*.32,.16,h*.42,d*.2,MAT_CTRL);
   var cy=new THREE.Mesh(new THREE.CylinderGeometry(.1,.1,.4,8),mat(0x00e5ff,.3,.1));
   cy.position.set(cx,h+.8,cz); cy.castShadow=true; scene.add(cy);
-  var lbl=makeSprite((ton>0?num+'호기 '+ton+'T':num+'호기'),h>5?'#42a5f5':'#5ba8d8',13);
-  lbl.position.set(cx,h+1.7,cz); lbl.scale.set(h>4?5.5:4,1.5,1); scene.add(lbl);
+  var lbl=makeSprite((ton>0?num+'호기 '+ton+'T':num+'호기'),h>5?'#42a5f5':'#5ba8d8',18);
+  lbl.position.set(cx,h+2.0,cz); lbl.scale.set(h>4?7.0:5.5,2.2,1); scene.add(lbl);
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -722,7 +803,8 @@ function buildAllRacks() {
 function buildSection(name,sx,sz,type,rows,cols,shelves) {
   var sl=SLOT[type];
   var tw=cols*sl.w+(cols-1)*.07, td=rows*sl.d+(rows-1)*.07, th=shelves*sl.h+.28;
-  var gcol=(type==='standing')?0x1b5e20:(type==='medium')?0x2e7d32:0x388e3c;
+  // 유형별 구분 색: 소형(파랑) / 중형(청록) / 세움형(갈색)
+  var gcol=(type==='standing')?0x6d4c41:(type==='medium')?0x00695c:0x283593;
   var gm=mat(gcol,.6,.22); var ph=th+.12; var PR=.06;
 
   [[0,0],[tw,0],[0,td],[tw,td]].forEach(function(d){
@@ -738,8 +820,8 @@ function buildSection(name,sx,sz,type,rows,cols,shelves) {
     if (s<shelves) addBox(sx+tw/2,by+.042,sz+td/2,tw-.02,.042,td-.02,mat(gcol-.08,.75,.05),false);
   }
   var lc=(type==='medium')?'#81c784':'#aed6f1';
-  var lbl=makeSprite(name,lc,17);
-  lbl.position.set(sx+tw/2,th+.9,sz+td/2); lbl.scale.set(2.8,1.2,1); scene.add(lbl);
+  var lbl=makeSprite(name,lc,24);
+  lbl.position.set(sx+tw/2,th+1.1,sz+td/2); lbl.scale.set(4.2,1.8,1); scene.add(lbl);
 
   for (var r=0;r<rows;r++) {
     for (var c=0;c<cols;c++) {
@@ -1333,23 +1415,56 @@ loadFromStorage(); // 저장된 데이터 있으면 자동 로드
 //  § 20. 레이아웃 편집기
 // ══════════════════════════════════════════════════════════════
 var RACK_TYPES=[
-  {id:'shelf3',   label:'소형 3단',  stype:'shelf',   rows:2,cols:3,shelves:3, col:'#4caf50'},
-  {id:'shelf5',   label:'소형 5단',  stype:'shelf',   rows:2,cols:3,shelves:5, col:'#2e7d32'},
-  {id:'medium2',  label:'중형 2단',  stype:'medium',  rows:2,cols:2,shelves:2, col:'#66bb6a'},
-  {id:'standing', label:'세움형 3단',stype:'standing',rows:1,cols:4,shelves:3, col:'#26a69a'},
-  {id:'pallet',   label:'팔렛 1단',  stype:'medium',  rows:3,cols:2,shelves:1, col:'#8d6e63'},
+  {id:'shelf3',   label:'소형 3단',  stype:'shelf',   rows:2,cols:3,shelves:3, col:'#5c6bc0'}, // 인디고
+  {id:'shelf5',   label:'소형 5단',  stype:'shelf',   rows:2,cols:3,shelves:5, col:'#3949ab'}, // 진 인디고
+  {id:'medium2',  label:'중형 2단',  stype:'medium',  rows:2,cols:2,shelves:2, col:'#00897b'}, // 청록
+  {id:'standing', label:'세움형 3단',stype:'standing',rows:1,cols:4,shelves:3, col:'#8d6e63'}, // 갈색
+  {id:'pallet',   label:'팔렛 1단',  stype:'medium',  rows:3,cols:2,shelves:1, col:'#ef6c00'}, // 주황
 ];
 var leOpen=false,leSections=[],leSelTypeId=null,leSelSec=null;
+var leLabels=[],leSelLabel=-1;
+var LE_LBL_COLORS=['#ffffff','#ffd600','#ff8c00','#60d0ff','#50e896','#8ab4f8','#ff7070','#e040fb'];
+var leLblSelCol='#ffffff';
 var leCanvas=document.getElementById('le-canvas');
 var leCtx=leCanvas?leCanvas.getContext('2d'):null;
 var leMouse={x:0,z:0},leDragSec=null,leDragMSX=0,leDragMSY=0,leDragStarted=false;
+var leGuideX=[],leGuideZ=[]; // 스마트 스냅 가이드라인
 var LE_X1=-82,LE_X2=95,LE_Z1=-44,LE_Z2=42;
+var LE_SNAP=2.5; // 스냅 임계값(월드 단위)
 var leScale=4;
 
 function leW2S(wx,wz){return{x:(wx-LE_X1)*leScale,y:(wz-LE_Z1)*leScale};}
 function leS2Wsnap(sx,sy){var x=sx/leScale+LE_X1,z=sy/leScale+LE_Z1;return{x:Math.round(x/2)*2,z:Math.round(z/2)*2};}
 function leS2Wraw(sx,sy){return{x:sx/leScale+LE_X1,z:sy/leScale+LE_Z1};}
 function leGetEP(e){var r=leCanvas.getBoundingClientRect();return{cx:e.clientX-r.left,cy:e.clientY-r.top};}
+
+// 스마트 스냅: 인접 보관대 가장자리에 정렬
+function leCalcSnap(sec,propX,propZ){
+  var sl=SLOT[sec[3]]||{w:1.65,d:1.65};
+  var w=sec[5]*sl.w+(sec[5]-1)*.07,d=sec[4]*sl.d+(sec[4]-1)*.07;
+  leGuideX=[];leGuideZ=[];
+  var snapX=propX,snapZ=propZ,bestDX=LE_SNAP,bestDZ=LE_SNAP;
+  leSections.forEach(function(other){
+    if(other===sec)return;
+    var ro=leSRect(other);
+    // X축 정렬: 내 4개 엣지 vs 상대 4개 엣지
+    [[propX,ro.x],[propX,ro.x+ro.w],[propX+w,ro.x],[propX+w,ro.x+ro.w]].forEach(function(pair){
+      var dx=Math.abs(pair[0]-pair[1]);
+      if(dx<bestDX-0.01){bestDX=dx;snapX=propX+(pair[1]-pair[0]);leGuideX=[pair[1]];}
+      else if(dx<bestDX+0.01&&leGuideX.indexOf(pair[1])<0)leGuideX.push(pair[1]);
+    });
+    // Z축 정렬
+    [[propZ,ro.z],[propZ,ro.z+ro.d],[propZ+d,ro.z],[propZ+d,ro.z+ro.d]].forEach(function(pair){
+      var dz=Math.abs(pair[0]-pair[1]);
+      if(dz<bestDZ-0.01){bestDZ=dz;snapZ=propZ+(pair[1]-pair[0]);leGuideZ=[pair[1]];}
+      else if(dz<bestDZ+0.01&&leGuideZ.indexOf(pair[1])<0)leGuideZ.push(pair[1]);
+    });
+  });
+  // 스냅 미적용이면 가이드 없음
+  if(bestDX>=LE_SNAP)leGuideX=[];
+  if(bestDZ>=LE_SNAP)leGuideZ=[];
+  return{x:snapX,z:snapZ};
+}
 
 function leSRect(sec){
   var sl=SLOT[sec[3]]||{w:1.65,d:1.65};
@@ -1362,20 +1477,112 @@ function leHit(wx,wz){
   }
   return null;
 }
-function leTypeCol(stype){
-  if(stype==='standing')return'#26a69a';
-  if(stype==='medium')return'#2e7d32';
-  return'#388e3c';
+function leTypeCol(sec){
+  var stype=sec[3],sh=sec[6];
+  if(stype==='standing')return'#8d6e63';
+  if(stype==='medium')return sh===1?'#ef6c00':'#00897b';
+  return sh>=5?'#3949ab':'#5c6bc0';
+}
+
+// 레이블 히트 테스트 (월드 좌표)
+function leHitLbl(wx,wz){
+  for(var i=leLabels.length-1;i>=0;i--){
+    if(Math.abs(leLabels[i][1]-wx)<5&&Math.abs(leLabels[i][2]-wz)<5)return i;
+  }
+  return -1;
+}
+
+// 레이블 목록 패널 갱신
+function leShowLblPanel(){
+  var p=document.getElementById('le-lbl-panel');
+  if(!p)return;
+  var html=leLabels.map(function(lb,i){
+    return '<div class="le-lbl-item'+(leSelLabel===i?' active':'')+'" data-idx="'+i+'">'
+      +'<div class="le-lbl-dot" style="background:'+lb[4]+'"></div>'
+      +'<span class="le-lbl-txt">'+lb[0]+'</span>'
+      +'<span class="le-lbl-sz">'+lb[3]+'px</span>'
+      +'</div>';
+  }).join('');
+  if(leSelLabel>=0){
+    html+='<div class="le-sel-btns" style="margin-top:6px">'
+      +'<button class="le-btn-e" id="le-lbl-edit">✏ 편집</button>'
+      +'<button class="le-btn-d" id="le-lbl-del">삭제</button>'
+      +'</div>';
+  }
+  p.innerHTML=html;
+  p.querySelectorAll('.le-lbl-item').forEach(function(el){
+    el.addEventListener('click',function(){
+      leSelLabel=+this.dataset.idx;leSelSec=null;
+      leShowSel(null);leShowLblPanel();leRender();
+    });
+  });
+  if(leSelLabel>=0){
+    var eidx=leSelLabel;
+    var eb=document.getElementById('le-lbl-edit');
+    var db=document.getElementById('le-lbl-del');
+    if(eb)eb.onclick=function(){leOpenLblDlg(eidx);};
+    if(db)db.onclick=function(){
+      if(confirm('"'+leLabels[eidx][0]+'" 레이블을 삭제할까요?')){
+        leLabels.splice(eidx,1);
+        leSelLabel=-1;leShowLblPanel();leRender();
+      }
+    };
+  }
+}
+
+// 레이블 추가/편집 다이얼로그 열기 (editing: 인덱스 또는 -1)
+function leOpenLblDlg(editing){
+  var lb=editing>=0?leLabels[editing]:null;
+  document.getElementById('le-lbl-dlg-title').textContent=lb?'레이블 편집':'레이블 추가';
+  document.getElementById('le-lbl-text').value=lb?lb[0]:'';
+  var fz=lb?lb[3]:18;
+  document.getElementById('le-lbl-size').value=fz;
+  document.getElementById('le-lbl-size-val').textContent=fz;
+  document.getElementById('le-lbl-x').value=lb?lb[1]:Math.round(leMouse.x/2)*2;
+  document.getElementById('le-lbl-z').value=lb?lb[2]:Math.round(leMouse.z/2)*2;
+  leLblSelCol=lb?lb[4]:'#ffffff';
+  // 색상 스와치 렌더링
+  var cc=document.getElementById('le-lbl-colors');
+  cc.innerHTML=LE_LBL_COLORS.map(function(c){
+    return '<div class="le-lbl-swatch'+(c===leLblSelCol?' active':'')
+      +'" style="background:'+c+'" data-col="'+c+'"></div>';
+  }).join('');
+  cc.querySelectorAll('.le-lbl-swatch').forEach(function(sw){
+    sw.addEventListener('click',function(){
+      leLblSelCol=this.dataset.col;
+      cc.querySelectorAll('.le-lbl-swatch').forEach(function(s){s.classList.remove('active');});
+      this.classList.add('active');
+    });
+  });
+  document.getElementById('le-lbl-size').oninput=function(){
+    document.getElementById('le-lbl-size-val').textContent=this.value;
+  };
+  document.getElementById('le-lbl-dialog').style.display='flex';
+  document.getElementById('le-lbl-dlg-ok').onclick=function(){
+    var txt=document.getElementById('le-lbl-text').value.trim();
+    if(!txt){alert('텍스트를 입력하세요');return;}
+    var newLb=[txt,+document.getElementById('le-lbl-x').value,
+      +document.getElementById('le-lbl-z').value,
+      +document.getElementById('le-lbl-size').value,
+      leLblSelCol];
+    if(lb){leLabels[editing]=newLb;}else{leLabels.push(newLb);leSelLabel=leLabels.length-1;}
+    document.getElementById('le-lbl-dialog').style.display='none';
+    leShowLblPanel();leRender();
+  };
+  document.getElementById('le-lbl-dlg-cancel').onclick=function(){
+    document.getElementById('le-lbl-dialog').style.display='none';
+  };
+  setTimeout(function(){document.getElementById('le-lbl-text').focus();},60);
 }
 
 function leRender(){
   if(!leCanvas||!leCtx)return;
   var ctx=leCtx,cw=leCanvas.width,ch=leCanvas.height;
   ctx.clearRect(0,0,cw,ch);
-  ctx.fillStyle='#080c18';ctx.fillRect(0,0,cw,ch);
+  ctx.fillStyle='#152040';ctx.fillRect(0,0,cw,ch);
   // 공장 바닥
   var f1=leW2S(-85,-52.5),f2=leW2S(85,52.5);
-  ctx.fillStyle='#101828';ctx.fillRect(f1.x,f1.y,f2.x-f1.x,f2.y-f1.y);
+  ctx.fillStyle='#1c2e50';ctx.fillRect(f1.x,f1.y,f2.x-f1.x,f2.y-f1.y);
   ctx.strokeStyle='rgba(80,140,255,0.2)';ctx.lineWidth=1;
   ctx.strokeRect(f1.x,f1.y,f2.x-f1.x,f2.y-f1.y);
   // 격자
@@ -1391,7 +1598,7 @@ function leRender(){
   // 섹션
   leSections.forEach(function(sec){
     var r=leSRect(sec),p1=leW2S(r.x,r.z),p2=leW2S(r.x+r.w,r.z+r.d);
-    var sw=p2.x-p1.x,sh=p2.y-p1.y,isSel=(leSelSec===sec),col=leTypeCol(sec[3]);
+    var sw=p2.x-p1.x,sh=p2.y-p1.y,isSel=(leSelSec===sec),col=leTypeCol(sec);
     ctx.globalAlpha=isSel?1:.72;
     ctx.fillStyle=col;ctx.fillRect(p1.x,p1.y,sw,sh);
     ctx.globalAlpha=1;
@@ -1414,6 +1621,30 @@ function leRender(){
       ctx.strokeRect(pp1.x,pp1.y,pp2.x-pp1.x,pp2.y-pp1.y);
     }
   }
+  // 스마트 스냅 가이드라인
+  if(leGuideX.length||leGuideZ.length){
+    ctx.strokeStyle='rgba(80,220,255,0.75)';ctx.lineWidth=1;ctx.setLineDash([5,3]);
+    leGuideX.forEach(function(gx){var s=leW2S(gx,0);ctx.beginPath();ctx.moveTo(s.x,0);ctx.lineTo(s.x,ch);ctx.stroke();});
+    leGuideZ.forEach(function(gz){var s=leW2S(0,gz);ctx.beginPath();ctx.moveTo(0,s.y);ctx.lineTo(cw,s.y);ctx.stroke();});
+    ctx.setLineDash([]);
+  }
+  // 커스텀 레이블 렌더링
+  leLabels.forEach(function(lb,idx){
+    var p=leW2S(lb[1],lb[2]);
+    var fs=Math.max(9,Math.min(22,(lb[3]||18)*0.52));
+    ctx.save();
+    ctx.font='bold '+fs+'px Arial';
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    if(leSelLabel===idx){
+      var tw2=ctx.measureText(lb[0]).width;
+      ctx.strokeStyle='rgba(80,220,255,0.85)';ctx.lineWidth=1.5;ctx.setLineDash([]);
+      ctx.strokeRect(p.x-tw2/2-4,p.y-fs/2-3,tw2+8,fs+6);
+    }
+    ctx.shadowColor='rgba(0,0,0,0.85)';ctx.shadowBlur=4;
+    ctx.fillStyle=lb[4]||'#ffffff';
+    ctx.fillText(lb[0],p.x,p.y);
+    ctx.restore();
+  });
   // 좌표 표시
   ctx.globalAlpha=1;ctx.fillStyle='rgba(255,255,255,0.16)';ctx.font='9px Arial';
   ctx.textAlign='center';
@@ -1484,6 +1715,8 @@ function leOpenDlg(sec){
 
 function openLayoutEditor(){
   leSections=SECTIONS.map(function(s){return s.slice();});
+  leLabels=CUSTOM_LABELS.map(function(l){return l.slice();});
+  leSelLabel=-1;
   leSelTypeId=null;leSelSec=null;leDragSec=null;leDragStarted=false;
   document.getElementById('layout-editor').style.display='flex';
   // 팔레트 렌더링
@@ -1503,7 +1736,7 @@ function openLayoutEditor(){
       leShowSel(null);
     });
   });
-  setTimeout(leResize,50);
+  setTimeout(function(){leResize();leShowLblPanel();},50);
 }
 
 function closeLayoutEditor(){document.getElementById('layout-editor').style.display='none';}
@@ -1511,6 +1744,7 @@ function closeLayoutEditor(){document.getElementById('layout-editor').style.disp
 function leSaveLayout(){
   if(!confirm('레이아웃을 저장하고 3D 화면을 재구성합니다.\n금형 데이터는 유지됩니다.\n계속하시겠습니까?'))return;
   localStorage.setItem(LS_SEC_KEY,JSON.stringify(leSections));
+  localStorage.setItem(LS_LBL_KEY,JSON.stringify(leLabels));
   window.location.reload();
 }
 
@@ -1518,12 +1752,23 @@ function leSaveLayout(){
 leCanvas.addEventListener('mousemove',function(e){
   var ep=leGetEP(e),wp=leS2Wsnap(ep.cx,ep.cy);
   leMouse=wp;
+  leGuideX=[];leGuideZ=[];
   if(leDragSec){
     var wraw=leS2Wraw(ep.cx,ep.cy);
     if(Math.abs(e.clientX-leDragMSX)>4||Math.abs(e.clientY-leDragMSY)>4)leDragStarted=true;
     if(leDragStarted){
-      leDragSec[1]=Math.round((wraw.x-(leDragSec._dox||0))/2)*2;
-      leDragSec[2]=Math.round((wraw.z-(leDragSec._doz||0))/2)*2;
+      var nx=Math.round((wraw.x-(leDragSec._dox||0))/2)*2;
+      var nz=Math.round((wraw.z-(leDragSec._doz||0))/2)*2;
+      var sn=leCalcSnap(leDragSec,nx,nz);
+      leDragSec[1]=sn.x; leDragSec[2]=sn.z;
+    }
+  } else if(leSelTypeId) {
+    var rt2=null;
+    for(var i2=0;i2<RACK_TYPES.length;i2++)if(RACK_TYPES[i2].id===leSelTypeId){rt2=RACK_TYPES[i2];break;}
+    if(rt2){
+      var vSec=[null,wp.x,wp.z,rt2.stype,rt2.rows,rt2.cols,rt2.shelves];
+      var sn2=leCalcSnap(vSec,wp.x,wp.z);
+      leMouse={x:sn2.x,z:sn2.z};
     }
   }
   leRender();
@@ -1546,8 +1791,15 @@ leCanvas.addEventListener('mouseup',function(e){
     leMouse=wp;leOpenDlg(null);
   }else{
     var hit=leHit(wp.x,wp.z);
-    leSelSec=hit;leCanvas.style.cursor=hit?'pointer':'default';
-    leShowSel(hit);leRender();
+    if(hit){
+      leSelSec=hit;leSelLabel=-1;leCanvas.style.cursor='pointer';
+      leShowSel(hit);leShowLblPanel();leRender();
+    }else{
+      var lhit=leHitLbl(wp.x,wp.z);
+      leSelLabel=lhit;leSelSec=null;
+      leCanvas.style.cursor=lhit>=0?'pointer':'default';
+      leShowSel(null);leShowLblPanel();leRender();
+    }
   }
 });
 leCanvas.addEventListener('mouseleave',function(){
@@ -1558,6 +1810,7 @@ leCanvas.addEventListener('mouseleave',function(){
 document.getElementById('btn-layout').addEventListener('click',openLayoutEditor);
 document.getElementById('le-save-btn').addEventListener('click',leSaveLayout);
 document.getElementById('le-cancel-btn').addEventListener('click',closeLayoutEditor);
+document.getElementById('le-lbl-add').addEventListener('click',function(){leOpenLblDlg(-1);});
 window.addEventListener('resize',function(){if(leOpen)leResize();});
 
 })();
