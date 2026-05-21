@@ -43,8 +43,40 @@ body { background:#0f1c35; color:#e0e8ff; font-family:'Malgun Gothic','맑은 �
 .ac-pn  { font-size:11px; color:#ffb040; margin-top:1px; }
 .ac-sub { font-size:11px; color:rgba(255,255,255,0.36); margin-top:1px; }
 
-/* ── 툴바 버튼 ── */
-#floor-btns { display:flex; gap:5px; }
+/* ── 구역 통계 ── */
+#zone-stats-wrap { display:flex; align-items:center; gap:7px; flex-shrink:0; }
+#zone-select {
+  padding:5px 28px 5px 10px; background:rgba(80,140,255,0.1);
+  border:1px solid rgba(80,140,255,0.3); border-radius:6px; color:#8ab4f8;
+  font-size:12px; font-weight:600; cursor:pointer; outline:none;
+  -webkit-appearance:none; appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%235a9ef8'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 8px center;
+  font-family:'Malgun Gothic',sans-serif;
+}
+#zone-select option { background:#0d1428; }
+#zone-select:focus { border-color:rgba(80,140,255,0.65); }
+.st-chip {
+  padding:4px 9px; background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.08); border-radius:5px;
+  font-size:11px; color:rgba(255,255,255,0.45); white-space:nowrap;
+}
+.st-chip b { font-size:13px; font-weight:700; }
+.st-chip.st-u b { color:#50e896; }
+.st-chip.st-e b { color:#ff8c00; }
+.st-chip.st-x b { color:#ffb040; }
+#st-int { display:flex; align-items:center; gap:7px; }
+#st-ext { display:none; }
+#st-bar-wrap {
+  width:72px; height:6px; background:rgba(255,255,255,0.1); border-radius:3px; overflow:hidden;
+}
+#st-bar-fill {
+  height:100%; border-radius:3px;
+  background:linear-gradient(90deg,#1565c0,#43a047);
+  transition:width .7s cubic-bezier(.4,0,.2,1);
+}
+#st-pct { font-size:12px; font-weight:700; color:#7eb8f7; min-width:32px; text-align:right; }
+/* ── 툴바 버튼 (레이아웃 편집기용으로 유지) ── */
 .f-btn {
   padding:6px 12px; background:rgba(255,255,255,0.05);
   border:1px solid rgba(80,140,255,0.2); border-radius:6px;
@@ -349,10 +381,23 @@ body { background:#0f1c35; color:#e0e8ff; font-family:'Malgun Gothic','맑은 �
     <span id="search-clear">✕</span>
     <div id="autocomplete"></div>
   </div>
-  <div id="floor-btns">
-    <button class="f-btn active" id="btn1">1층</button>
-    <button class="f-btn" id="btn2">2층</button>
-    <button class="f-btn reset" id="btnReset">전체보기</button>
+  <div id="zone-stats-wrap">
+    <select id="zone-select">
+      <option value="all">📍 전체</option>
+      <option value="1f">본사 1층</option>
+      <option value="2f">본사 중2층</option>
+      <option value="ext">🏭 외부창고</option>
+    </select>
+    <div id="st-int">
+      <div class="st-chip">총 <b id="st-total-py">-</b>평</div>
+      <div class="st-chip st-u">사용 <b id="st-used-py">-</b>평 <span id="st-slots" style="font-size:10px;color:rgba(255,255,255,0.28)"></span></div>
+      <div class="st-chip st-e">여유 <b id="st-empty-py">-</b>평</div>
+      <div id="st-bar-wrap"><div id="st-bar-fill" style="width:0%"></div></div>
+      <div id="st-pct">-</div>
+    </div>
+    <div id="st-ext">
+      <div class="st-chip st-x">외부 보관 <b id="st-ext-cnt">-</b>벌</div>
+    </div>
   </div>
   <div id="excel-btns">
     <div class="xl-btn xl-upload" id="btn-upload" title="새 엑셀 파일로 업데이트">
@@ -793,6 +838,7 @@ var slotReg       = {};
 var allSlots      = [];
 var allSlotMeshes = [];
 var meshToSlot    = {};
+var sectionInfo   = {}; // 섹션별 재질·슬롯 추적 (구역 dimming용)
 
 function buildAllRacks() {
   SECTIONS.forEach(function(def){
@@ -806,6 +852,9 @@ function buildSection(name,sx,sz,type,rows,cols,shelves) {
   // 유형별 구분 색: 소형(파랑) / 중형(청록) / 세움형(갈색)
   var gcol=(type==='standing')?0x6d4c41:(type==='medium')?0x00695c:0x283593;
   var gm=mat(gcol,.6,.22); var ph=th+.12; var PR=.06;
+  // 섹션 추적 정보 초기화
+  var si={gm:gm, panelMats:[], labelSprite:null, slots:[], sqm: cols*sl.w * rows*sl.d};
+  sectionInfo[name]=si;
 
   [[0,0],[tw,0],[0,td],[tw,td]].forEach(function(d){
     addBox(sx+d[0],ph/2,sz+d[1],PR*2,ph,PR*2,gm);
@@ -817,11 +866,16 @@ function buildSection(name,sx,sz,type,rows,cols,shelves) {
     addBox(sx+tw/2,by,sz+td, tw,BT,BT,gm,false);
     addBox(sx,     by,sz+td/2,BT,BT,td,gm,false);
     addBox(sx+tw,  by,sz+td/2,BT,BT,td,gm,false);
-    if (s<shelves) addBox(sx+tw/2,by+.042,sz+td/2,tw-.02,.042,td-.02,mat(gcol-.08,.75,.05),false);
+    if (s<shelves) {
+      var pm=mat(gcol-.08,.75,.05);
+      si.panelMats.push(pm);
+      addBox(sx+tw/2,by+.042,sz+td/2,tw-.02,.042,td-.02,pm,false);
+    }
   }
   var lc=(type==='medium')?'#81c784':'#aed6f1';
   var lbl=makeSprite(name,lc,24);
   lbl.position.set(sx+tw/2,th+1.1,sz+td/2); lbl.scale.set(4.2,1.8,1); scene.add(lbl);
+  si.labelSprite=lbl;
 
   for (var r=0;r<rows;r++) {
     for (var c=0;c<cols;c++) {
@@ -860,13 +914,14 @@ function buildSection(name,sx,sz,type,rows,cols,shelves) {
         var entry={
           mesh:moldMesh, worldPos:wp, sprite:tag,
           moldData:null, locKey:k4, baseColor:0x6c7585,
-          spriteIsShared:true
+          spriteIsShared:true, secName:name
         };
         slotReg[k4]=entry;
         if (!slotReg[k3]) slotReg[k3]=entry;
         allSlots.push(entry);
         allSlotMeshes.push(moldMesh);
         meshToSlot[moldMesh.uuid]=entry;
+        si.slots.push(entry);
       }
     }
   }
@@ -1009,8 +1064,10 @@ function assignMoldsToSlots() {
     var end=Math.min(idx+30, occupied.length);
     for(;idx<end;idx++) updateSlotSprite(occupied[idx].entry, occupied[idx].text);
     if(idx<occupied.length) requestAnimationFrame(processBatch);
+    else updateStatsUI(CUR_ZONE); // 배치 완료 후 통계 갱신
   }
   if(occupied.length) requestAnimationFrame(processBatch);
+  else updateStatsUI(CUR_ZONE); // 금형 없을 때도 통계 표시
 }
 
 // 3D 슬롯 클릭
@@ -1091,13 +1148,117 @@ function resetCam(){
   clearHL(); deselectAll();
 }
 function switchFloor(f){
-  document.getElementById('btn1').classList.toggle('active',f===1);
-  document.getElementById('btn2').classList.toggle('active',f===2);
   if(f===2){
     build2F(); f2g.visible=true;
     gsap.to(camera.position,{x:0,y:50,z:40,duration:1.1,ease:'power2.inOut'});
     gsap.to(controls.target,{x:0,y:7,z:-5,duration:1.1,ease:'power2.inOut'});
   } else { f2g.visible=false; resetCam(); }
+}
+
+// ══════════════════════════════════════════════════════════════
+//  § 13-B. 구역 통계 & 카메라
+// ══════════════════════════════════════════════════════════════
+var CUR_ZONE='all';
+// 중층(중파) 섹션 여부
+function isZone2F(name){ return /^중/.test(name); }
+
+// 구역별 통계 계산
+function calcZoneStats(zoneId){
+  var total=0,used=0,sqm=0;
+  allSlots.forEach(function(e){
+    var is2f=isZone2F(e.secName||'');
+    if(zoneId==='1f'&&is2f)return;
+    if(zoneId==='2f'&&!is2f)return;
+    total++; if(e.moldData)used++;
+  });
+  SECTIONS.forEach(function(sec){
+    var nm=sec[0],type=sec[3],rows=sec[4],cols=sec[5];
+    var is2f=isZone2F(nm);
+    if(zoneId==='1f'&&is2f)return;
+    if(zoneId==='2f'&&!is2f)return;
+    var sl=SLOT[type]||{w:1.65,d:1.65};
+    sqm+=cols*sl.w*rows*sl.d;
+  });
+  var pct=total>0?Math.round(used/total*100):0;
+  var totalPy=Math.round(sqm/3.3058*10)/10;
+  var usedPy=Math.round(totalPy*(total>0?used/total:0)*10)/10;
+  var emptyPy=Math.round((totalPy-usedPy)*10)/10;
+  return{total:total,used:used,empty:total-used,pct:pct,totalPy:totalPy,usedPy:usedPy,emptyPy:emptyPy};
+}
+
+// 외부창고 금형 수
+function calcExtCount(){
+  if(!moldData.length)return 0;
+  return moldData.filter(function(m){return m.parsed&&m.parsed.type==='ext';}).length;
+}
+
+// DOM 통계 업데이트
+function updateStatsUI(zoneId){
+  var z=zoneId||CUR_ZONE;
+  var intDiv=document.getElementById('st-int');
+  var extDiv=document.getElementById('st-ext');
+  if(!intDiv)return;
+  if(z==='ext'){
+    intDiv.style.display='none'; extDiv.style.display='flex';
+    document.getElementById('st-ext-cnt').textContent=calcExtCount();
+  }else{
+    intDiv.style.display='flex'; extDiv.style.display='none';
+    var s=calcZoneStats(z);
+    document.getElementById('st-total-py').textContent=s.totalPy;
+    document.getElementById('st-used-py').textContent=s.usedPy;
+    document.getElementById('st-empty-py').textContent=s.emptyPy;
+    document.getElementById('st-slots').textContent=s.used+'/'+s.total+'칸';
+    document.getElementById('st-bar-fill').style.width=s.pct+'%';
+    document.getElementById('st-pct').textContent=s.pct+'%';
+    // 색상: 80%↑ 빨강, 60-80% 주황, ~60% 초록
+    var barCol=s.pct>=80?'linear-gradient(90deg,#c62828,#e53935)':
+               s.pct>=60?'linear-gradient(90deg,#e65100,#ef6c00)':
+                         'linear-gradient(90deg,#1565c0,#43a047)';
+    document.getElementById('st-bar-fill').style.background=barCol;
+  }
+}
+
+// 섹션 dimming
+function setSecDim(name,dimmed){
+  var si=sectionInfo[name]; if(!si)return;
+  var op=dimmed?0.07:1.0;
+  si.gm.transparent=dimmed; si.gm.opacity=op; si.gm.needsUpdate=true;
+  si.panelMats.forEach(function(pm){pm.transparent=dimmed;pm.opacity=op;pm.needsUpdate=true;});
+  if(si.labelSprite){si.labelSprite.material.opacity=dimmed?0.04:1.0;si.labelSprite.material.needsUpdate=true;}
+  si.slots.forEach(function(e){e.mesh.material.transparent=dimmed;e.mesh.material.opacity=op;e.mesh.material.needsUpdate=true;});
+}
+
+// 카메라 위치 정의
+var ZONE_CAM={
+  all: {pos:{x:10,y:75,z:80},tgt:{x:5,y:0,z:-5}},
+  '1f':{pos:{x:15,y:55,z:58},tgt:{x:15,y:0,z:-12}},
+  '2f':{pos:{x:-28,y:38,z:58},tgt:{x:-28,y:0,z:22}},
+};
+
+// 구역 적용 (카메라 + dim + 통계)
+function applyZone(zoneId){
+  CUR_ZONE=zoneId;
+  // f2g 가시성
+  if(zoneId==='2f'){build2F();f2g.visible=true;}
+  else{f2g.visible=false;}
+  // dim 초기화 후 적용
+  SECTIONS.forEach(function(sec){setSecDim(sec[0],false);});
+  if(zoneId==='1f'||zoneId==='2f'){
+    SECTIONS.forEach(function(sec){
+      var is2f=isZone2F(sec[0]);
+      var dimThisSec=(zoneId==='1f'&&is2f)||(zoneId==='2f'&&!is2f);
+      if(dimThisSec)setSecDim(sec[0],true);
+    });
+  }
+  // 카메라 이동
+  if(zoneId!=='ext'){
+    var cv=ZONE_CAM[zoneId]||ZONE_CAM.all;
+    gsap.to(camera.position,{x:cv.pos.x,y:cv.pos.y,z:cv.pos.z,duration:1.3,ease:'power3.inOut'});
+    gsap.to(controls.target,{x:cv.tgt.x,y:cv.tgt.y,z:cv.tgt.z,duration:1.3,ease:'power3.inOut'});
+  }
+  // 통계 갱신
+  updateStatsUI(zoneId);
+  clearHL(); deselectAll();
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -1312,9 +1473,9 @@ document.getElementById('results-area').addEventListener('click',function(e){
   pickResult(+item.dataset.i);
 });
 
-document.getElementById('btn1').addEventListener('click',function(){switchFloor(1);});
-document.getElementById('btn2').addEventListener('click',function(){switchFloor(2);});
-document.getElementById('btnReset').addEventListener('click',function(){resetCam();});
+document.getElementById('zone-select').addEventListener('change',function(){
+  applyZone(this.value);
+});
 
 document.getElementById('btn-upload').addEventListener('click',function(){document.getElementById('upload-in').click();});
 document.getElementById('btn-download').addEventListener('click',downloadExcel);
