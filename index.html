@@ -220,6 +220,76 @@ body { background:#080c18; color:#e0e8ff; font-family:'Malgun Gothic','맑은 �
 ::-webkit-scrollbar { width:4px; }
 ::-webkit-scrollbar-track { background:transparent; }
 ::-webkit-scrollbar-thumb { background:rgba(80,140,255,0.2); border-radius:2px; }
+
+/* ── 레이아웃 편집기 ── */
+#layout-editor {
+  position:fixed; inset:0; z-index:2000;
+  background:#080c18; display:none; flex-direction:column;
+}
+#le-topbar {
+  height:52px; background:rgba(8,12,24,0.98);
+  border-bottom:1px solid rgba(80,140,255,0.2);
+  display:flex; align-items:center; padding:0 16px; gap:12px; flex-shrink:0;
+}
+#le-topbar-title { font-size:14px; font-weight:700; color:#5a9ef8; white-space:nowrap; }
+#le-tip { font-size:11px; color:rgba(255,255,255,0.3); flex:1; white-space:nowrap; overflow:hidden; }
+.le-save-btn { padding:8px 18px; background:#2e7d32; color:#fff; border:none; border-radius:7px; cursor:pointer; font-size:13px; font-weight:600; }
+.le-save-btn:hover { background:#388e3c; }
+.le-cancel-btn { padding:8px 14px; background:rgba(255,255,255,0.05); color:rgba(255,255,255,0.6); border:1px solid rgba(255,255,255,0.12); border-radius:7px; cursor:pointer; font-size:13px; }
+.le-cancel-btn:hover { background:rgba(255,255,255,0.1); }
+#le-body { flex:1; display:flex; overflow:hidden; }
+#le-map-wrap { flex:1; position:relative; overflow:hidden; }
+#le-canvas { display:block; }
+#le-sidebar {
+  width:215px; background:rgba(8,12,28,0.98);
+  border-left:1px solid rgba(80,140,255,0.15);
+  padding:12px 10px; overflow-y:auto; display:flex; flex-direction:column; gap:3px; flex-shrink:0;
+}
+.le-stitle { font-size:10px; color:rgba(255,255,255,0.35); text-transform:uppercase; letter-spacing:1px; padding:4px 0 6px; margin-top:4px; }
+.le-type-btn {
+  padding:8px 10px; border-radius:6px; border:1px solid rgba(80,140,255,0.18);
+  cursor:pointer; font-size:12px; color:rgba(255,255,255,0.65);
+  display:flex; align-items:center; gap:8px; transition:all .15s;
+}
+.le-type-btn:hover { background:rgba(80,140,255,0.1); border-color:rgba(80,140,255,0.35); }
+.le-type-btn.leact { background:rgba(80,140,255,0.2); border-color:#5a9ef8; color:#fff; }
+.le-tdot { width:10px; height:10px; border-radius:2px; flex-shrink:0; }
+.le-tbadge { color:rgba(255,255,255,0.28); font-size:10px; margin-left:auto; }
+#le-sel-panel { font-size:12px; }
+.le-sel-empty { color:rgba(255,255,255,0.22); text-align:center; padding:18px 0; line-height:1.8; font-size:11px; }
+.le-sel-name { font-size:18px; font-weight:700; color:#5a9ef8; margin-bottom:6px; }
+.le-sel-row { color:rgba(255,255,255,0.5); margin:3px 0; font-size:11px; }
+.le-sel-btns { display:flex; gap:6px; margin-top:10px; }
+.le-btn-e { flex:1; padding:6px 0; background:rgba(80,140,255,0.15); color:#5a9ef8; border:none; border-radius:5px; cursor:pointer; font-size:12px; }
+.le-btn-e:hover { background:rgba(80,140,255,0.28); }
+.le-btn-d { flex:1; padding:6px 0; background:rgba(255,60,60,0.12); color:#ff6060; border:none; border-radius:5px; cursor:pointer; font-size:12px; }
+.le-btn-d:hover { background:rgba(255,60,60,0.25); }
+/* 다이얼로그 */
+#le-dialog {
+  position:fixed; inset:0; z-index:3000;
+  background:rgba(0,0,0,0.72); display:none; align-items:center; justify-content:center;
+}
+#le-dlg-box {
+  background:#0d1428; border:1px solid rgba(80,140,255,0.3);
+  border-radius:12px; padding:22px 24px; width:300px;
+}
+#le-dlg-title { font-size:14px; font-weight:700; color:#5a9ef8; margin-bottom:14px; }
+.le-fr { display:flex; flex-direction:column; gap:3px; margin-bottom:10px; }
+.le-fr label { font-size:10px; color:rgba(255,255,255,0.38); }
+.le-fr input, .le-fr select {
+  background:rgba(255,255,255,0.05); border:1px solid rgba(80,140,255,0.22);
+  border-radius:5px; padding:6px 9px; color:#fff; font-size:13px; outline:none;
+}
+.le-fr input:focus, .le-fr select:focus { border-color:rgba(80,140,255,0.6); }
+.le-fr select option { background:#0d1428; }
+.le-fr3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:10px; }
+.le-dlg-btns { display:flex; gap:8px; justify-content:flex-end; margin-top:14px; }
+.le-dlg-ok { padding:7px 18px; background:#1976d2; color:#fff; border:none; border-radius:6px; cursor:pointer; font-size:13px; }
+.le-dlg-ok:hover { background:#1e88e5; }
+.le-dlg-cancel-btn { padding:7px 12px; background:rgba(255,255,255,0.05); color:rgba(255,255,255,0.55); border:1px solid rgba(255,255,255,0.1); border-radius:6px; cursor:pointer; font-size:13px; }
+.le-dlg-cancel-btn:hover { background:rgba(255,255,255,0.1); }
+.xl-btn.xl-layout { border-color:rgba(100,210,100,0.28); }
+.xl-btn.xl-layout span { font-style:normal; }
 </style>
 </head>
 <body>
@@ -260,6 +330,9 @@ body { background:#080c18; color:#e0e8ff; font-family:'Malgun Gothic','맑은 �
     <div class="xl-btn xl-download" id="btn-download" title="현재 데이터 다운로드">
       <span>⬇</span> 다운로드
     </div>
+    <div class="xl-btn xl-layout" id="btn-layout" title="보관대 레이아웃 편집">
+      <span>📐</span> 레이아웃
+    </div>
   </div>
 </div>
 
@@ -284,6 +357,58 @@ body { background:#080c18; color:#e0e8ff; font-family:'Malgun Gothic','맑은 �
 </div>
 <div id="hint">🖱 드래그:회전 &nbsp;|&nbsp; 스크롤:줌 &nbsp;|&nbsp; 금형 클릭:상세정보 &nbsp;|&nbsp; 빈칸 클릭:등록</div>
 <div id="loading">📊 데이터 불러오는 중...</div>
+
+<!-- ────── 레이아웃 편집기 ────── -->
+<div id="layout-editor">
+  <div id="le-topbar">
+    <span id="le-topbar-title">📐 레이아웃 편집</span>
+    <span id="le-tip">보관대 유형 선택 → 지도 클릭 배치 &nbsp;|&nbsp; 기존 보관대 드래그 이동 &nbsp;|&nbsp; 클릭으로 선택·편집</span>
+    <button class="le-save-btn" id="le-save-btn">✔ 저장 및 반영</button>
+    <button class="le-cancel-btn" id="le-cancel-btn">✕ 취소</button>
+  </div>
+  <div id="le-body">
+    <div id="le-map-wrap"><canvas id="le-canvas"></canvas></div>
+    <div id="le-sidebar">
+      <div class="le-stitle">보관대 유형</div>
+      <div id="le-type-list"></div>
+      <div class="le-stitle" style="margin-top:10px">선택된 보관대</div>
+      <div id="le-sel-panel"><div class="le-sel-empty">유형 선택 후<br>지도를 클릭하거나<br>보관대를 클릭하세요</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ────── 섹션 추가/편집 다이얼로그 ────── -->
+<div id="le-dialog">
+  <div id="le-dlg-box">
+    <div id="le-dlg-title">보관대 추가</div>
+    <div class="le-fr">
+      <label>이름 (H, P, 중6, 중파8 등)</label>
+      <input type="text" id="le-dlg-name" placeholder="예: H">
+    </div>
+    <div class="le-fr">
+      <label>보관대 유형</label>
+      <select id="le-dlg-type">
+        <option value="shelf">소형 선반 (shelf)</option>
+        <option value="medium">중형 선반 (medium)</option>
+        <option value="standing">세움형 (standing)</option>
+      </select>
+    </div>
+    <div class="le-fr3">
+      <div class="le-fr"><label>앞뒤 행수</label><input type="number" id="le-dlg-rows" min="1" max="8" value="2"></div>
+      <div class="le-fr"><label>좌우 열수</label><input type="number" id="le-dlg-cols" min="1" max="8" value="3"></div>
+      <div class="le-fr"><label>단수</label><input type="number" id="le-dlg-shelves" min="1" max="8" value="3"></div>
+    </div>
+    <div class="le-fr3">
+      <div class="le-fr"><label>X 위치</label><input type="number" id="le-dlg-x" step="2" value="0"></div>
+      <div class="le-fr"><label>Z 위치</label><input type="number" id="le-dlg-z" step="2" value="0"></div>
+      <div></div>
+    </div>
+    <div class="le-dlg-btns">
+      <button class="le-dlg-cancel-btn" id="le-dlg-cancel">취소</button>
+      <button class="le-dlg-ok" id="le-dlg-ok">확인</button>
+    </div>
+  </div>
+</div>
 
 <!-- ────── 숨긴 input ────── -->
 <input type="file" id="upload-in" accept=".xlsx,.xls" style="display:none">
@@ -317,35 +442,38 @@ body { background:#080c18; color:#e0e8ff; font-family:'Malgun Gothic','맑은 �
 // ══════════════════════════════════════════════════════════════
 var LS_KEY      = 'ssautotech_mold_v2';
 var LS_DATE_KEY = 'ssautotech_mold_date';
+var LS_SEC_KEY  = 'ssautotech_sections_v1';
 
 // ══════════════════════════════════════════════════════════════
 //  § 2. 섹션 위치 정의
 // ══════════════════════════════════════════════════════════════
-var SECTIONS = [
-  ['P', 40,-28,'shelf', 2,2,2], ['Q', 44,-28,'shelf', 2,2,2], ['R', 48,-28,'shelf', 2,2,2],
-  ['S', 40,-24,'shelf', 2,2,2], ['T', 44,-24,'shelf', 2,2,2], ['U', 48,-24,'shelf', 2,2,2],
-  ['H', 40,-20,'shelf', 2,3,5], ['G', 44,-20,'shelf', 2,3,5], ['F', 48,-20,'shelf', 2,3,5],
-  ['E', 40,-16,'shelf', 2,3,5], ['D', 44,-16,'shelf', 2,3,5], ['C', 48,-16,'shelf', 2,3,5],
-  ['BA',54,-28,'medium',2,2,2], ['BB',59,-28,'medium',2,2,2], ['BC',64,-28,'medium',2,2,2],
-  ['BD',69,-28,'medium',2,2,2], ['BE',74,-28,'medium',2,2,2],
-  ['BJ',54,-22,'medium',2,2,2], ['BI',59,-22,'medium',2,2,2], ['BH',64,-22,'medium',2,2,2],
-  ['BG',69,-22,'medium',2,2,2], ['BF',74,-22,'medium',2,2,2],
-  ['B',-58, 5,'shelf', 3,3,2], ['A',-52, 5,'shelf', 3,3,2],
-  ['K',-44, 5,'shelf', 3,3,2], ['L',-39, 5,'shelf', 3,3,2],
-  ['M',-34, 5,'shelf', 3,3,2], ['N',-29, 5,'shelf', 3,3,2], ['J',-24, 5,'shelf', 3,3,2],
-  ['O',-10, 5,'shelf', 3,3,2], ['I', -5, 5,'shelf', 3,3,2],
-  // 중 구역: 팔렛 1단, 좌우2열×앞뒤3깊이 (shelves=1 → 키 형식: 섹션-열-깊이)
-  ['중1',-55,18,'medium',3,2,1], ['중2',-50,18,'medium',3,2,1],
-  ['중3',-45,18,'medium',3,2,1], ['중4',-40,18,'medium',3,2,1],
-  ['중5',-35,18,'medium',3,2,1], ['중6',-30,18,'medium',3,2,1],
-  // 중파 구역: 2층 팔렛 1단 (shelves=1 → 키 형식: 섹션-열-깊이)
-  ['중파1',-25,18,'medium',3,2,1], ['중파2',-20,18,'medium',3,2,1],
-  ['중파3',-15,18,'medium',3,2,1], ['중파4',-10,18,'medium',3,2,1],
-  ['중파5', -5,18,'medium',3,2,1],
-  ['중파6',-55,26,'medium',3,2,1], ['중파7',-50,26,'medium',3,2,1],
-  ['중파8',-45,26,'medium',3,2,1], ['중파9',-40,26,'medium',3,2,1],
-  ['중파10',-35,26,'medium',3,2,1],
-];
+var SECTIONS = (function(){
+  var _s=localStorage.getItem(LS_SEC_KEY);
+  if(_s){try{var _p=JSON.parse(_s);if(_p&&_p.length)return _p;}catch(_e){}}
+  return [
+    ['P', 40,-28,'shelf', 2,2,2], ['Q', 44,-28,'shelf', 2,2,2], ['R', 48,-28,'shelf', 2,2,2],
+    ['S', 40,-24,'shelf', 2,2,2], ['T', 44,-24,'shelf', 2,2,2], ['U', 48,-24,'shelf', 2,2,2],
+    ['H', 40,-20,'shelf', 2,3,5], ['G', 44,-20,'shelf', 2,3,5], ['F', 48,-20,'shelf', 2,3,5],
+    ['E', 40,-16,'shelf', 2,3,5], ['D', 44,-16,'shelf', 2,3,5], ['C', 48,-16,'shelf', 2,3,5],
+    ['BA',54,-28,'medium',2,2,2], ['BB',59,-28,'medium',2,2,2], ['BC',64,-28,'medium',2,2,2],
+    ['BD',69,-28,'medium',2,2,2], ['BE',74,-28,'medium',2,2,2],
+    ['BJ',54,-22,'medium',2,2,2], ['BI',59,-22,'medium',2,2,2], ['BH',64,-22,'medium',2,2,2],
+    ['BG',69,-22,'medium',2,2,2], ['BF',74,-22,'medium',2,2,2],
+    ['B',-58, 5,'shelf', 3,3,2], ['A',-52, 5,'shelf', 3,3,2],
+    ['K',-44, 5,'shelf', 3,3,2], ['L',-39, 5,'shelf', 3,3,2],
+    ['M',-34, 5,'shelf', 3,3,2], ['N',-29, 5,'shelf', 3,3,2], ['J',-24, 5,'shelf', 3,3,2],
+    ['O',-10, 5,'shelf', 3,3,2], ['I', -5, 5,'shelf', 3,3,2],
+    ['중1',-55,18,'medium',3,2,1], ['중2',-50,18,'medium',3,2,1],
+    ['중3',-45,18,'medium',3,2,1], ['중4',-40,18,'medium',3,2,1],
+    ['중5',-35,18,'medium',3,2,1], ['중6',-30,18,'medium',3,2,1],
+    ['중파1',-25,18,'medium',3,2,1], ['중파2',-20,18,'medium',3,2,1],
+    ['중파3',-15,18,'medium',3,2,1], ['중파4',-10,18,'medium',3,2,1],
+    ['중파5', -5,18,'medium',3,2,1],
+    ['중파6',-55,26,'medium',3,2,1], ['중파7',-50,26,'medium',3,2,1],
+    ['중파8',-45,26,'medium',3,2,1], ['중파9',-40,26,'medium',3,2,1],
+    ['중파10',-35,26,'medium',3,2,1],
+  ];
+}());
 
 var SLOT = {
   shelf:    { w:1.40, d:1.40, h:1.10 },
@@ -1200,6 +1328,237 @@ var clock=new THREE.Clock();
 // ══════════════════════════════════════════════════════════════
 buildFactory();
 loadFromStorage(); // 저장된 데이터 있으면 자동 로드
+
+// ══════════════════════════════════════════════════════════════
+//  § 20. 레이아웃 편집기
+// ══════════════════════════════════════════════════════════════
+var RACK_TYPES=[
+  {id:'shelf3',   label:'소형 3단',  stype:'shelf',   rows:2,cols:3,shelves:3, col:'#4caf50'},
+  {id:'shelf5',   label:'소형 5단',  stype:'shelf',   rows:2,cols:3,shelves:5, col:'#2e7d32'},
+  {id:'medium2',  label:'중형 2단',  stype:'medium',  rows:2,cols:2,shelves:2, col:'#66bb6a'},
+  {id:'standing', label:'세움형 3단',stype:'standing',rows:1,cols:4,shelves:3, col:'#26a69a'},
+  {id:'pallet',   label:'팔렛 1단',  stype:'medium',  rows:3,cols:2,shelves:1, col:'#8d6e63'},
+];
+var leOpen=false,leSections=[],leSelTypeId=null,leSelSec=null;
+var leCanvas=document.getElementById('le-canvas');
+var leCtx=leCanvas?leCanvas.getContext('2d'):null;
+var leMouse={x:0,z:0},leDragSec=null,leDragMSX=0,leDragMSY=0,leDragStarted=false;
+var LE_X1=-82,LE_X2=95,LE_Z1=-44,LE_Z2=42;
+var leScale=4;
+
+function leW2S(wx,wz){return{x:(wx-LE_X1)*leScale,y:(wz-LE_Z1)*leScale};}
+function leS2Wsnap(sx,sy){var x=sx/leScale+LE_X1,z=sy/leScale+LE_Z1;return{x:Math.round(x/2)*2,z:Math.round(z/2)*2};}
+function leS2Wraw(sx,sy){return{x:sx/leScale+LE_X1,z:sy/leScale+LE_Z1};}
+function leGetEP(e){var r=leCanvas.getBoundingClientRect();return{cx:e.clientX-r.left,cy:e.clientY-r.top};}
+
+function leSRect(sec){
+  var sl=SLOT[sec[3]]||{w:1.65,d:1.65};
+  return{x:sec[1],z:sec[2],w:sec[5]*sl.w+(sec[5]-1)*.07,d:sec[4]*sl.d+(sec[4]-1)*.07};
+}
+function leHit(wx,wz){
+  for(var i=leSections.length-1;i>=0;i--){
+    var r=leSRect(leSections[i]);
+    if(wx>=r.x&&wx<=r.x+r.w&&wz>=r.z&&wz<=r.z+r.d)return leSections[i];
+  }
+  return null;
+}
+function leTypeCol(stype){
+  if(stype==='standing')return'#26a69a';
+  if(stype==='medium')return'#2e7d32';
+  return'#388e3c';
+}
+
+function leRender(){
+  if(!leCanvas||!leCtx)return;
+  var ctx=leCtx,cw=leCanvas.width,ch=leCanvas.height;
+  ctx.clearRect(0,0,cw,ch);
+  ctx.fillStyle='#080c18';ctx.fillRect(0,0,cw,ch);
+  // 공장 바닥
+  var f1=leW2S(-85,-52.5),f2=leW2S(85,52.5);
+  ctx.fillStyle='#101828';ctx.fillRect(f1.x,f1.y,f2.x-f1.x,f2.y-f1.y);
+  ctx.strokeStyle='rgba(80,140,255,0.2)';ctx.lineWidth=1;
+  ctx.strokeRect(f1.x,f1.y,f2.x-f1.x,f2.y-f1.y);
+  // 격자
+  ctx.strokeStyle='rgba(255,255,255,0.04)';ctx.lineWidth=.5;
+  var gx,gz,gs;
+  for(gx=Math.ceil(LE_X1/5)*5;gx<=LE_X2;gx+=5){gs=leW2S(gx,0);ctx.beginPath();ctx.moveTo(gs.x,0);ctx.lineTo(gs.x,ch);ctx.stroke();}
+  for(gz=Math.ceil(LE_Z1/5)*5;gz<=LE_Z2;gz+=5){gs=leW2S(0,gz);ctx.beginPath();ctx.moveTo(0,gs.y);ctx.lineTo(cw,gs.y);ctx.stroke();}
+  // 원점
+  var og=leW2S(0,0);
+  ctx.strokeStyle='rgba(255,255,255,0.1)';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(og.x,0);ctx.lineTo(og.x,ch);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(0,og.y);ctx.lineTo(cw,og.y);ctx.stroke();
+  // 섹션
+  leSections.forEach(function(sec){
+    var r=leSRect(sec),p1=leW2S(r.x,r.z),p2=leW2S(r.x+r.w,r.z+r.d);
+    var sw=p2.x-p1.x,sh=p2.y-p1.y,isSel=(leSelSec===sec),col=leTypeCol(sec[3]);
+    ctx.globalAlpha=isSel?1:.72;
+    ctx.fillStyle=col;ctx.fillRect(p1.x,p1.y,sw,sh);
+    ctx.globalAlpha=1;
+    ctx.strokeStyle=isSel?'#fff':col;ctx.lineWidth=isSel?2.5:1;
+    ctx.strokeRect(p1.x,p1.y,sw,sh);
+    var fs=Math.max(7,Math.min(12,sw*.38));
+    ctx.fillStyle='rgba(255,255,255,'+(isSel?'1':'.85')+')';
+    ctx.font='bold '+fs+'px Arial';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(sec[0],p1.x+sw/2,p1.y+sh/2);
+  });
+  // 배치 미리보기
+  if(leSelTypeId&&!leDragSec){
+    var rt=null;for(var i=0;i<RACK_TYPES.length;i++)if(RACK_TYPES[i].id===leSelTypeId){rt=RACK_TYPES[i];break;}
+    if(rt){
+      var sl2=SLOT[rt.stype]||{w:1.65,d:1.65};
+      var pw=rt.cols*sl2.w+(rt.cols-1)*.07,pd=rt.rows*sl2.d+(rt.rows-1)*.07;
+      var pp1=leW2S(leMouse.x,leMouse.z),pp2=leW2S(leMouse.x+pw,leMouse.z+pd);
+      ctx.globalAlpha=.45;ctx.fillStyle=rt.col;ctx.fillRect(pp1.x,pp1.y,pp2.x-pp1.x,pp2.y-pp1.y);
+      ctx.globalAlpha=1;ctx.strokeStyle=rt.col;ctx.lineWidth=1.5;
+      ctx.strokeRect(pp1.x,pp1.y,pp2.x-pp1.x,pp2.y-pp1.y);
+    }
+  }
+  // 좌표 표시
+  ctx.globalAlpha=1;ctx.fillStyle='rgba(255,255,255,0.16)';ctx.font='9px Arial';
+  ctx.textAlign='center';
+  for(gx=Math.ceil(LE_X1/10)*10;gx<=LE_X2;gx+=10){gs=leW2S(gx,0);ctx.fillText(gx,gs.x,ch-3);}
+  ctx.textAlign='right';
+  for(gz=Math.ceil(LE_Z1/10)*10;gz<=LE_Z2;gz+=10){gs=leW2S(0,gz);ctx.fillText(gz,30,gs.y+3);}
+}
+
+function leResize(){
+  if(!leCanvas)return;
+  var wrap=document.getElementById('le-map-wrap');
+  leCanvas.width=wrap.clientWidth;leCanvas.height=wrap.clientHeight;
+  leScale=Math.min(leCanvas.width/(LE_X2-LE_X1),leCanvas.height/(LE_Z2-LE_Z1))*0.92;
+  leRender();
+}
+
+function leShowSel(sec){
+  var p=document.getElementById('le-sel-panel');
+  if(!sec){p.innerHTML='<div class="le-sel-empty">유형 선택 후 지도를 클릭하거나<br>보관대를 클릭하여 선택하세요</div>';return;}
+  p.innerHTML='<div class="le-sel-name">'+sec[0]+'</div>'
+    +'<div class="le-sel-row">유형: '+sec[3]+'</div>'
+    +'<div class="le-sel-row">행×열×단: '+sec[4]+'×'+sec[5]+'×'+sec[6]+'</div>'
+    +'<div class="le-sel-row">위치 x='+sec[1]+' z='+sec[2]+'</div>'
+    +'<div class="le-sel-btns">'
+    +'<button class="le-btn-e" id="le-b-edit">✏ 편집</button>'
+    +'<button class="le-btn-d" id="le-b-del">🗑 삭제</button></div>';
+  document.getElementById('le-b-edit').onclick=function(){leOpenDlg(sec);};
+  document.getElementById('le-b-del').onclick=function(){
+    if(confirm('"'+sec[0]+'" 삭제하시겠습니까?')){
+      var idx=leSections.indexOf(sec);if(idx>=0)leSections.splice(idx,1);
+      leSelSec=null;leShowSel(null);leRender();
+    }
+  };
+}
+
+function leOpenDlg(sec){
+  var adding=!sec;
+  document.getElementById('le-dlg-title').textContent=adding?'새 보관대 추가':'"'+sec[0]+'" 편집';
+  document.getElementById('le-dlg-name').value=sec?sec[0]:'';
+  document.getElementById('le-dlg-type').value=sec?sec[3]:'shelf';
+  document.getElementById('le-dlg-rows').value=sec?sec[4]:2;
+  document.getElementById('le-dlg-cols').value=sec?sec[5]:3;
+  document.getElementById('le-dlg-shelves').value=sec?sec[6]:3;
+  document.getElementById('le-dlg-x').value=sec?sec[1]:Math.round(leMouse.x/2)*2;
+  document.getElementById('le-dlg-z').value=sec?sec[2]:Math.round(leMouse.z/2)*2;
+  document.getElementById('le-dialog').style.display='flex';
+  document.getElementById('le-dlg-ok').onclick=function(){
+    var nm=document.getElementById('le-dlg-name').value.trim();
+    if(!nm){alert('이름을 입력하세요');return;}
+    if(adding){
+      var ns=[nm,+document.getElementById('le-dlg-x').value,+document.getElementById('le-dlg-z').value,
+        document.getElementById('le-dlg-type').value,
+        +document.getElementById('le-dlg-rows').value,+document.getElementById('le-dlg-cols').value,
+        +document.getElementById('le-dlg-shelves').value];
+      leSections.push(ns);leSelSec=ns;leShowSel(ns);
+    }else{
+      sec[0]=nm;sec[1]=+document.getElementById('le-dlg-x').value;sec[2]=+document.getElementById('le-dlg-z').value;
+      sec[3]=document.getElementById('le-dlg-type').value;
+      sec[4]=+document.getElementById('le-dlg-rows').value;sec[5]=+document.getElementById('le-dlg-cols').value;
+      sec[6]=+document.getElementById('le-dlg-shelves').value;
+      leShowSel(sec);
+    }
+    document.getElementById('le-dialog').style.display='none';leRender();
+  };
+  document.getElementById('le-dlg-cancel').onclick=function(){document.getElementById('le-dialog').style.display='none';};
+  setTimeout(function(){document.getElementById('le-dlg-name').focus();},60);
+}
+
+function openLayoutEditor(){
+  leSections=SECTIONS.map(function(s){return s.slice();});
+  leSelTypeId=null;leSelSec=null;leDragSec=null;leDragStarted=false;
+  document.getElementById('layout-editor').style.display='flex';
+  // 팔레트 렌더링
+  var tl=document.getElementById('le-type-list');
+  tl.innerHTML=RACK_TYPES.map(function(rt){
+    return '<div class="le-type-btn" data-id="'+rt.id+'">'
+      +'<div class="le-tdot" style="background:'+rt.col+'"></div>'
+      +rt.label
+      +'<span class="le-tbadge">'+rt.shelves+'단</span></div>';
+  }).join('');
+  tl.querySelectorAll('.le-type-btn').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      leSelTypeId=this.dataset.id;leSelSec=null;
+      tl.querySelectorAll('.le-type-btn').forEach(function(b){b.classList.remove('leact');});
+      this.classList.add('leact');
+      leCanvas.style.cursor='crosshair';
+      leShowSel(null);
+    });
+  });
+  setTimeout(leResize,50);
+}
+
+function closeLayoutEditor(){document.getElementById('layout-editor').style.display='none';}
+
+function leSaveLayout(){
+  if(!confirm('레이아웃을 저장하고 3D 화면을 재구성합니다.\n금형 데이터는 유지됩니다.\n계속하시겠습니까?'))return;
+  localStorage.setItem(LS_SEC_KEY,JSON.stringify(leSections));
+  window.location.reload();
+}
+
+// 캔버스 마우스 이벤트
+leCanvas.addEventListener('mousemove',function(e){
+  var ep=leGetEP(e),wp=leS2Wsnap(ep.cx,ep.cy);
+  leMouse=wp;
+  if(leDragSec){
+    var wraw=leS2Wraw(ep.cx,ep.cy);
+    if(Math.abs(e.clientX-leDragMSX)>4||Math.abs(e.clientY-leDragMSY)>4)leDragStarted=true;
+    if(leDragStarted){
+      leDragSec[1]=Math.round((wraw.x-(leDragSec._dox||0))/2)*2;
+      leDragSec[2]=Math.round((wraw.z-(leDragSec._doz||0))/2)*2;
+    }
+  }
+  leRender();
+});
+leCanvas.addEventListener('mousedown',function(e){
+  if(leSelTypeId)return;
+  var ep=leGetEP(e),wraw=leS2Wraw(ep.cx,ep.cy);
+  var hit=leHit(wraw.x,wraw.z);
+  if(hit){leDragSec=hit;leDragMSX=e.clientX;leDragMSY=e.clientY;leDragStarted=false;
+    var r=leSRect(hit);hit._dox=wraw.x-hit[1];hit._doz=wraw.z-hit[2];}
+});
+leCanvas.addEventListener('mouseup',function(e){
+  var ep=leGetEP(e),wp=leS2Wsnap(ep.cx,ep.cy);
+  if(leDragSec&&leDragStarted){
+    leSelSec=leDragSec;leShowSel(leDragSec);
+    leDragSec=null;leDragStarted=false;leRender();return;
+  }
+  leDragSec=null;leDragStarted=false;
+  if(leSelTypeId){
+    leMouse=wp;leOpenDlg(null);
+  }else{
+    var hit=leHit(wp.x,wp.z);
+    leSelSec=hit;leCanvas.style.cursor=hit?'pointer':'default';
+    leShowSel(hit);leRender();
+  }
+});
+leCanvas.addEventListener('mouseleave',function(){
+  if(leDragSec&&leDragStarted){leDragSec=null;leDragStarted=false;leRender();}
+});
+
+// 버튼 이벤트
+document.getElementById('btn-layout').addEventListener('click',openLayoutEditor);
+document.getElementById('le-save-btn').addEventListener('click',leSaveLayout);
+document.getElementById('le-cancel-btn').addEventListener('click',closeLayoutEditor);
+window.addEventListener('resize',function(){if(leOpen)leResize();});
 
 })();
 </script>
