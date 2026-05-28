@@ -147,6 +147,20 @@ body { background:#1e3a5c; color:#e8f0ff; font-family:'Malgun Gothic','맑은 �
 .d-val.pn  { color:#ffb040; font-size:16px; }
 .shot-bar { width:100%; height:4px; background:rgba(255,255,255,0.07); border-radius:2px; margin-top:4px; }
 .shot-fill { height:100%; border-radius:2px; }
+.d-edit {
+  background:rgba(255,255,255,0.06); border:1px solid rgba(90,140,220,0.25);
+  border-radius:4px; color:#d8e8ff; font-weight:600; font-size:14px;
+  text-align:right; width:175px; padding:2px 6px;
+  transition:border-color .15s, background .15s;
+}
+.d-edit:focus { outline:none; border-color:rgba(90,158,248,0.7); background:rgba(20,40,80,0.6); }
+.d-edit[type="number"]::-webkit-inner-spin-button { opacity:0.4; }
+.d-reg-btn {
+  width:100%; padding:9px; background:rgba(80,140,255,0.13);
+  border:1px solid rgba(80,140,255,0.28); border-radius:6px;
+  color:#7eb8f7; cursor:pointer; font-size:13px; font-weight:600; margin-top:4px;
+}
+.d-reg-btn:hover { background:rgba(80,140,255,0.28); border-color:#7eb8f7; }
 
 /* ── Drop Overlay ── */
 #drop {
@@ -320,7 +334,8 @@ body { background:#1e3a5c; color:#e8f0ff; font-family:'Malgun Gothic','맑은 �
 .le-dlg-ok:hover { background:#1e88e5; }
 .le-dlg-cancel-btn { padding:7px 12px; background:rgba(255,255,255,0.05); color:rgba(255,255,255,0.55); border:1px solid rgba(255,255,255,0.1); border-radius:6px; cursor:pointer; font-size:13px; }
 .le-dlg-cancel-btn:hover { background:rgba(255,255,255,0.1); }
-.xl-btn.xl-layout { border-color:rgba(100,210,100,0.28); }
+.xl-btn.xl-layout     { border-color:rgba(100,210,100,0.28); }
+.xl-btn.xl-layout-up  { border-color:rgba(255,200,60,0.38); color:rgba(255,200,60,0.9); }
 .xl-btn.xl-layout span { font-style:normal; }
 /* 레이블 관련 */
 .le-lbl-add-btn {
@@ -523,6 +538,9 @@ body { background:#1e3a5c; color:#e8f0ff; font-family:'Malgun Gothic','맑은 �
     <div class="xl-btn xl-download" id="btn-download" title="현재 데이터 다운로드">
       <span>⬇</span> 다운로드
     </div>
+    <div class="xl-btn xl-layout-up" id="btn-layout-upload" title="위치 매칭 Excel 업로드 (시트별 레이아웃 형식)">
+      <span>📋</span> 위치Excel
+    </div>
     <div class="xl-btn xl-layout" id="btn-layout" title="보관대 레이아웃 편집">
       <span>📐</span> 레이아웃
     </div>
@@ -663,7 +681,8 @@ body { background:#1e3a5c; color:#e8f0ff; font-family:'Malgun Gothic','맑은 �
 </div>
 
 <!-- ────── 숨긴 input ────── -->
-<input type="file" id="upload-in" accept=".xlsx,.xls" style="display:none">
+<input type="file" id="upload-in"        accept=".xlsx,.xls" style="display:none">
+<input type="file" id="layout-upload-in" accept=".xlsx,.xls" style="display:none">
 
 <!-- ────── 슬롯 등록 모달 ────── -->
 <div id="modal-backdrop"></div>
@@ -870,21 +889,19 @@ var EMPTY_TAG_MAT = (function() {
   return new THREE.SpriteMaterial({ map:new THREE.CanvasTexture(c), transparent:true, depthTest:false });
 }());
 
-// 슬롯별 위치 코드 레이블 재질 생성 (U-2-2 형태)
+// 슬롯 바닥면 위치 코드 레이블 재질 (G-1-1 형태, 작고 심플)
 function makeLocMat(locKey) {
-  var CW=256, CH=96;
+  var CW=256, CH=72;
   var c=document.createElement('canvas'); c.width=CW; c.height=CH;
   var ctx=c.getContext('2d');
-  // 가는 테두리
-  ctx.strokeStyle='rgba(80,140,220,0.28)'; ctx.lineWidth=2;
-  ctx.strokeRect(3,3,CW-6,CH-6);
-  // 위치 코드 텍스트
-  ctx.font='bold 34px Malgun Gothic,Arial';
+  // 위치 코드 텍스트 (흰색, 가독성 높은 그림자)
+  ctx.font='bold 32px Malgun Gothic,Arial';
   ctx.textAlign='center'; ctx.textBaseline='middle';
-  ctx.fillStyle='rgba(140,200,255,0.55)';
-  ctx.shadowColor='rgba(0,0,0,0.8)'; ctx.shadowBlur=6;
+  ctx.fillStyle='rgba(220,235,255,0.90)';
+  ctx.shadowColor='rgba(0,0,0,0.95)'; ctx.shadowBlur=8;
   ctx.fillText(locKey, CW/2, CH/2);
-  return new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),transparent:true,depthTest:false});
+  // Mesh용 MeshBasicMaterial 반환 (빌보드 아님 → 3D 회전과 동일하게 움직임)
+  return new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(c),transparent:true,depthTest:false,side:THREE.DoubleSide});
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -1039,6 +1056,11 @@ function buildAllRacks() {
   });
 }
 
+// 열 번호 계산: 중1~중6은 오른쪽이 1번 (역방향), 나머지는 왼쪽이 1번
+function colNum(secName, c, cols) {
+  return /^중\d+$/.test(secName) ? cols - c : c + 1;
+}
+
 function buildSection(name,sx,sz,type,rows,cols,shelves,yOff) {
   yOff = yOff||0;
   var sl=SLOT[type];
@@ -1120,12 +1142,13 @@ function buildSection(name,sx,sz,type,rows,cols,shelves,yOff) {
         // 키 형식: shelves==1(중/중파 팔렛) → 섹션-열-앞뒤
         //          shelves>1 (일반 랙)      → 섹션-단-열-앞뒤
         var k4, k3;
+        var cn = colNum(name, c, cols);  // 구역별 열 번호 (중1~6: 역방향)
         if (shelves===1) {
-          k4 = name+'-'+(c+1)+'-'+(r+1);   // 섹션-열-앞뒤
-          k3 = name+'-'+(c+1);              // 섹션-열
+          k4 = name+'-'+cn+'-'+(r+1);   // 섹션-열-앞뒤
+          k3 = name+'-'+cn;              // 섹션-열
         } else {
-          k4 = name+'-'+(sh+1)+'-'+(c+1)+'-'+(r+1);  // 섹션-단-열-앞뒤
-          k3 = name+'-'+(sh+1)+'-'+(c+1);              // 섹션-단-열
+          k4 = name+'-'+(sh+1)+'-'+cn+'-'+(r+1);  // 섹션-단-열-앞뒤
+          k3 = name+'-'+(sh+1)+'-'+cn;              // 섹션-단-열
         }
 
         var moldMesh=new THREE.Mesh(new THREE.BoxGeometry(mw,mh,md),MAT_MOLD.clone());
@@ -1135,16 +1158,22 @@ function buildSection(name,sx,sz,type,rows,cols,shelves,yOff) {
         var ej=new THREE.Mesh(new THREE.CylinderGeometry(mw*.09,mw*.09,.035,8),MAT_EJEC);
         ej.rotation.x=Math.PI/2; ej.position.set(mx,my+mh*.12,mz-md/2-.004); scene.add(ej);
 
-        // 빈 슬롯: 위치 코드 레이블 (k4 키 기반 개별 텍스처)
+        // 위치 코드 태그: 선반 바닥면에 표시 (Mesh → 3D 회전과 함께 움직임)
         var emptyMat=makeLocMat(k4);
-        var tag=new THREE.Sprite(emptyMat);
-        tag.position.set(mx,my+mh/2+0.55,mz);
-        tag.scale.set(sl.w*1.55,sl.h*0.75,1);
+        var tag=new THREE.Mesh(new THREE.PlaneGeometry(mw*1.05, mh*0.28), emptyMat);
+        tag.position.set(mx, yOff+sh*sl.h+0.12, mz-md/2-0.01);
         scene.add(tag);
+
+        // 품명 오버레이: 금형 박스 중앙에 (점유 시만 표시, Mesh → 3D 회전과 함께 움직임)
+        var nameMat=new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthTest:false,side:THREE.DoubleSide});
+        var nameTag=new THREE.Mesh(new THREE.PlaneGeometry(mw*1.05, mh*0.85), nameMat);
+        nameTag.position.set(mx, my, mz-md/2-0.02);
+        nameTag.visible=false;
+        scene.add(nameTag);
 
         var wp=new THREE.Vector3(mx,my,mz);
         var entry={
-          mesh:moldMesh, worldPos:wp, sprite:tag,
+          mesh:moldMesh, worldPos:wp, sprite:tag, nameSprite:nameTag,
           moldData:null, locKey:k4, baseColor:0x6c7585,
           spriteIsShared:true, secName:name,
           emptyMat:emptyMat
@@ -1226,59 +1255,42 @@ function doHighlight(entry){
 function updateSlotSprite(entry, text) {
   if (!entry.sprite) return;
   if (!text) {
-    // 빈 슬롯 → 위치 코드 재질로 복원
-    if (!entry.spriteIsShared) {
-      var old=entry.sprite.material;
-      entry.sprite.material=entry.emptyMat||EMPTY_TAG_MAT;
-      if(old.map) old.map.dispose();
-      old.dispose();
-      entry.spriteIsShared=true;
-    }
+    // 빈 슬롯 → 품명 오버레이 숨기기, floor 태그는 그대로 유지
+    if (entry.nameSprite) entry.nameSprite.visible=false;
+    entry.spriteIsShared=true;
     return;
   }
-  // 점유 슬롯 → 고해상도 텍스처 (배경 패널 + 2줄 텍스트)
-  var CW=1024, CH=384;
+  // 점유 슬롯 → 품명 텍스트만 금형 박스 위에 오버레이 (배경 없음)
+  if (!entry.nameSprite) return;
+
+  var CW=512, CH=192;
   var c=document.createElement('canvas'); c.width=CW; c.height=CH;
   var ctx=c.getContext('2d');
   ctx.clearRect(0,0,CW,CH);
 
-  // 배경 패널 (반투명 어두운 박스)
-  var pad=18;
-  ctx.fillStyle='rgba(2,8,22,0.82)';
-  ctx.beginPath();
-  if(ctx.roundRect){ctx.roundRect(pad,pad,CW-pad*2,CH-pad*2,20);}
-  else{ctx.rect(pad,pad,CW-pad*2,CH-pad*2);}
-  ctx.fill();
-  // 테두리
-  ctx.strokeStyle='rgba(90,158,248,0.55)';
-  ctx.lineWidth=5;
-  ctx.stroke();
-
-  // 1줄: 부품명 (길이에 따라 폰트 크기 자동 조절)
-  var fs1 = text.length<=6 ? 120 : text.length<=10 ? 88 : 68;
-  var maxLen = text.length<=6 ? 13 : text.length<=10 ? 17 : 22;
+  // 텍스트만 (배경 없음) — 그림자로 가독성 확보
+  var fs1 = text.length<=8 ? 70 : text.length<=14 ? 50 : 36;
+  var maxLen = text.length<=8 ? 14 : text.length<=14 ? 20 : 28;
   ctx.font='bold '+fs1+'px Malgun Gothic,Arial';
   ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.shadowColor='rgba(0,0,0,1)'; ctx.shadowBlur=16;
+  ctx.shadowOffsetX=0; ctx.shadowOffsetY=0;
+  // 그림자 여러 번 → 두꺼운 아웃라인 효과
+  ctx.fillStyle='rgba(0,0,0,0.9)';
+  ctx.fillText(text.length>maxLen?text.slice(0,maxLen)+'…':text, CW/2, CH/2);
+  ctx.shadowBlur=10;
   ctx.fillStyle='#ffffff';
-  ctx.shadowColor='rgba(0,0,0,1)'; ctx.shadowBlur=18;
-  var t1=text.length>maxLen?text.slice(0,maxLen)+'…':text;
-  ctx.fillText(t1, CW/2, CH*0.38);
+  ctx.fillText(text.length>maxLen?text.slice(0,maxLen)+'…':text, CW/2, CH/2);
 
-  // 2줄: 위치 코드 (노란색)
-  if (entry.locKey) {
-    ctx.font='bold 82px Malgun Gothic,Arial';
-    ctx.fillStyle='#ffd060';
-    ctx.shadowBlur=12;
-    ctx.fillText(entry.locKey, CW/2, CH*0.75);
+  var newMat=new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(c),transparent:true,depthTest:false,side:THREE.DoubleSide});
+  if(entry.nameSprite.material) {
+    entry.nameSprite.material.map && entry.nameSprite.material.map.dispose();
+    entry.nameSprite.material.dispose();
   }
-
-  var newMat=new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),transparent:true,depthTest:false});
-  if(!entry.spriteIsShared){
-    entry.sprite.material.map && entry.sprite.material.map.dispose();
-    entry.sprite.material.dispose();
-  }
-  entry.sprite.material=newMat;
-  entry.spriteIsShared=false;
+  entry.nameSprite.material=newMat;
+  entry.nameSprite.visible=true;
+  // floor 태그(위치코드)는 그대로 유지
+  entry.spriteIsShared=true;
 }
 
 // 엑셀 데이터 → 슬롯 매핑 (배치 처리로 UI 프리즈 방지)
@@ -1287,12 +1299,8 @@ function assignMoldsToSlots() {
   allSlots.forEach(function(entry){
     entry.moldData=null; entry.baseColor=0x6c7585;
     entry.mesh.material.color.set(0x6c7585);
-    if(!entry.spriteIsShared){
-      entry.sprite.material.map && entry.sprite.material.map.dispose();
-      entry.sprite.material.dispose();
-      entry.sprite.material=entry.emptyMat||EMPTY_TAG_MAT;
-      entry.spriteIsShared=true;
-    }
+    if(entry.nameSprite) entry.nameSprite.visible=false;
+    entry.spriteIsShared=true;
   });
 
   // 2단계: 점유 슬롯 수집 (색상 즉시 적용)
@@ -1330,14 +1338,14 @@ function assignMoldsToSlots() {
   else updateStatsUI(CUR_ZONE); // 금형 없을 때도 통계 표시
 }
 
-// 3D 슬롯 클릭 → 금형 있으면 오른쪽 패널 표시, 없으면 랙 팝업
+// 3D 슬롯 클릭 → 항상 오른쪽 패널에 표시 (금형 있으면 상세, 없으면 슬롯 정보)
 function onSlotClick(entry){
-  if(entry.moldData) {
+  doHighlight(entry);
+  flyTo(entry.worldPos);
+  if(entry.moldData){
     showDetail(entry.moldData);
-    doHighlight(entry);
-    flyTo(entry.worldPos);
-  } else if(entry.secName) {
-    showRackPopup(entry.secName);
+  } else {
+    showEmptySlotDetail(entry);
   }
 }
 
@@ -1374,10 +1382,10 @@ function showRackPopup(secName){
     +'<div class="rp-stat s-empty">여유 '+(total-used)+' 슬롯</div>'
     +'<div class="rp-stat s-pct">점유 '+pct+'%</div>';
 
-  // 슬롯 그리드 — 단수 높은 것부터
+  // 슬롯 그리드 — 1단(맨 하단)부터 오름차순
   var isMidFloorSec = /^중/.test(name);
   var html='';
-  for(var sh=shelves-1;sh>=0;sh--){
+  for(var sh=0;sh<shelves;sh++){
     var shLabel=(sh+1)+'단';
     if(!isMidFloorSec && sh===shelves-1) shLabel=(sh+1)+'단 <span style="font-size:10px;color:#90a4ae;font-weight:400;">(천장 위)</span>';
     html+='<div class="rp-shelf"><div class="rp-shelf-hdr">'+shLabel+'</div>';
@@ -1385,7 +1393,8 @@ function showRackPopup(secName){
       html+='<div class="rp-grid-row">';
       if(rows>1) html+='<div class="rp-row-lbl">'+(r===0?'앞':'뒤')+'</div>';
       for(var c=0;c<cols;c++){
-        var key=shelves===1?name+'-'+(c+1)+'-'+(r+1):name+'-'+(sh+1)+'-'+(c+1)+'-'+(r+1);
+        var cn=colNum(name,c,cols);
+        var key=shelves===1?name+'-'+cn+'-'+(r+1):name+'-'+(sh+1)+'-'+cn+'-'+(r+1);
         var e=slotReg[key];
         if(e&&e.moldData){
           var m=e.moldData;
@@ -1676,34 +1685,207 @@ function loadExcel(file){
       var wb=XLSX.read(new Uint8Array(e.target.result),{type:'array'});
       var ws=wb.Sheets[wb.SheetNames[0]];
       var rows=XLSX.utils.sheet_to_json(ws);
+      // 컬럼명 별칭 처리 (다양한 엑셀 양식 대응)
+      function col(row, keys){ for(var i=0;i<keys.length;i++) if(row[keys[i]]!=null) return String(row[keys[i]]); return ''; }
       moldData=rows.map(function(row){
+        var loc=col(row,['금형위치','위치','보관위치','적재위치','Location']);
         return {
-          moldNum:  String(row['금형번호']     ||''),
-          location: String(row['금형위치']     ||''),
-          parsed:   parseLocation(row['금형위치']),
-          customer: String(row['고객사명']     ||''),
-          partName: String(row['부품명']       ||''),
-          partCode: String(row['부품코드']     ||''),
-          custPN:   String(row['고객사 P/N']   ||''),
-          model:    String(row['품종(MODEL)']  ||''),
-          grade:    String(row['금형등급']     ||''),
-          category: String(row['금형구분']     ||''),
-          totalShot:Number(row['금형보증SHOT수']||0),
-          usedShot: Number(row['금형사용SHOT수']||0),
+          moldNum:  col(row,['금형번호','Mold No','몰드번호']),
+          location: loc,
+          parsed:   parseLocation(loc),
+          customer: col(row,['고객사명','고객사','Customer']),
+          partName: col(row,['부품명','Part Name','품명']),
+          partCode: col(row,['부품코드','부품번호','Part Code']),
+          custPN:   col(row,['고객사 P/N','고객P/N','P/N','고객 P/N']),
+          model:    col(row,['품종(MODEL)','모델','Model','차종']),
+          grade:    col(row,['금형등급','등급','Grade']),
+          category: col(row,['금형구분','구분','Category']),
+          totalShot:Number(col(row,['금형보증SHOT수','보증SHOT','TotalShot'])||0),
+          usedShot: Number(col(row,['금형사용SHOT수','사용SHOT','UsedShot'])||0),
         };
       });
       document.getElementById('loading').style.display='none';
       document.getElementById('drop').style.display='none';
+      var withLoc=moldData.filter(function(m){return m.parsed&&m.parsed.type==='int';}).length;
       var savedDate=new Date().toLocaleDateString('ko-KR',
         {year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
       document.getElementById('results-area').innerHTML=
         '<div class="r-header">총 '+moldData.length+'개 금형 로드됨'
+        +(withLoc>0?'<br><span style="color:#50e896;font-size:11px">✔ 위치코드 있음: '+withLoc+'개 → 3D 랙에 배정</span>':'')
+        +(moldData.length-withLoc>0?'<br><span style="color:#ffb040;font-size:11px">⚠ 위치코드 없음: '+(moldData.length-withLoc)+'개</span>':'')
         +'<br><span style="color:rgba(255,180,60,0.6);font-size:10px">업데이트: '+savedDate+'</span></div>';
       // 저장 및 3D 매핑
       saveToStorage();
       assignMoldsToSlots();
     } catch(err){
       alert('파일 읽기 오류: '+err.message);
+      document.getElementById('loading').style.display='none';
+    }
+  };
+  rd.readAsArrayBuffer(file);
+}
+
+// ══════════════════════════════════════════════════════════════
+//  § 14-B. 위치 매칭 Excel 업로드 (시트별 레이아웃 형식)
+//  - 각 시트 이름 = 섹션명 (BJ, 중파1, 중1 등)
+//  - BJ형: 셀에 위치코드 "단-열(-앞뒤)" 포함
+//  - 중파형: 열 헤더 "N열" + 앞/뒤 행 그룹
+// ══════════════════════════════════════════════════════════════
+
+// 한 시트를 파싱해 [{moldNum, location, partName, ...}] 반환
+function parseLayoutSheet(ws, secName) {
+  var rows = XLSX.utils.sheet_to_json(ws, {header:1, defval:''});
+  var molds = [];
+  // 위치코드 패턴: "1-1", "3-2", "2-1-2" 같은 짧은 숫자-숫자(-숫자?)
+  var posRe = /^\d{1,2}-\d{1,2}(-\d{1,2})?$/;
+
+  // ── BJ형 판별: 위치코드 셀이 있는지 확인
+  var hasPosCode = false;
+  rows.forEach(function(row) {
+    row.forEach(function(cell) {
+      if (posRe.test(String(cell).trim())) hasPosCode = true;
+    });
+  });
+
+  if (hasPosCode) {
+    // ── BJ형 파싱: 위치코드 셀 → 아래 행에서 라벨-값 추출
+    rows.forEach(function(row, ri) {
+      row.forEach(function(cell, ci) {
+        var pos = String(cell).trim();
+        if (!posRe.test(pos)) return;
+
+        var moldNum='', partName='', vehicleType='', drawingNum='';
+        for (var dr=1; dr<=6; dr++) {
+          var r = ri + dr;
+          if (r >= rows.length) break;
+          var drow = rows[r];
+          // 위치코드 셀(ci) 기준 ±2 컬럼에서 라벨-값 쌍 찾기
+          for (var lc=Math.max(0,ci-2); lc<=ci+1; lc++) {
+            var lbl = String(drow[lc]||'').replace(/[\s　]/g,'');
+            var val = String(drow[lc+1]||'').trim();
+            if (!val) continue;
+            if (lbl==='금형번호')                    moldNum     = val;
+            else if (lbl==='품명')                   partName    = val;
+            else if (lbl==='차종'||lbl==='차 종')    vehicleType = val;
+            else if (lbl==='도번'||lbl==='도 번')    drawingNum  = val;
+          }
+          // 다른 위치코드 행이 나오면 중단
+          var hitNew = drow.some(function(c,c2){
+            return c2!==ci && posRe.test(String(c).trim());
+          });
+          if (hitNew && dr>=2) break;
+        }
+        if (!moldNum) return;
+
+        var locCode = secName+'-'+pos;
+        molds.push({
+          moldNum:moldNum, location:locCode, parsed:parseLocation(locCode),
+          customer:'', partName:partName, partCode:drawingNum,
+          custPN:drawingNum, model:vehicleType, grade:'', category:'',
+          totalShot:0, usedShot:0
+        });
+      });
+    });
+
+  } else {
+    // ── 중파형 파싱: "N열" 헤더 찾기 → 그 아래 행 그룹으로 앞/뒤 구분
+    var colMap = {}; // colIndex → 열번호
+    var headerRow = -1;
+    rows.forEach(function(row, ri) {
+      row.forEach(function(cell, ci) {
+        var m = String(cell).trim().match(/^(\d+)열$/);
+        if (m) { colMap[ci] = parseInt(m[1]); headerRow = ri; }
+      });
+    });
+    if (headerRow < 0) return molds;
+
+    // 각 열별로 아래 행에서 금형번호를 찾아 앞(depth=1)/뒤(depth=2) 순서대로 적재
+    Object.keys(colMap).forEach(function(ci) {
+      ci = parseInt(ci);
+      var colNum = colMap[ci];
+      var depths = []; // [{moldNum, partName, vehicleType, drawingNum}]
+      var cur = null;
+
+      for (var ri=headerRow+1; ri<rows.length; ri++) {
+        var row = rows[ri];
+        // 라벨은 ci-1, 값은 ci 에 있는 구조
+        var lbl = String(row[ci-1]||'').replace(/[\s　]/g,'');
+        var val = String(row[ci]||'').trim();
+
+        if (lbl==='차종'||lbl==='차 종') {
+          if (cur && cur.moldNum) depths.push(cur);
+          cur = {moldNum:'', partName:'', vehicleType:val, drawingNum:''};
+        } else if (cur) {
+          if (lbl==='품명')                cur.partName    = val;
+          else if (lbl==='도번'||lbl==='도 번') cur.drawingNum  = val;
+          else if (lbl==='금형번호')       cur.moldNum     = val;
+        }
+      }
+      if (cur && cur.moldNum) depths.push(cur);
+
+      depths.forEach(function(d, idx) {
+        var locCode = secName+'-'+colNum+'-'+(idx+1);
+        molds.push({
+          moldNum:d.moldNum, location:locCode, parsed:parseLocation(locCode),
+          customer:'', partName:d.partName, partCode:d.drawingNum,
+          custPN:d.drawingNum, model:d.vehicleType, grade:'', category:'',
+          totalShot:0, usedShot:0
+        });
+      });
+    });
+  }
+
+  return molds;
+}
+
+// 레이아웃 Excel 파일 전체 로드
+function loadLayoutExcel(file) {
+  document.getElementById('loading').style.display='block';
+  var rd = new FileReader();
+  rd.onload = function(e) {
+    try {
+      var wb = XLSX.read(new Uint8Array(e.target.result), {type:'array'});
+      var allMolds = [];
+      var parsed=0, skipped=[];
+
+      wb.SheetNames.forEach(function(sheetName) {
+        var secName = sheetName.trim();
+        // 알려진 섹션 이름인지 확인
+        var known = SECTIONS.some(function(s){ return s[0]===secName; });
+        if (!known) { skipped.push(secName); return; }
+        var ws = wb.Sheets[sheetName];
+        var result = parseLayoutSheet(ws, secName);
+        allMolds = allMolds.concat(result);
+        if (result.length) parsed++;
+      });
+
+      document.getElementById('loading').style.display='none';
+      if (!allMolds.length) {
+        alert('금형 데이터를 찾을 수 없습니다.\n시트 이름이 섹션명(BJ, 중파1 등)과 일치하는지 확인하세요.');
+        return;
+      }
+
+      // 기존 데이터에 덮어쓰기 (병합)
+      // 이미 있는 moldData 중 위치코드가 겹치지 않는 것은 유지, 새 것은 추가
+      var newKeys = {};
+      allMolds.forEach(function(m){ if(m.location) newKeys[m.location]=true; });
+      var kept = moldData.filter(function(m){ return !newKeys[m.location]; });
+      moldData = kept.concat(allMolds);
+
+      var savedDate = new Date().toLocaleDateString('ko-KR',
+        {year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+      document.getElementById('results-area').innerHTML =
+        '<div class="r-header">위치 Excel 로드 완료<br>'
+        +'<span style="color:rgba(255,200,60,0.8);font-size:10px">'
+        +parsed+'개 시트 · '+allMolds.length+'개 금형 위치 반영 · '+savedDate+'</span>'
+        +(skipped.length?'<br><span style="color:rgba(255,100,100,0.7);font-size:10px">미인식 시트: '+skipped.join(', ')+'</span>':'')
+        +'</div>';
+      document.getElementById('drop').style.display='none';
+
+      saveToStorage();
+      assignMoldsToSlots();
+    } catch(err) {
+      alert('레이아웃 Excel 읽기 오류: '+err.message);
       document.getElementById('loading').style.display='none';
     }
   };
@@ -1754,25 +1936,91 @@ function pickResult(i){
   var m=curResults[i]; if(!m) return;
   showDetail(m); navigateTo(m);
 }
+// 빈 슬롯 클릭 시 오른쪽 패널에 위치 정보 표시
+function showEmptySlotDetail(entry){
+  var dv=document.getElementById('detail');
+  dv.style.display='block';
+  dv.innerHTML=
+    '<div class="d-title" style="color:#90caf9">📍 '+esc(entry.locKey)+'</div>'
+    +'<div class="d-row"><span class="d-lbl">위치코드</span><span class="d-val ok">'+esc(entry.locKey)+'</span></div>'
+    +'<div class="d-row"><span class="d-lbl">섹션</span><span class="d-val">'+esc(entry.secName)+'</span></div>'
+    +'<div class="d-row" style="margin-top:4px;border-bottom:none">'
+      +'<span style="color:#78909c;font-size:13px;font-style:italic">빈 슬롯 — 금형 미적재</span>'
+    +'</div>'
+    +'<div id="d-reg-btn-wrap" style="margin-top:10px"></div>';
+  var btn=document.createElement('button');
+  btn.textContent='+ 이 위치에 금형 등록';
+  btn.className='d-reg-btn';
+  btn.onclick=function(){showInputModal(entry);};
+  document.getElementById('d-reg-btn-wrap').appendChild(btn);
+  dv.scrollIntoView({block:'nearest'});
+}
 function showDetail(m){
   var dv=document.getElementById('detail');
   var sp=m.totalShot>0?Math.min(100,Math.round(m.usedShot/m.totalShot*100)):0;
   var sc=sp>80?'#ff4444':sp>60?'#ffaa00':'#50e896';
   var locCls=(!m.location)?'':((m.parsed&&m.parsed.type==='int')?' ok':' ext');
   dv.style.display='block';
+
+  function eRow(label, field, val, isNum) {
+    return '<div class="d-row">'
+      +'<span class="d-lbl">'+label+'</span>'
+      +'<input class="d-edit" data-field="'+field+'" '+(isNum?'type="number" ':'')
+      +'value="'+esc(val||'')+'" placeholder="-">'
+      +'</div>';
+  }
+
   dv.innerHTML=
     '<div class="d-title">⚙ '+esc(m.moldNum)+'</div>'
+    // 위치·금형번호는 표시만
     +'<div class="d-row"><span class="d-lbl">위치</span><span class="d-val'+locCls+'" style="font-size:17px;letter-spacing:1px">'+esc(m.location||'미등록')+'</span></div>'
-    +(m.custPN?'<div class="d-row"><span class="d-lbl">고객사 P/N</span><span class="d-val pn">'+esc(m.custPN)+'</span></div>':'')
-    +'<div class="d-row"><span class="d-lbl">부품명</span><span class="d-val">'+esc(m.partName||'-')+'</span></div>'
-    +'<div class="d-row"><span class="d-lbl">고객사</span><span class="d-val">'+esc(m.customer||'-')+'</span></div>'
-    +'<div class="d-row"><span class="d-lbl">모델</span><span class="d-val">'+esc(m.model||'-')+'</span></div>'
-    +'<div class="d-row"><span class="d-lbl">구분</span><span class="d-val">'+esc(m.category||'-')+'</span></div>'
-    +'<div class="d-row"><span class="d-lbl">등급</span><span class="d-val">'+esc(m.grade||'-')+'</span></div>'
+    +eRow('고객사 P/N','custPN',m.custPN)
+    +eRow('부품명','partName',m.partName)
+    +eRow('고객사','customer',m.customer)
+    +eRow('모델','model',m.model)
+    +eRow('구분','category',m.category)
+    +eRow('등급','grade',m.grade)
+    +eRow('보증 SHOT','totalShot',m.totalShot||'',true)
+    +eRow('사용 SHOT','usedShot',m.usedShot||'',true)
     +(m.totalShot>0?'<div class="d-row"><span class="d-lbl">SHOT 사용률</span>'
-    +'<span class="d-val" style="color:'+sc+'">'+sp+'%'
-    +'<div class="shot-bar"><div class="shot-fill" style="width:'+sp+'%;background:'+sc+'"></div></div>'
-    +'</span></div>':'');
+    +'<span class="d-val" id="d-shot-pct" style="color:'+sc+'">'+sp+'%'
+    +'<div class="shot-bar"><div class="shot-fill" id="d-shot-bar" style="width:'+sp+'%;background:'+sc+'"></div></div>'
+    +'</span></div>':'<div id="d-shot-pct-wrap"></div>');
+
+  // 실시간 수정 이벤트
+  dv.querySelectorAll('.d-edit').forEach(function(inp){
+    inp.addEventListener('input', function(){
+      var field=this.dataset.field;
+      var val=this.type==='number'?Number(this.value)||0:this.value;
+      m[field]=val;
+
+      // SHOT 바 즉시 업데이트
+      if(field==='totalShot'||field==='usedShot'){
+        var newSp=m.totalShot>0?Math.min(100,Math.round(m.usedShot/m.totalShot*100)):0;
+        var newSc=newSp>80?'#ff4444':newSp>60?'#ffaa00':'#50e896';
+        var pctEl=document.getElementById('d-shot-pct');
+        var barEl=document.getElementById('d-shot-bar');
+        var wrapEl=document.getElementById('d-shot-pct-wrap');
+        if(pctEl){pctEl.style.color=newSc; pctEl.childNodes[0].textContent=newSp+'%';}
+        if(barEl){barEl.style.width=newSp+'%';barEl.style.background=newSc;}
+        if(wrapEl&&m.totalShot>0){
+          wrapEl.outerHTML='<div class="d-row"><span class="d-lbl">SHOT 사용률</span>'
+            +'<span class="d-val" id="d-shot-pct" style="color:'+newSc+'">'+newSp+'%'
+            +'<div class="shot-bar"><div class="shot-fill" id="d-shot-bar" style="width:'+newSp+'%;background:'+newSc+'"></div></div>'
+            +'</span></div>';
+        }
+      }
+
+      // 품명 변경 시 3D nameTag 즉시 갱신
+      if(field==='partName'){
+        var entry=allSlots.find(function(e){return e.moldData===m;});
+        if(entry) updateSlotSprite(entry, val);
+      }
+
+      saveToStorage();
+    });
+  });
+
   dv.scrollIntoView({block:'nearest'});
 }
 function navigateTo(m){
@@ -1877,6 +2125,10 @@ document.getElementById('btn-upload').addEventListener('click',function(){docume
 document.getElementById('btn-download').addEventListener('click',downloadExcel);
 document.getElementById('upload-in').addEventListener('change',function(e){
   var f=e.target.files[0]; if(f) loadExcel(f); e.target.value='';
+});
+document.getElementById('btn-layout-upload').addEventListener('click',function(){document.getElementById('layout-upload-in').click();});
+document.getElementById('layout-upload-in').addEventListener('change',function(e){
+  var f=e.target.files[0]; if(f) loadLayoutExcel(f); e.target.value='';
 });
 
 var dropZone=document.getElementById('drop-zone');
