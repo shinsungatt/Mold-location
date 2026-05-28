@@ -2154,10 +2154,15 @@ dropZone.addEventListener('drop',function(e){
 fileIn.addEventListener('change',function(e){var f=e.target.files[0]; if(f) loadExcel(f);});
 
 // 3D 캔버스 클릭
-renderer.domElement.addEventListener('mousedown',function(e){mouseDownPos.x=e.clientX;mouseDownPos.y=e.clientY;});
-renderer.domElement.addEventListener('click',function(e){
+// OrbitControls가 pointerdown에서 preventDefault()를 호출해 mousedown이 억제되므로
+// pointerdown/pointerup으로 직접 클릭 감지
+renderer.domElement.addEventListener('pointerdown',function(e){
+  mouseDownPos.x=e.clientX; mouseDownPos.y=e.clientY;
+});
+renderer.domElement.addEventListener('pointerup',function(e){
+  if(e.button!==0) return; // 왼쪽 버튼만
   var dx=e.clientX-mouseDownPos.x, dy=e.clientY-mouseDownPos.y;
-  if(dx*dx+dy*dy>25) return;
+  if(dx*dx+dy*dy>25) return; // 드래그 시 무시
   if(document.getElementById('slot-modal').style.display==='block'){closeInputModal();return;}
   onCanvasClick(e);
 });
