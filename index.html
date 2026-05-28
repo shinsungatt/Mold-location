@@ -1338,13 +1338,24 @@ function assignMoldsToSlots() {
   else updateStatsUI(CUR_ZONE); // 금형 없을 때도 통계 표시
 }
 
-// 3D 슬롯 클릭 → 항상 오른쪽 패널에 표시 (금형 있으면 상세, 없으면 슬롯 정보)
+// 3D 슬롯 클릭 → 검색 결과와 동일 구조로 우측 패널 전체 업데이트
 function onSlotClick(entry){
   doHighlight(entry);
   flyTo(entry.worldPos);
   if(entry.moldData){
+    // ① 결과 목록(상단): 검색했을 때와 동일하게 결과 카드 표시
+    curResults=[entry.moldData]; selIdx=0;
+    renderResults([entry.moldData]);
+    var el=document.querySelector('.r-item[data-i="0"]');
+    if(el) el.classList.add('sel');
+    // ② 상세 패널(하단): 금형 상세 정보 표시
     showDetail(entry.moldData);
   } else {
+    // 빈 슬롯: 결과 영역에 위치 정보 표시 + 상세에 등록 버튼
+    curResults=[]; selIdx=-1;
+    document.getElementById('results-area').innerHTML=
+      '<div class="r-header" style="color:#90caf9;font-size:13px">📍 '+esc(entry.locKey)
+      +'<br><span style="color:rgba(255,255,255,0.32);font-size:11px">빈 슬롯 — 금형 미적재</span></div>';
     showEmptySlotDetail(entry);
   }
 }
