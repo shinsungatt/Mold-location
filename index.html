@@ -435,6 +435,50 @@ body { background:#1e3a5c; color:#e8f0ff; font-family:'Malgun Gothic','맑은 �
 .rp-mnum { font-weight:700; font-size:12px; line-height:1.3; }
 .rp-mpn  { font-size:9px; color:rgba(255,180,60,0.65); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; width:100%; }
 
+/* ── 금형 타입 버튼 ── */
+.d-type-row { align-items:flex-start; }
+.type-btn-grp { display:flex; gap:5px; flex-wrap:wrap; }
+.type-btn { padding:5px 10px; border-radius:5px; cursor:pointer; font-weight:700; font-size:12px; border:2px solid; transition:all .2s; background:transparent; }
+.type-btn-A { border-color:#4CAF50; color:#4CAF50; }
+.type-btn-B { border-color:#2196F3; color:#2196F3; }
+.type-btn-C { border-color:#FF9800; color:#FF9800; }
+.type-btn-D { border-color:#E53935; color:#E53935; }
+.type-btn.active { color:#fff; }
+.type-btn-A.active { background:#4CAF50; }
+.type-btn-B.active { background:#2196F3; }
+.type-btn-C.active { background:#FF9800; }
+.type-btn-D.active { background:#E53935; }
+.type-size-badge { display:block; font-size:9px; font-weight:400; opacity:0.8; }
+
+/* ── 랙 팝업 내 랙 타입 선택 ── */
+.rp-rtype-area { padding:10px 12px 6px; border-top:1px solid rgba(255,255,255,0.1); }
+.rp-rtype-grp { display:flex; gap:6px; flex-wrap:wrap; margin-top:6px; }
+.rp-rtype-btn {
+  flex:1; min-width:80px; padding:7px 8px; border-radius:7px; cursor:pointer;
+  font-weight:700; font-size:12px; border:2px solid; transition:all .2s;
+  background:transparent; display:flex; flex-direction:column; align-items:center; gap:2px;
+}
+.rp-rtype-A { border-color:#4CAF50; color:#4CAF50; }
+.rp-rtype-B { border-color:#2196F3; color:#2196F3; }
+.rp-rtype-C { border-color:#FF9800; color:#FF9800; }
+.rp-rtype-D { border-color:#E53935; color:#E53935; }
+.rp-rtype-btn.rtype-active { color:#fff; }
+.rp-rtype-A.rtype-active { background:#4CAF50; }
+.rp-rtype-B.rtype-active { background:#2196F3; }
+.rp-rtype-C.rtype-active { background:#FF9800; }
+.rp-rtype-D.rtype-active { background:#E53935; }
+.rtype-sub { font-size:9px; font-weight:400; opacity:0.85; white-space:nowrap; }
+
+/* ── 랙 크기 편집 ── */
+#rp-footer { flex-shrink:0; }
+.rack-size-edit { padding:10px 12px; border-top:1px solid rgba(255,255,255,0.1); margin-top:8px; }
+.rse-hdr { font-size:11px; color:#90caf9; margin-bottom:6px; font-weight:600; }
+.rse-row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+.rse-row label { font-size:11px; color:rgba(255,255,255,0.5); display:flex; align-items:center; gap:4px; }
+.rse-row input[type=number] { width:52px; padding:3px 5px; background:rgba(255,255,255,0.07); border:1px solid rgba(80,140,255,0.3); border-radius:4px; color:#fff; font-size:12px; text-align:center; }
+#rse-apply { padding:5px 12px; background:rgba(80,140,255,0.2); border:1px solid rgba(80,140,255,0.5); border-radius:5px; color:#8ab4f8; cursor:pointer; font-size:12px; font-weight:600; }
+#rse-apply:hover { background:rgba(80,140,255,0.4); }
+
 /* ── 금형 상세 팝업 ── */
 #mold-popup-bg {
   position:fixed; inset:0; background:rgba(0,0,0,0.75);
@@ -530,6 +574,7 @@ body { background:#1e3a5c; color:#e8f0ff; font-family:'Malgun Gothic','맑은 �
     <div id="st-ext">
       <div class="st-chip st-x">외부 보관 <b id="st-ext-cnt">-</b>벌</div>
     </div>
+    <div id="st-diag" style="font-size:10px;color:rgba(255,255,255,0.28);padding:2px 4px;display:none;word-break:break-all;line-height:1.5"></div>
   </div>
   <div id="excel-btns">
     <div class="xl-btn xl-upload" id="btn-upload" title="새 엑셀 파일로 업데이트">
@@ -711,6 +756,7 @@ body { background:#1e3a5c; color:#e8f0ff; font-family:'Malgun Gothic','맑은 �
     <div id="rp-progress"><div id="rp-progress-fill"></div></div>
     <div id="rp-stats"></div>
     <div id="rp-body"></div>
+    <div id="rp-footer"></div>
   </div>
 </div>
 
@@ -787,6 +833,90 @@ var SLOT = {
   medium:   { w:1.65, d:1.65, h:1.40 },
   standing: { w:2.10, d:2.60, h:2.60 },
 };
+
+// 금형 A~D 타입 정의 (이미지 기준)
+var MOLD_TYPES = {
+  A: { label:'A타입', size:0.30, color:0x4CAF50, desc:'0.30m' },
+  B: { label:'B타입', size:0.35, color:0x2196F3, desc:'0.35m' },
+  C: { label:'C타입', size:0.42, color:0xFF9800, desc:'0.40~0.45m' },
+  D: { label:'D타입', size:0.55, color:0xE53935, desc:'0.5m 이상' }
+};
+
+// 섹션별 랙 기본 크기 (w: 섹션 x간격에 맞춰 인접 배치, d: 깊이, h는 buildSection에서 2.5m 기준 자동 계산)
+var RACK_DEFAULTS = {};
+(function(){
+  // BA-BJ 그룹: x 간격 5m → w=5.0, 1열 깊이
+  ['BA','BB','BC','BD','BE','BJ','BI','BH','BG','BF'].forEach(function(n){
+    RACK_DEFAULTS[n] = { w:5.0, d:1.5 };
+  });
+  // P-U 그룹: x 간격 4m → w=4.0
+  ['P','Q','R','S','T','U'].forEach(function(n){
+    RACK_DEFAULTS[n] = { w:4.0, d:2.0 };
+  });
+  // H-C 그룹: x 간격 4m → w=4.0
+  ['H','G','F','E','D','C'].forEach(function(n){
+    RACK_DEFAULTS[n] = { w:4.0, d:2.0 };
+  });
+  // K-J, O-I 그룹: x 간격 5m → w=5.0
+  ['K','L','M','N','O','I','J'].forEach(function(n){
+    RACK_DEFAULTS[n] = { w:5.0, d:2.0 };
+  });
+})();
+
+// 랙 타입 A~D 구조 정의 (이미지 기준)
+var RACK_TYPE_CONFIG = {
+  A: { cols:2, rows:1, shelves:2, desc:'가로2×세로1, 2칸' },
+  B: { cols:3, rows:2, shelves:3, desc:'가로3×세로2, 3칸' },
+  C: { cols:4, rows:2, shelves:4, desc:'가로4×세로2, 4칸' },
+  D: { cols:5, rows:1, shelves:4, desc:'가로5×세로1, 4칸' }
+};
+// localStorage에서 섹션별 랙 타입 로드
+var LS_RACK_TYPE_KEY = 'ssautotech_rack_types_v1';
+var sectionRackTypes = (function(){
+  var _s = localStorage.getItem(LS_RACK_TYPE_KEY);
+  if (_s) { try { return JSON.parse(_s) || {}; } catch(_e) {} } return {};
+})();
+function saveRackTypes(){
+  try { localStorage.setItem(LS_RACK_TYPE_KEY, JSON.stringify(sectionRackTypes)); } catch(e) {}
+}
+
+// 섹션별 코드 기본 랙 타입 (사용자 설정 없을 때 적용)
+var SECTION_DEFAULT_RACK_TYPES = {
+  'BA':'A','BB':'A','BC':'A','BD':'A','BE':'A',
+  'BJ':'A','BI':'A','BH':'A','BG':'A','BF':'A'
+};
+
+// 마이그레이션 v2: BA~BJ sectionRackTypes 이전 테스트 데이터 초기화
+(function(){
+  var mk = 'ssautotech_migration_v2';
+  if (!localStorage.getItem(mk)) {
+    ['BA','BB','BC','BD','BE','BJ','BI','BH','BG','BF'].forEach(function(n){
+      delete sectionRackTypes[n];
+    });
+    saveRackTypes();
+    try { localStorage.setItem(mk,'1'); } catch(e){}
+  }
+})();
+// localStorage에서 커스텀 랙 사이즈 로드
+var LS_RACK_SIZE_KEY = 'ssautotech_rack_sizes_v1';
+var sectionRackSizes = (function(){
+  var _s = localStorage.getItem(LS_RACK_SIZE_KEY);
+  if (_s) { try { return JSON.parse(_s) || {}; } catch(_e) {} } return {};
+})();
+function saveRackSizes(){
+  try { localStorage.setItem(LS_RACK_SIZE_KEY, JSON.stringify(sectionRackSizes)); } catch(e) {}
+}
+// 마이그레이션 v3: BA~BJ sectionRackSizes 이전 테스트 데이터 초기화 (균일 크기 보장)
+(function(){
+  var mk = 'ssautotech_migration_v3';
+  if (!localStorage.getItem(mk)) {
+    ['BA','BB','BC','BD','BE','BJ','BI','BH','BG','BF'].forEach(function(n){
+      delete sectionRackSizes[n];
+    });
+    saveRackSizes();
+    try { localStorage.setItem(mk,'1'); } catch(e){}
+  }
+})();
 
 var EXT_KW = ['금형창고','경기 화성','경기화성','LG평택','LG B-','MTX창고',
               '금형폐기','반납','사출현장','모베이스','금형실','하이게인','인팩'];
@@ -930,6 +1060,31 @@ function addLabel(text, x, y, z, color, scaleX, scaleY) {
   sp.position.set(x,y,z); sp.scale.set(scaleX||3.5, scaleY||1.4, 1);
   scene.add(sp); return sp;
 }
+// 빈 슬롯 "+ 등록" 아이콘 스프라이트 생성 (항상 카메라를 향함)
+function makePlusSprite(w, h) {
+  var sz = 128;
+  var c = document.createElement('canvas'); c.width = sz; c.height = sz;
+  var ctx = c.getContext('2d');
+  // 점선 원 배경
+  ctx.beginPath();
+  ctx.arc(sz/2, sz/2, sz/2-6, 0, Math.PI*2);
+  ctx.strokeStyle = 'rgba(100,185,255,0.55)';
+  ctx.lineWidth = 4;
+  ctx.setLineDash([8, 5]);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  // + 기호
+  ctx.strokeStyle = 'rgba(130,205,255,0.9)';
+  ctx.lineWidth = 10;
+  ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(32, sz/2); ctx.lineTo(sz-32, sz/2); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(sz/2, 32); ctx.lineTo(sz/2, sz-32); ctx.stroke();
+  var sp = new THREE.Sprite(new THREE.SpriteMaterial({
+    map: new THREE.CanvasTexture(c), transparent: true, depthTest: false
+  }));
+  sp.scale.set(w * 0.80, h * 0.80, 1);
+  return sp;
+}
 
 // ══════════════════════════════════════════════════════════════
 //  § 7. 공장 기본 구조
@@ -1041,11 +1196,12 @@ function drawMachine(cx,cz,w,d,h,num,ton,color){
 // ══════════════════════════════════════════════════════════════
 //  § 9. 랙 전체 구축
 // ══════════════════════════════════════════════════════════════
-var slotReg       = {};
-var allSlots      = [];
-var allSlotMeshes = [];
-var meshToSlot    = {};
-var sectionInfo   = {}; // 섹션별 재질·슬롯 추적 (구역 dimming용)
+var slotReg        = {};
+var allSlots       = [];
+var allSlotMeshes  = [];
+var meshToSlot     = {};
+var sectionInfo    = {}; // 섹션별 재질·슬롯 추적 (구역 dimming용)
+var allLabelSprites= []; // 섹션 이름 라벨 (클릭 시 랙 팝업 오픈)
 
 var MID_FLOOR_Y = 3.5; // 중2층 팔렛 바닥 높이 (3D 단위)
 
@@ -1063,15 +1219,34 @@ function colNum(secName, c, cols) {
 
 function buildSection(name,sx,sz,type,rows,cols,shelves,yOff) {
   yOff = yOff||0;
-  var sl=SLOT[type];
+  // 랙 타입 오버라이드: 사용자 설정 → 코드 기본값 순으로 적용
+  var _rType = sectionRackTypes[name] || SECTION_DEFAULT_RACK_TYPES[name] || null;
+  if (_rType) {
+    var rtCfg = RACK_TYPE_CONFIG[_rType];
+    if (rtCfg) { cols = rtCfg.cols; rows = rtCfg.rows; shelves = rtCfg.shelves; }
+  }
+  // 커스텀/기본 랙 크기로 슬롯 크기 역산, 없으면 SLOT 기본값 사용
+  var rDef = sectionRackSizes[name] || RACK_DEFAULTS[name] || null;
+  var sl;
+  if (rDef) {
+    var slW = (rDef.w - (cols - 1) * 0.07) / cols;
+    var slD = (rDef.d - (rows - 1) * 0.07) / rows;
+    // 단높이: sectionRackSizes에 명시된 경우 사용, 없으면 전체 높이 2.5m 기준 자동 계산
+    var slH = (sectionRackSizes[name] && sectionRackSizes[name].h > 0)
+      ? sectionRackSizes[name].h
+      : (2.22 / shelves);
+    sl = { w: slW, d: slD, h: slH };
+  } else {
+    sl = SLOT[type];
+  }
   // 중2층 계열 판별: 이름이 "중"으로 시작하는 팔렛 섹션 (shelves===1)
   var isMidFloor = /^중/.test(name);
   var tw=cols*sl.w+(cols-1)*.07, td=rows*sl.d+(rows-1)*.07, th=shelves*sl.h+.28;
   // 유형별 구분 색: 소형(파랑) / 중형(청록) / 세움형(갈색)
   var gcol=(type==='standing')?0x6d4c41:(type==='medium')?0x00695c:0x283593;
   var gm=mat(gcol,.6,.22); var ph=th+.12; var PR=.06;
-  // 섹션 추적 정보 초기화
-  var si={gm:gm, panelMats:[], labelSprite:null, slots:[], sqm: cols*sl.w * rows*sl.d};
+  // 섹션 추적 정보 초기화 (meshes: 프레임 메시 목록, 재빌드 시 제거용)
+  var si={gm:gm, panelMats:[], labelSprite:null, slots:[], sqm: cols*sl.w * rows*sl.d, meshes:[]};
   sectionInfo[name]=si;
 
   // ── 중2층: 지지 기둥 + 바닥 슬래브 + 앞면 가드레일 ──
@@ -1080,63 +1255,78 @@ function buildSection(name,sx,sz,type,rows,cols,shelves,yOff) {
     var pR=0.10;
     // 지지 기둥 4개 (바닥~중2층 높이)
     [[0,0],[tw,0],[0,td],[tw,td]].forEach(function(d){
-      addBox(sx+d[0], yOff/2, sz+d[1], pR*2, yOff, pR*2, pMat);
+      si.meshes.push(addBox(sx+d[0], yOff/2, sz+d[1], pR*2, yOff, pR*2, pMat));
     });
     // 가로 보 (X방향)
     var beamMat=mat(0x455a64,.85,.3);
-    addBox(sx+tw/2, yOff-0.18, sz,    tw, 0.12, 0.12, beamMat, false);
-    addBox(sx+tw/2, yOff-0.18, sz+td, tw, 0.12, 0.12, beamMat, false);
-    addBox(sx,      yOff-0.18, sz+td/2, 0.12, 0.12, td, beamMat, false);
-    addBox(sx+tw,   yOff-0.18, sz+td/2, 0.12, 0.12, td, beamMat, false);
+    si.meshes.push(addBox(sx+tw/2, yOff-0.18, sz,    tw, 0.12, 0.12, beamMat, false));
+    si.meshes.push(addBox(sx+tw/2, yOff-0.18, sz+td, tw, 0.12, 0.12, beamMat, false));
+    si.meshes.push(addBox(sx,      yOff-0.18, sz+td/2, 0.12, 0.12, td, beamMat, false));
+    si.meshes.push(addBox(sx+tw,   yOff-0.18, sz+td/2, 0.12, 0.12, td, beamMat, false));
     // 바닥 슬래브
-    addBox(sx+tw/2, yOff-0.05, sz+td/2, tw+0.28, 0.10, td+0.28, mat(0x2a3542,.9,.15), false);
+    si.meshes.push(addBox(sx+tw/2, yOff-0.05, sz+td/2, tw+0.28, 0.10, td+0.28, mat(0x2a3542,.9,.15), false));
     // 앞면 가드레일 2단
     var gMat=mat(0xffcc00,.8,.5);
-    addBox(sx+tw/2, yOff+0.45, sz-0.06, tw, 0.05, 0.05, gMat, false);
-    addBox(sx+tw/2, yOff+0.85, sz-0.06, tw, 0.05, 0.05, gMat, false);
+    si.meshes.push(addBox(sx+tw/2, yOff+0.45, sz-0.06, tw, 0.05, 0.05, gMat, false));
+    si.meshes.push(addBox(sx+tw/2, yOff+0.85, sz-0.06, tw, 0.05, 0.05, gMat, false));
     // 뒷면 가드레일
-    addBox(sx+tw/2, yOff+0.45, sz+td+0.06, tw, 0.05, 0.05, gMat, false);
-    addBox(sx+tw/2, yOff+0.85, sz+td+0.06, tw, 0.05, 0.05, gMat, false);
+    si.meshes.push(addBox(sx+tw/2, yOff+0.45, sz+td+0.06, tw, 0.05, 0.05, gMat, false));
+    si.meshes.push(addBox(sx+tw/2, yOff+0.85, sz+td+0.06, tw, 0.05, 0.05, gMat, false));
   }
 
   // ── 랙 프레임 기둥 (yOff 적용) ──
   [[0,0],[tw,0],[0,td],[tw,td]].forEach(function(d){
-    addBox(sx+d[0],yOff+ph/2,sz+d[1],PR*2,ph,PR*2,gm);
+    si.meshes.push(addBox(sx+d[0],yOff+ph/2,sz+d[1],PR*2,ph,PR*2,gm));
   });
   var BT=.065;
   for (var s=0;s<=shelves;s++){
     var by=yOff+s*sl.h+.045;
-    addBox(sx+tw/2,by,sz,    tw,BT,BT,gm,false);
-    addBox(sx+tw/2,by,sz+td, tw,BT,BT,gm,false);
-    addBox(sx,     by,sz+td/2,BT,BT,td,gm,false);
-    addBox(sx+tw,  by,sz+td/2,BT,BT,td,gm,false);
+    si.meshes.push(addBox(sx+tw/2,by,sz,    tw,BT,BT,gm,false));
+    si.meshes.push(addBox(sx+tw/2,by,sz+td, tw,BT,BT,gm,false));
+    si.meshes.push(addBox(sx,     by,sz+td/2,BT,BT,td,gm,false));
+    si.meshes.push(addBox(sx+tw,  by,sz+td/2,BT,BT,td,gm,false));
     if (s<shelves) {
       // 중2층이 아닌 랙의 최상단 바닥 → 두꺼운 천장판(강판) 시각화
       if (!isMidFloor && s===shelves-1) {
         var cpm=mat(0x37474f,.9,.5);
         si.panelMats.push(cpm);
-        addBox(sx+tw/2,by+.10,sz+td/2,tw+.02,.20,td+.02,cpm,false);
+        si.meshes.push(addBox(sx+tw/2,by+.10,sz+td/2,tw+.02,.20,td+.02,cpm,false));
       } else {
         var pm=mat(gcol-.08,.75,.05);
         si.panelMats.push(pm);
-        addBox(sx+tw/2,by+.042,sz+td/2,tw-.02,.042,td-.02,pm,false);
+        si.meshes.push(addBox(sx+tw/2,by+.042,sz+td/2,tw-.02,.042,td-.02,pm,false));
       }
     }
+  }
+  // 최상단 천장 덮개판 (그 위에 적재 가능한 구조)
+  if (!isMidFloor) {
+    var topBy = yOff + shelves * sl.h + 0.045;  // 최상단 보 위치
+    var tcm = mat(0x2e3d4a, 0.95, 0.55);
+    si.panelMats.push(tcm);
+    si.meshes.push(addBox(sx+tw/2, topBy+0.10, sz+td/2, tw+0.04, 0.14, td+0.04, tcm, false));
   }
   var lc=(type==='medium')?'#81c784':'#aed6f1';
   var lbl=makeSprite(name,lc,24);
   lbl.position.set(sx+tw/2,yOff+th+1.1,sz+td/2); lbl.scale.set(4.2,1.8,1); scene.add(lbl);
+  lbl.userData.secName = name; // 클릭 감지용
+  allLabelSprites.push(lbl);
   si.labelSprite=lbl;
 
   for (var r=0;r<rows;r++) {
     for (var c=0;c<cols;c++) {
       for (var sh=0;sh<shelves;sh++) {
-        var mx=sx+c*(sl.w+.07)+sl.w/2;
-        var mz=sz+r*(sl.d+.07)+sl.d/2;
-        var my=yOff+sh*sl.h+sl.h/2+.10;
+        // 금형 크기 먼저 결정 (RACK_DEFAULTS 있으면 존 기반 균등 여백, 없으면 슬롯 기반)
         var mw,mh,md;
         if (type==='standing'){mw=sl.w*.56;mh=sl.h*.86;md=sl.d*.5;}
-        else                  {mw=sl.w*.70;mh=sl.h*.60;md=sl.d*.70;}
+        else {
+          mw = rDef ? (tw/cols)*0.76 : sl.w*0.70;
+          mh = sl.h*0.58;
+          md = rDef ? (td/rows)*0.72 : sl.d*0.70;
+        }
+        // 존 기반 균등 중앙 배치: 전체 너비/깊이를 칸수로 나눠 중앙 계산
+        var mx = rDef ? sx + (c+0.5)*(tw/cols) : sx + c*(sl.w+.07) + sl.w/2;
+        var mz = rDef ? sz + (r+0.5)*(td/rows) : sz + r*(sl.d+.07) + sl.d/2;
+        var my = yOff + sh*sl.h + 0.10 + mh*0.5;  // 선반 판 위에 올려진 중앙 높이
 
         // 위치 키 먼저 계산 (스프라이트 텍스처에 사용)
         // 키 형식: shelves==1(중/중파 팔렛) → 섹션-열-앞뒤
@@ -1153,21 +1343,32 @@ function buildSection(name,sx,sz,type,rows,cols,shelves,yOff) {
 
         var moldMesh=new THREE.Mesh(new THREE.BoxGeometry(mw,mh,md),MAT_MOLD.clone());
         moldMesh.position.set(mx,my,mz); moldMesh.castShadow=true; moldMesh.receiveShadow=true;
+        // 초기 상태: 빈 슬롯 → 박스 완전 투명 (클릭 감지용으로만 존재)
+        moldMesh.material.transparent=true; moldMesh.material.opacity=0; moldMesh.material.needsUpdate=true;
         scene.add(moldMesh);
 
+        // 이젝터 핀 (금형 앞면 = 카메라 방향, mz+md/2 쪽)
         var ej=new THREE.Mesh(new THREE.CylinderGeometry(mw*.09,mw*.09,.035,8),MAT_EJEC);
-        ej.rotation.x=Math.PI/2; ej.position.set(mx,my+mh*.12,mz-md/2-.004); scene.add(ej);
+        ej.rotation.x=Math.PI/2; ej.position.set(mx,my+mh*.12,mz+md/2+.004);
+        ej.visible=false; // 초기: 숨김 (금형 있을 때만 표시)
+        scene.add(ej);
+        si.meshes.push(ej);
 
-        // 위치 코드 태그: 선반 바닥면에 표시 (Mesh → 3D 회전과 함께 움직임)
+        // 빈 슬롯 등록 아이콘 (카메라 방향 앞면에 배치)
+        var plusIcon=makePlusSprite(mw, mh);
+        plusIcon.position.set(mx, my, mz+md/2+0.05);
+        scene.add(plusIcon);
+
+        // 위치 코드 태그: 카메라 방향 앞면 하단 (mz+md/2 쪽, PlaneGeometry 기본 법선은 +Z)
         var emptyMat=makeLocMat(k4);
         var tag=new THREE.Mesh(new THREE.PlaneGeometry(mw*1.05, mh*0.28), emptyMat);
-        tag.position.set(mx, yOff+sh*sl.h+0.12, mz-md/2-0.01);
+        tag.position.set(mx, yOff+sh*sl.h+0.12, mz+md/2+0.01);
         scene.add(tag);
 
-        // 품명 오버레이: 금형 박스 중앙에 (점유 시만 표시, Mesh → 3D 회전과 함께 움직임)
+        // 품명 오버레이: 금형 앞면 중앙 (점유 시만 표시)
         var nameMat=new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthTest:false,side:THREE.DoubleSide});
         var nameTag=new THREE.Mesh(new THREE.PlaneGeometry(mw*1.05, mh*0.85), nameMat);
-        nameTag.position.set(mx, my, mz-md/2-0.02);
+        nameTag.position.set(mx, my, mz+md/2+0.02);
         nameTag.visible=false;
         scene.add(nameTag);
 
@@ -1176,7 +1377,8 @@ function buildSection(name,sx,sz,type,rows,cols,shelves,yOff) {
           mesh:moldMesh, worldPos:wp, sprite:tag, nameSprite:nameTag,
           moldData:null, locKey:k4, baseColor:0x6c7585,
           spriteIsShared:true, secName:name,
-          emptyMat:emptyMat
+          emptyMat:emptyMat,
+          plusIcon:plusIcon, ejMesh:ej
         };
         slotReg[k4]=entry;
         if (!slotReg[k3]) slotReg[k3]=entry;
@@ -1187,6 +1389,65 @@ function buildSection(name,sx,sz,type,rows,cols,shelves,yOff) {
       }
     }
   }
+}
+
+// 섹션 재빌드 (랙 크기 변경 후 호출)
+function rebuildSection(name) {
+  var si = sectionInfo[name]; if (!si) return;
+  // 프레임 메시 제거
+  si.meshes.forEach(function(m){ scene.remove(m); if(m.geometry) m.geometry.dispose(); });
+  // 라벨 스프라이트 제거
+  if (si.labelSprite) {
+    scene.remove(si.labelSprite);
+    var lblIdx = allLabelSprites.indexOf(si.labelSprite);
+    if (lblIdx >= 0) allLabelSprites.splice(lblIdx, 1);
+  }
+  // 금형/태그/아이콘 메시 제거 + 등록 해제
+  si.slots.forEach(function(entry){
+    scene.remove(entry.mesh); scene.remove(entry.sprite); scene.remove(entry.nameSprite);
+    if(entry.plusIcon){ scene.remove(entry.plusIcon); if(entry.plusIcon.material){if(entry.plusIcon.material.map)entry.plusIcon.material.map.dispose();entry.plusIcon.material.dispose();} }
+    if(entry.mesh.geometry) entry.mesh.geometry.dispose();
+    var idx = allSlotMeshes.indexOf(entry.mesh);
+    if(idx >= 0) allSlotMeshes.splice(idx, 1);
+    delete meshToSlot[entry.mesh.uuid];
+  });
+  // allSlots, slotReg에서 이 섹션 항목 제거
+  allSlots = allSlots.filter(function(e){ return e.secName !== name; });
+  Object.keys(slotReg).forEach(function(k){
+    if(slotReg[k] && slotReg[k].secName === name) delete slotReg[k];
+  });
+  delete sectionInfo[name];
+  // 섹션 정의 찾아서 재빌드
+  var secDef = null;
+  for(var i=0;i<SECTIONS.length;i++){ if(SECTIONS[i][0]===name){secDef=SECTIONS[i];break;} }
+  if(!secDef) return;
+  var yOff = /^중/.test(name) ? MID_FLOOR_Y : 0;
+  buildSection(secDef[0],secDef[1],secDef[2],secDef[3],secDef[4],secDef[5],secDef[6],yOff);
+  assignMoldsToSlots();
+  applyAllMoldTypeColors();
+}
+
+// 특정 entry에 금형 타입 적용 (크기 + 색상) — 금형 있는 슬롯만 호출됨
+function applyMoldType(entry, typeName) {
+  if (!entry || !entry.mesh) return;
+  var t = MOLD_TYPES[typeName]; if (!t) return;
+  var s = t.size;
+  entry.mesh.geometry.dispose();
+  entry.mesh.geometry = new THREE.BoxGeometry(s * 0.85, s * 0.75, s * 0.85);
+  entry.mesh.material.color.setHex(t.color);
+  // 박스 확실히 표시
+  entry.mesh.material.transparent=false; entry.mesh.material.opacity=1; entry.mesh.material.needsUpdate=true;
+  entry.baseColor = t.color;
+  if (entry.moldData) entry.moldData.moldType = typeName;
+}
+
+// 페이지 로드/재매핑 후 전체 타입 적용
+function applyAllMoldTypeColors() {
+  allSlots.forEach(function(entry){
+    if(entry.moldData && entry.moldData.moldType){
+      applyMoldType(entry, entry.moldData.moldType);
+    }
+  });
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -1226,6 +1487,11 @@ function clearHL(){
     HL.mesh.material.color.set(hlEntry?hlEntry.baseColor:0x6c7585);
     HL.mesh.material.emissive.set(0x000000);
     HL.mesh.material.emissiveIntensity=0;
+    // 빈 슬롯이었으면 박스 다시 투명, + 아이콘 복원
+    if(hlEntry && !hlEntry.moldData){
+      HL.mesh.material.transparent=true; HL.mesh.material.opacity=0; HL.mesh.material.needsUpdate=true;
+      if(hlEntry.plusIcon) hlEntry.plusIcon.visible=true;
+    }
     HL.mesh=null;
   }
   if(HL.light){scene.remove(HL.light);HL.light=null;}
@@ -1234,6 +1500,11 @@ function clearHL(){
 function doHighlight(entry){
   clearHL();
   HL.mesh=entry.mesh;
+  // 빈 슬롯이면 하이라이트 동안만 박스를 반투명하게 보이게 하고 + 아이콘 숨김
+  if(!entry.moldData){
+    entry.mesh.material.transparent=true; entry.mesh.material.opacity=0.38; entry.mesh.material.needsUpdate=true;
+    if(entry.plusIcon) entry.plusIcon.visible=false;
+  }
   HL.mesh.material.color.set(0xff6600);
   HL.mesh.material.emissive.set(0xff3300);
   HL.mesh.material.emissiveIntensity=.8;
@@ -1295,10 +1566,13 @@ function updateSlotSprite(entry, text) {
 
 // 엑셀 데이터 → 슬롯 매핑 (배치 처리로 UI 프리즈 방지)
 function assignMoldsToSlots() {
-  // 1단계: 전체 초기화 (공유 재질 → 매우 빠름)
+  // 1단계: 전체 초기화 → 빈 슬롯 상태 (박스 숨김, + 아이콘 표시)
   allSlots.forEach(function(entry){
     entry.moldData=null; entry.baseColor=0x6c7585;
     entry.mesh.material.color.set(0x6c7585);
+    entry.mesh.material.transparent=true; entry.mesh.material.opacity=0; entry.mesh.material.needsUpdate=true;
+    if(entry.ejMesh) entry.ejMesh.visible=false;
+    if(entry.plusIcon) entry.plusIcon.visible=true;
     if(entry.nameSprite) entry.nameSprite.visible=false;
     entry.spriteIsShared=true;
   });
@@ -1322,9 +1596,50 @@ function assignMoldsToSlots() {
     if(entry&&!entry.moldData){
       entry.moldData=mold; entry.baseColor=0x5a7090;
       entry.mesh.material.color.set(0x5a7090);
+      entry.mesh.material.transparent=false; entry.mesh.material.opacity=1; entry.mesh.material.needsUpdate=true;
+      if(entry.ejMesh) entry.ejMesh.visible=true;
+      if(entry.plusIcon) entry.plusIcon.visible=false;
       occupied.push({entry:entry, text:mold.partName||mold.moldNum});
     }
   });
+
+  // 진단: 매칭 통계
+  var _diag = { noLoc:0, ext:0, unk:0, intTotal:0, noSlot:0, dup:0, noSlotEx:[], dupEx:[], unkEx:[] };
+  moldData.forEach(function(mold){
+    if(!mold.parsed){ _diag.noLoc++; return; }
+    var t=mold.parsed.type;
+    if(t==='ext'){ _diag.ext++; return; }
+    if(t==='unk'){
+      _diag.unk++;
+      if(_diag.unkEx.length<8) _diag.unkEx.push((mold.moldNum||'?')+'|'+(mold.location||'?'));
+      return;
+    }
+    _diag.intTotal++;
+    var p=mold.parsed;
+    var k4 = p.noShelf ? p.sec+'-'+p.c+'-'+p.depth : p.sec+'-'+p.sh+'-'+p.c+'-'+p.depth;
+    var k3 = p.noShelf ? p.sec+'-'+p.c : p.sec+'-'+p.sh+'-'+p.c;
+    var entry=slotReg[k4]||slotReg[k3];
+    if(!entry){
+      _diag.noSlot++;
+      if(_diag.noSlotEx.length<12) _diag.noSlotEx.push((mold.moldNum||'?')+'|'+(mold.location||'?')+'→'+k4);
+    } else if(entry.moldData && entry.moldData!==mold){
+      _diag.dup++;
+      if(_diag.dupEx.length<6) _diag.dupEx.push((mold.moldNum||'?')+'|'+(mold.location||'?')+'→'+k4);
+    }
+  });
+  var _matched = allSlots.filter(function(e){return !!e.moldData;}).length;
+  console.group('📊 금형 매칭 진단 (전체 '+moldData.length+'개)');
+  console.log('위치없음/미파싱:', _diag.noLoc, '/ 외부창고:', _diag.ext, '/ 미인식형식:', _diag.unk);
+  console.log('내부위치:', _diag.intTotal, '→ 매칭성공:', _matched, '/ 슬롯없음:', _diag.noSlot, '/ 중복충돌:', _diag.dup);
+  if(_diag.unkEx.length){ console.log('미인식 예시:'); _diag.unkEx.forEach(function(s){console.log('  ',s);}); }
+  if(_diag.noSlotEx.length){ console.log('슬롯없음 예시 ('+_diag.noSlot+'개 중):'); _diag.noSlotEx.forEach(function(s){console.log('  ',s);}); }
+  if(_diag.dupEx.length){ console.log('중복충돌 예시:'); _diag.dupEx.forEach(function(s){console.log('  ',s);}); }
+  console.groupEnd();
+  var diagEl=document.getElementById('st-diag');
+  if(diagEl){
+    diagEl.style.display='block';
+    diagEl.textContent='매칭 '+_matched+'/내부 '+_diag.intTotal+' | 슬롯없음 '+_diag.noSlot+' | 미인식 '+_diag.unk+' | 외부 '+_diag.ext+' | 위치없음 '+_diag.noLoc;
+  }
 
   // 3단계: 스프라이트 텍스처는 rAF 배치 처리 (30개/프레임)
   var idx=0;
@@ -1438,6 +1753,59 @@ function showRackPopup(secName){
     });
   });
 
+  // ─ 랙 타입 선택 (A/B/C/D) — 사용자 설정 없으면 코드 기본값 사용
+  var curRackType = sectionRackTypes[name] || SECTION_DEFAULT_RACK_TYPES[name] || '';
+  var rackTypeHtml = '<div class="rp-rtype-area">'
+    + '<div class="rse-hdr">랙 타입 선택 (즉시 적용)</div>'
+    + '<div class="rp-rtype-grp">'
+    + ['A','B','C','D'].map(function(t){
+        var cfg = RACK_TYPE_CONFIG[t];
+        return '<button class="rp-rtype-btn rp-rtype-'+t+(curRackType===t?' rtype-active':'')+'" data-rtype="'+t+'">'
+          + t+'타입<span class="rtype-sub">'+cfg.desc+'</span></button>';
+      }).join('')
+    + '</div></div>';
+
+  // ─ 랙 크기 직접 설정 (w, d, h)
+  var curShelves = (curRackType && RACK_TYPE_CONFIG[curRackType])
+    ? RACK_TYPE_CONFIG[curRackType].shelves : shelves;
+  var rDefPop = sectionRackSizes[name] || RACK_DEFAULTS[name] || { w:5.0, d:1.5 };
+  var computedH = (sectionRackSizes[name] && sectionRackSizes[name].h > 0)
+    ? sectionRackSizes[name].h
+    : parseFloat((2.22 / curShelves).toFixed(3));
+  var editHtml = '<div class="rack-size-edit">'
+    + '<div class="rse-hdr">크기 직접 설정</div>'
+    + '<div class="rse-row">'
+    + '<label>가로<input type="number" id="rse-w" step="0.05" min="0.5" max="20" value="'+rDefPop.w+'">m</label>'
+    + '<label>세로<input type="number" id="rse-d" step="0.05" min="0.5" max="10" value="'+rDefPop.d+'">m</label>'
+    + '<label>단높이<input type="number" id="rse-h" step="0.05" min="0.3" max="3" value="'+computedH+'">m</label>'
+    + '<button id="rse-apply">적용</button>'
+    + '</div></div>';
+
+  document.getElementById('rp-footer').innerHTML = rackTypeHtml + editHtml;
+
+  // 랙 타입 버튼 이벤트 (선택 즉시 리빌드)
+  document.getElementById('rp-footer').querySelectorAll('.rp-rtype-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var typeName = this.dataset.rtype;
+      sectionRackTypes[name] = typeName;
+      saveRackTypes();
+      closeRackPopup();
+      rebuildSection(name);
+    });
+  });
+
+  // 크기 직접 설정 적용 버튼
+  document.getElementById('rse-apply').addEventListener('click', function(){
+    var w = parseFloat(document.getElementById('rse-w').value);
+    var d = parseFloat(document.getElementById('rse-d').value);
+    var h = parseFloat(document.getElementById('rse-h').value);
+    if (!w || !d || !h || w < 0.5 || d < 0.5 || h < 0.3) { alert('올바른 크기를 입력하세요.'); return; }
+    sectionRackSizes[name] = { w:w, d:d, h:h };
+    saveRackSizes();
+    closeRackPopup();
+    rebuildSection(name);
+  });
+
   document.getElementById('rack-popup-bg').style.display='flex';
 }
 
@@ -1519,8 +1887,15 @@ function onCanvasClick(e){
     -((e.clientY-rect.top)/rect.height)*2+1
   );
   raycaster.setFromCamera(mouse,camera);
+  // 1순위: 금형 슬롯 클릭
   var hits=raycaster.intersectObjects(allSlotMeshes);
-  if(hits.length>0){var entry=meshToSlot[hits[0].object.uuid]; if(entry) onSlotClick(entry);}
+  if(hits.length>0){var entry=meshToSlot[hits[0].object.uuid]; if(entry){onSlotClick(entry);return;}}
+  // 2순위: 섹션 라벨 클릭 → 랙 팝업 오픈
+  var lblHits=raycaster.intersectObjects(allLabelSprites);
+  if(lblHits.length>0){
+    var sec=lblHits[0].object.userData.secName;
+    if(sec) showRackPopup(sec);
+  }
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -1615,7 +1990,15 @@ function setSecDim(name,dimmed){
   si.gm.transparent=dimmed; si.gm.opacity=op; si.gm.needsUpdate=true;
   si.panelMats.forEach(function(pm){pm.transparent=dimmed;pm.opacity=op;pm.needsUpdate=true;});
   if(si.labelSprite){si.labelSprite.material.opacity=dimmed?0.04:1.0;si.labelSprite.material.needsUpdate=true;}
-  si.slots.forEach(function(e){e.mesh.material.transparent=dimmed;e.mesh.material.opacity=op;e.mesh.material.needsUpdate=true;});
+  si.slots.forEach(function(e){
+    if(e.moldData){
+      // 금형 있는 슬롯: 박스 dimming
+      e.mesh.material.transparent=dimmed; e.mesh.material.opacity=op; e.mesh.material.needsUpdate=true;
+    } else {
+      // 빈 슬롯: + 아이콘 dimming (박스는 항상 opacity=0 유지)
+      if(e.plusIcon){ e.plusIcon.material.opacity=dimmed?0.08:1.0; e.plusIcon.material.needsUpdate=true; }
+    }
+  });
 }
 
 // 카메라 위치 정의
@@ -1683,6 +2066,7 @@ function loadFromStorage(){
       +'</span><br><span style="color:rgba(255,255,255,0.25);font-size:10px">'
       +'새 파일 반영 시 ⬆ 업로드 버튼 사용</span></div>';
     assignMoldsToSlots();
+    applyAllMoldTypeColors();
     return true;
   } catch(e){ return false; }
 }
@@ -1728,6 +2112,7 @@ function loadExcel(file){
       // 저장 및 3D 매핑
       saveToStorage();
       assignMoldsToSlots();
+      applyAllMoldTypeColors();
     } catch(err){
       alert('파일 읽기 오류: '+err.message);
       document.getElementById('loading').style.display='none';
@@ -1895,6 +2280,7 @@ function loadLayoutExcel(file) {
 
       saveToStorage();
       assignMoldsToSlots();
+      applyAllMoldTypeColors();
     } catch(err) {
       alert('레이아웃 Excel 읽기 오류: '+err.message);
       document.getElementById('loading').style.display='none';
@@ -1981,8 +2367,20 @@ function showDetail(m){
       +'</div>';
   }
 
+  // 금형 타입 버튼 생성
+  var curType = m.moldType || '';
+  var typeBtnsHtml =
+    '<div class="d-row d-type-row"><span class="d-lbl">금형 타입</span>'
+    +'<div class="type-btn-grp">'
+    + ['A','B','C','D'].map(function(t){
+        return '<button class="type-btn type-btn-'+t+(curType===t?' active':'')+'" data-mtype="'+t+'">'
+          + t + '<span class="type-size-badge">'+MOLD_TYPES[t].desc+'</span></button>';
+      }).join('')
+    +'</div></div>';
+
   dv.innerHTML=
     '<div class="d-title">⚙ '+esc(m.moldNum)+'</div>'
+    + typeBtnsHtml
     // 위치·금형번호는 표시만
     +'<div class="d-row"><span class="d-lbl">위치</span><span class="d-val'+locCls+'" style="font-size:17px;letter-spacing:1px">'+esc(m.location||'미등록')+'</span></div>'
     +eRow('고객사 P/N','custPN',m.custPN)
@@ -1997,6 +2395,19 @@ function showDetail(m){
     +'<span class="d-val" id="d-shot-pct" style="color:'+sc+'">'+sp+'%'
     +'<div class="shot-bar"><div class="shot-fill" id="d-shot-bar" style="width:'+sp+'%;background:'+sc+'"></div></div>'
     +'</span></div>':'<div id="d-shot-pct-wrap"></div>');
+
+  // 금형 타입 버튼 이벤트
+  dv.querySelectorAll('.type-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var typeName = this.dataset.mtype;
+      var entry = allSlots.find(function(e){ return e.moldData === m; });
+      if (entry) applyMoldType(entry, typeName);
+      else m.moldType = typeName;
+      dv.querySelectorAll('.type-btn').forEach(function(b){ b.classList.remove('active'); });
+      this.classList.add('active');
+      saveToStorage();
+    });
+  });
 
   // 실시간 수정 이벤트
   dv.querySelectorAll('.d-edit').forEach(function(inp){
@@ -2175,8 +2586,9 @@ renderer.domElement.addEventListener('mousemove',function(e){
     ((e.clientX-rect.left)/rect.width)*2-1,
     -((e.clientY-rect.top)/rect.height)*2+1
   ), camera);
-  renderer.domElement.style.cursor=
-    raycaster.intersectObjects(allSlotMeshes).length>0?'pointer':'default';
+  var isHover = raycaster.intersectObjects(allSlotMeshes).length > 0
+    || raycaster.intersectObjects(allLabelSprites).length > 0;
+  renderer.domElement.style.cursor = isHover ? 'pointer' : 'default';
 });
 
 // 슬롯 모달
