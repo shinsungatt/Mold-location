@@ -796,8 +796,8 @@ var LS_LBL_KEY  = 'ssautotech_labels_v1';
 var SECTIONS = (function(){
   // 기본값 배열 (위치 x,z 포함)
   var _def = [
-    ['P', 40,-28,'shelf', 2,2,3], ['Q', 44,-28,'shelf', 2,2,3], ['R', 48,-28,'shelf', 2,2,3],
-    ['S', 40,-24,'shelf', 2,2,3], ['T', 44,-24,'shelf', 2,2,3], ['U', 48,-24,'shelf', 2,2,3],
+    ['P', 40,-28,'shelf', 2,3,6], ['Q', 44,-28,'shelf', 2,3,6], ['R', 48,-28,'shelf', 2,3,6],
+    ['S', 40,-24,'shelf', 2,3,6], ['T', 44,-24,'shelf', 2,3,6], ['U', 48,-24,'shelf', 2,3,6],
     ['H', 40,-20,'shelf', 2,3,6], ['G', 44,-20,'shelf', 2,3,6], ['F', 48,-20,'shelf', 2,3,6],
     ['E', 40,-16,'shelf', 2,3,6], ['D', 44,-16,'shelf', 2,3,6], ['C', 48,-16,'shelf', 2,3,6],
     ['BA',54,-28,'medium',2,2,3], ['BB',59,-28,'medium',2,2,3], ['BC',64,-28,'medium',2,2,3],
@@ -883,7 +883,7 @@ var RACK_DEFAULTS = {};
 
 // 랙 타입 A~D 구조 정의 (이미지 기준)
 var RACK_TYPE_CONFIG = {
-  A: { cols:2, rows:1, shelves:3, desc:'가로2×세로1, 3칸' },
+  A: { cols:3, rows:1, shelves:4, desc:'가로3×세로1, 4단' },
   B: { cols:3, rows:2, shelves:3, desc:'가로3×세로2, 3칸' },
   C: { cols:4, rows:2, shelves:4, desc:'가로4×세로2, 4칸' },
   D: { cols:5, rows:1, shelves:4, desc:'가로5×세로1, 4칸' }
@@ -958,6 +958,19 @@ function saveRackSizes(){
       if (bjGroup.indexOf(k) === -1) delete sectionRackTypes[k];
     });
     saveRackTypes();
+    try { localStorage.setItem(mk,'1'); } catch(e){}
+  }
+})();
+// 마이그레이션 v6: BA~BJ 타입·크기 재초기화 (RACK_TYPE_CONFIG.A cols:2→3, shelves:3→4 반영)
+(function(){
+  var mk = 'ssautotech_migration_v6';
+  if (!localStorage.getItem(mk)) {
+    ['BA','BB','BC','BD','BE','BJ','BI','BH','BG','BF'].forEach(function(n){
+      delete sectionRackTypes[n];
+      delete sectionRackSizes[n];
+    });
+    saveRackTypes();
+    saveRackSizes();
     try { localStorage.setItem(mk,'1'); } catch(e){}
   }
 })();
