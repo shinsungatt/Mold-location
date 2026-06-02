@@ -794,9 +794,8 @@ var LS_LBL_KEY  = 'ssautotech_labels_v1';
 //  § 2. 섹션 위치 정의
 // ══════════════════════════════════════════════════════════════
 var SECTIONS = (function(){
-  var _s=localStorage.getItem(LS_SEC_KEY);
-  if(_s){try{var _p=JSON.parse(_s);if(_p&&_p.length)return _p;}catch(_e){}}
-  return [
+  // 기본값 배열 (위치 x,z 포함)
+  var _def = [
     ['P', 40,-28,'shelf', 2,2,3], ['Q', 44,-28,'shelf', 2,2,3], ['R', 48,-28,'shelf', 2,2,3],
     ['S', 40,-24,'shelf', 2,2,3], ['T', 44,-24,'shelf', 2,2,3], ['U', 48,-24,'shelf', 2,2,3],
     ['H', 40,-20,'shelf', 2,3,6], ['G', 44,-20,'shelf', 2,3,6], ['F', 48,-20,'shelf', 2,3,6],
@@ -819,6 +818,25 @@ var SECTIONS = (function(){
     ['중파8',-45,26,'medium',3,2,1], ['중파9',-40,26,'medium',3,2,1],
     ['중파10',-35,26,'medium',3,2,1],
   ];
+  // 섹션명 → [타입, rows, cols, shelves] 구조 맵 (localStorage 오염 방어)
+  var _struct = {};
+  _def.forEach(function(s){ _struct[s[0]] = [s[3],s[4],s[5],s[6]]; });
+
+  var _s = localStorage.getItem(LS_SEC_KEY);
+  if (_s) {
+    try {
+      var _p = JSON.parse(_s);
+      if (_p && _p.length) {
+        // 위치(x, z)는 localStorage 유지, 타입/rows/cols/shelves는 코드 기본값으로 강제
+        _p.forEach(function(sec){
+          var st = _struct[sec[0]];
+          if (st) { sec[3]=st[0]; sec[4]=st[1]; sec[5]=st[2]; sec[6]=st[3]; }
+        });
+        return _p;
+      }
+    } catch(_e) {}
+  }
+  return _def;
 }());
 
 // 커스텀 텍스트 레이블 [text, worldX, worldZ, fontSize, colorHex]
@@ -1251,14 +1269,15 @@ function buildSection(name,sx,sz,type,rows,cols,shelves,yOff) {
     var rtCfg = RACK_TYPE_CONFIG[_rType];
     if (rtCfg) { cols = rtCfg.cols; rows = rtCfg.rows; shelves = rtCfg.shelves; }
   }
-  // 커스텀/기본 랙 크기로 슬롯 크기 역산, 없으면 SLOT 기본값 사용
-  var rDef = sectionRackSizes[name] || RACK_DEFAULTS[name] || null;
+  // 랙 크기: RACK_DEFAULTS가 있는 섹션은 기본값 우선 (커스텀이 기본값을 덮지 않음)
+  // RACK_DEFAULTS가 없는 섹션만 커스텀 크기 적용
+  var rDef = RACK_DEFAULTS[name] || sectionRackSizes[name] || null;
   var sl;
   if (rDef) {
     var slW = (rDef.w - (cols - 1) * 0.07) / cols;
     var slD = (rDef.d - (rows - 1) * 0.07) / rows;
-    // 단높이: sectionRackSizes에 명시된 경우 사용, 없으면 전체 높이 2.5m 기준 자동 계산
-    var slH = (sectionRackSizes[name] && sectionRackSizes[name].h > 0)
+    // 단높이: RACK_DEFAULTS가 없는 섹션만 커스텀 값 사용, 있으면 기본값 강제
+    var slH = (sectionRackSizes[name] && sectionRackSizes[name].h > 0 && !RACK_DEFAULTS[name])
       ? sectionRackSizes[name].h
       : (2.22 / shelves);
     sl = { w: slW, d: slD, h: slH };
