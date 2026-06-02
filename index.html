@@ -845,9 +845,9 @@ var MOLD_TYPES = {
 // 섹션별 랙 기본 크기 (w: 섹션 x간격에 맞춰 인접 배치, d: 깊이, h는 buildSection에서 2.5m 기준 자동 계산)
 var RACK_DEFAULTS = {};
 (function(){
-  // BA-BJ 그룹: x 간격 5m → w=5.0, 1열 깊이
+  // BA-BJ 그룹: x 간격 5m → w=5.0, 깊이 d=2.0 (medium 타입과 동일)
   ['BA','BB','BC','BD','BE','BJ','BI','BH','BG','BF'].forEach(function(n){
-    RACK_DEFAULTS[n] = { w:5.0, d:1.5 };
+    RACK_DEFAULTS[n] = { w:5.0, d:2.0 };
   });
   // P-U 그룹: x 간격 4m → w=4.0
   ['P','Q','R','S','T','U'].forEach(function(n){
@@ -865,7 +865,7 @@ var RACK_DEFAULTS = {};
 
 // 랙 타입 A~D 구조 정의 (이미지 기준)
 var RACK_TYPE_CONFIG = {
-  A: { cols:2, rows:1, shelves:2, desc:'가로2×세로1, 2칸' },
+  A: { cols:2, rows:1, shelves:3, desc:'가로2×세로1, 3칸' },
   B: { cols:3, rows:2, shelves:3, desc:'가로3×세로2, 3칸' },
   C: { cols:4, rows:2, shelves:4, desc:'가로4×세로2, 4칸' },
   D: { cols:5, rows:1, shelves:4, desc:'가로5×세로1, 4칸' }
@@ -914,6 +914,32 @@ function saveRackSizes(){
       delete sectionRackSizes[n];
     });
     saveRackSizes();
+    try { localStorage.setItem(mk,'1'); } catch(e){}
+  }
+})();
+// 마이그레이션 v4: BA~BJ 타입·크기 전체 재초기화 (d=2.0 통일 적용)
+(function(){
+  var mk = 'ssautotech_migration_v4';
+  if (!localStorage.getItem(mk)) {
+    ['BA','BB','BC','BD','BE','BJ','BI','BH','BG','BF'].forEach(function(n){
+      delete sectionRackTypes[n];
+      delete sectionRackSizes[n];
+    });
+    saveRackTypes();
+    saveRackSizes();
+    try { localStorage.setItem(mk,'1'); } catch(e){}
+  }
+})();
+// 마이그레이션 v5: BA~BJ 외 섹션의 잘못 저장된 sectionRackTypes 초기화
+// (C·H·G·F 등 일반 섹션에 A/B/C/D 타입이 잘못 적용되면 slotReg 키 불일치로 금형 미표시)
+(function(){
+  var mk = 'ssautotech_migration_v5';
+  if (!localStorage.getItem(mk)) {
+    var bjGroup = ['BA','BB','BC','BD','BE','BJ','BI','BH','BG','BF'];
+    Object.keys(sectionRackTypes).forEach(function(k){
+      if (bjGroup.indexOf(k) === -1) delete sectionRackTypes[k];
+    });
+    saveRackTypes();
     try { localStorage.setItem(mk,'1'); } catch(e){}
   }
 })();
