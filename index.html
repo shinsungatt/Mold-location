@@ -1336,6 +1336,18 @@ function buildSection(name,sx,sz,type,rows,cols,shelves,yOff) {
   [[0,0],[tw,0],[0,td],[tw,td]].forEach(function(d){
     si.meshes.push(addBox(sx+d[0],yOff+ph/2,sz+d[1],PR*2,ph,PR*2,gm));
   });
+  // 열 구분 중간 기둥: cols 개수에 맞춰 균등 간격 (앞면+뒷면)
+  for (var _ci=1; _ci<cols; _ci++) {
+    var _cx = sx + _ci*(tw/cols);
+    si.meshes.push(addBox(_cx, yOff+ph/2, sz,    PR*2, ph, PR*2, gm));
+    si.meshes.push(addBox(_cx, yOff+ph/2, sz+td, PR*2, ph, PR*2, gm));
+  }
+  // 행 구분 중간 기둥: rows 개수에 맞춰 균등 간격 (왼쪽+오른쪽)
+  for (var _ri=1; _ri<rows; _ri++) {
+    var _rz = sz + _ri*(td/rows);
+    si.meshes.push(addBox(sx,    yOff+ph/2, _rz, PR*2, ph, PR*2, gm));
+    si.meshes.push(addBox(sx+tw, yOff+ph/2, _rz, PR*2, ph, PR*2, gm));
+  }
   var BT=.065;
   for (var s=0;s<=shelves;s++){
     var by=yOff+s*sl.h+.045;
