@@ -875,9 +875,9 @@ var MOLD_TYPES = {
 // 섹션별 랙 기본 크기 (w: 섹션 x간격에 맞춰 인접 배치, d: 깊이, h는 buildSection에서 2.5m 기준 자동 계산)
 var RACK_DEFAULTS = {};
 (function(){
-  // BA-BJ 그룹: x 간격 5m → w=5.0, 깊이 d=2.0 (medium 타입과 동일)
+  // BA-BJ 그룹: x 간격 5m → w=5.0, 깊이 d=1.3 (금형 실측 기준)
   ['BA','BB','BC','BD','BE','BJ','BI','BH','BG','BF'].forEach(function(n){
-    RACK_DEFAULTS[n] = { w:5.0, d:2.0 };
+    RACK_DEFAULTS[n] = { w:5.0, d:1.3 };
   });
   // P-U 그룹: x 간격 4m → w=4.0
   ['P','Q','R','S','T','U'].forEach(function(n){
@@ -1010,6 +1010,17 @@ function saveRackSizes(){
       delete sectionRackSizes[n];
     });
     saveRackTypes();
+    saveRackSizes();
+    try { localStorage.setItem(mk,'1'); } catch(e){}
+  }
+})();
+// 마이그레이션 v9: BA~BJ 커스텀 크기 초기화 (d=1.3 통일, 크기 불균일 수정)
+(function(){
+  var mk = 'ssautotech_migration_v9';
+  if (!localStorage.getItem(mk)) {
+    ['BA','BB','BC','BD','BE','BJ','BI','BH','BG','BF'].forEach(function(n){
+      delete sectionRackSizes[n];
+    });
     saveRackSizes();
     try { localStorage.setItem(mk,'1'); } catch(e){}
   }
@@ -1396,13 +1407,7 @@ function buildSection(name,sx,sz,type,rows,cols,shelves,yOff) {
       }
     }
   }
-  // 최상단 천장 덮개판 (그 위에 적재 가능한 구조)
-  if (!isMidFloor) {
-    var topBy = yOff + shelves * sl.h + 0.045;  // 최상단 보 위치
-    var tcm = mat(0x2e3d4a, 0.95, 0.55);
-    si.panelMats.push(tcm);
-    si.meshes.push(addBox(sx+tw/2, topBy+0.10, sz+td/2, tw+0.04, 0.14, td+0.04, tcm, false));
-  }
+  // 최상단 천장 덮개판 제거 - 맨 위 금형이 천장판 위에 올라가는 문제 수정
   var lc=(type==='medium')?'#81c784':'#aed6f1';
   var lbl=makeSprite(name,lc,24);
   lbl.position.set(sx+tw/2,yOff+th+1.1,sz+td/2); lbl.scale.set(4.2,1.8,1); scene.add(lbl);
