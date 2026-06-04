@@ -1417,9 +1417,10 @@ function buildSection(name,sx,sz,type,rows,cols,shelves,yOff) {
         var mw,mh,md;
         if (type==='standing'){mw=sl.w*.56;mh=sl.h*.86;md=sl.d*.5;}
         else {
-          mw = rDef ? (tw/cols)*0.76 : sl.w*0.70;
+          // 금형 크기: 슬롯 단위 크기(sl) 기반으로 계산, 최대 1.0m 제한 (D타입 등 cols 적을 때 과대 방지)
+          mw = Math.min(sl.w*0.76, 1.0);
           mh = sl.h*0.58;
-          md = rDef ? (td/rows)*0.72 : sl.d*0.70;
+          md = Math.min(sl.d*0.72, 1.0);
         }
         // 존 기반 균등 중앙 배치: 전체 너비/깊이를 칸수로 나눠 중앙 계산
         var mx = rDef ? sx + (c+0.5)*(tw/cols) : sx + c*(sl.w+.07) + sl.w/2;
@@ -1446,7 +1447,7 @@ function buildSection(name,sx,sz,type,rows,cols,shelves,yOff) {
         scene.add(moldMesh);
 
         // 이젝터 핀 (금형 앞면 = 카메라 방향, mz+md/2 쪽)
-        var ej=new THREE.Mesh(new THREE.CylinderGeometry(mw*.09,mw*.09,.035,8),MAT_EJEC);
+        var ej=new THREE.Mesh(new THREE.CylinderGeometry(0.08,0.08,.035,8),MAT_EJEC);  // 고정 크기 (타입 무관)
         ej.rotation.x=Math.PI/2; ej.position.set(mx,my+mh*.12,mz+md/2+.004);
         ej.visible=false; // 초기: 숨김 (금형 있을 때만 표시)
         scene.add(ej);
