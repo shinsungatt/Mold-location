@@ -1036,6 +1036,19 @@ function saveRackSizes(){
     try { localStorage.setItem(mk,'1'); } catch(e){}
   }
 })();
+// 마이그레이션 v11: BA~BJ 랙 타입+크기 완전 초기화 (코드 강제로 최종 정리)
+(function(){
+  var mk = 'ssautotech_migration_v11';
+  if (!localStorage.getItem(mk)) {
+    ['BA','BB','BC','BD','BE','BJ','BI','BH','BG','BF'].forEach(function(n){
+      delete sectionRackTypes[n];
+      delete sectionRackSizes[n];
+    });
+    saveRackTypes();
+    saveRackSizes();
+    try { localStorage.setItem(mk,'1'); } catch(e){}
+  }
+})();
 
 var EXT_KW = ['금형창고','경기 화성','경기화성','LG평택','LG B-','MTX창고',
               '금형폐기','반납','사출현장','모베이스','금형실','하이게인','인팩'];
@@ -1338,8 +1351,11 @@ function colNum(secName, c, cols) {
 
 function buildSection(name,sx,sz,type,rows,cols,shelves,yOff) {
   yOff = yOff||0;
-  // 랙 타입 오버라이드: 사용자 설정 → 코드 기본값 순으로 적용
-  var _rType = sectionRackTypes[name] || SECTION_DEFAULT_RACK_TYPES[name] || null;
+  // BA~BJ 그룹은 항상 D타입 강제 (sectionRackTypes/localStorage 무시 → cols/rows 항상 동일)
+  var _bjGroup = ['BA','BB','BC','BD','BE','BJ','BI','BH','BG','BF'];
+  var _rType = (_bjGroup.indexOf(name) !== -1)
+    ? SECTION_DEFAULT_RACK_TYPES[name]                           // BA~BJ: 항상 기본값(D)
+    : (sectionRackTypes[name] || SECTION_DEFAULT_RACK_TYPES[name] || null);  // 기타: 사용자 설정 허용
   if (_rType) {
     var rtCfg = RACK_TYPE_CONFIG[_rType];
     if (rtCfg) { cols = rtCfg.cols; rows = rtCfg.rows; shelves = rtCfg.shelves; }
@@ -1887,12 +1903,19 @@ function showRackPopup(secName){
 
   // ─ 랙 타입 선택 (A/B/C/D) — 사용자 설정 없으면 코드 기본값 사용
   var curRackType = sectionRackTypes[name] || SECTION_DEFAULT_RACK_TYPES[name] || '';
+  var _isBJFixed = ['BA','BB','BC','BD','BE','BJ','BI','BH','BG','BF'].indexOf(name) !== -1;
   var rackTypeHtml = '<div class="rp-rtype-area">'
-    + '<div class="rse-hdr">랙 타입 선택 (즉시 적용)</div>'
+    + '<div class="rse-hdr">랙 타입 선택 (즉시 적용)'
+    + (_isBJFixed ? ' <span style="color:#ff9800;font-size:11px">(B구역: D타입 고정)</span>' : '')
+    + '</div>'
     + '<div class="rp-rtype-grp">'
     + ['A','B','C','D'].map(function(t){
         var cfg = RACK_TYPE_CONFIG[t];
-        return '<button class="rp-rtype-btn rp-rtype-'+t+(curRackType===t?' rtype-active':'')+'" data-rtype="'+t+'">'
+        var isFixed = _isBJFixed && t !== 'D';
+        return '<button class="rp-rtype-btn rp-rtype-'+t+(curRackType===t?' rtype-active':'')+'"'
+          + ' data-rtype="'+t+'"'
+          + (isFixed ? ' disabled style="opacity:0.35;cursor:not-allowed"' : '')
+          + '>'
           + t+'타입<span class="rtype-sub">'+cfg.desc+'</span></button>';
       }).join('')
     + '</div></div>';
