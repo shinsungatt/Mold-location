@@ -1479,7 +1479,7 @@ function buildSection(name,sx,sz,type,rows,cols,shelves,yOff) {
           plusIcon:plusIcon, ejMesh:ej
         };
         slotReg[k4]=entry;
-        if (!slotReg[k3]) slotReg[k3]=entry;
+        slotReg[k3]=entry;  // 항상 덮어쓰기 → 마지막 행(뒤쪽)이 k3 소유
         allSlots.push(entry);
         allSlotMeshes.push(moldMesh);
         meshToSlot[moldMesh.uuid]=entry;
