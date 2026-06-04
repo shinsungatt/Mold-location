@@ -1025,6 +1025,17 @@ function saveRackSizes(){
     try { localStorage.setItem(mk,'1'); } catch(e){}
   }
 })();
+// 마이그레이션 v10: BA~BJ 랙 타입 초기화 (D타입으로 강제 재설정, 갭 균일화)
+(function(){
+  var mk = 'ssautotech_migration_v10';
+  if (!localStorage.getItem(mk)) {
+    ['BA','BB','BC','BD','BE','BJ','BI','BH','BG','BF'].forEach(function(n){
+      delete sectionRackTypes[n];
+    });
+    saveRackTypes();
+    try { localStorage.setItem(mk,'1'); } catch(e){}
+  }
+})();
 
 var EXT_KW = ['금형창고','경기 화성','경기화성','LG평택','LG B-','MTX창고',
               '금형폐기','반납','사출현장','모베이스','금형실','하이게인','인팩'];
@@ -1422,10 +1433,10 @@ function buildSection(name,sx,sz,type,rows,cols,shelves,yOff) {
         var mw,mh,md;
         if (type==='standing'){mw=sl.w*.56;mh=sl.h*.86;md=sl.d*.5;}
         else {
-          // 금형 크기: 슬롯 단위 크기(sl) 기반으로 계산, 최대 1.0m 제한 (D타입 등 cols 적을 때 과대 방지)
-          mw = Math.min(sl.w*0.76, 1.0);
+          // 금형 크기: 슬롯 단위 크기(sl) 기반 고정 비율 → 모든 랙 갭 균일 20%
+          mw = sl.w * 0.80;
           mh = sl.h*0.58;
-          md = Math.min(sl.d*0.72, 1.0);
+          md = sl.d * 0.80;
         }
         // 존 기반 균등 중앙 배치: 전체 너비/깊이를 칸수로 나눠 중앙 계산
         var mx = rDef ? sx + (c+0.5)*(tw/cols) : sx + c*(sl.w+.07) + sl.w/2;
