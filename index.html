@@ -1328,7 +1328,12 @@ function makeLocMat(locKey) {
   ctx.shadowColor='rgba(0,80,220,0.95)'; ctx.shadowBlur=12;
   ctx.shadowOffsetX=0; ctx.shadowOffsetY=1;
   ctx.fillText(locKey, CW/2, CH/2);
-  return new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(c),transparent:true,depthTest:false,side:THREE.DoubleSide});
+  return new THREE.MeshBasicMaterial({
+    map:new THREE.CanvasTexture(c), transparent:true,
+    depthTest:true, depthWrite:false,
+    polygonOffset:true, polygonOffsetFactor:-2, polygonOffsetUnits:-4,
+    side:THREE.DoubleSide
+  });
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -1665,14 +1670,22 @@ function buildSection(name,sx,sz,type,rows,cols,shelves,yOff) {
 
         // 위치 코드 태그: 카메라 방향 앞면 하단 (mz+md/2 쪽, PlaneGeometry 기본 법선은 +Z)
         var emptyMat=makeLocMat(k4);
-        var tag=new THREE.Mesh(new THREE.PlaneGeometry(mw*1.05, mh*0.36), emptyMat);
-        tag.position.set(mx, yOff+sh*sl.h+0.12, mz+md/2+0.01);
+        var tag=new THREE.Mesh(new THREE.PlaneGeometry(mw*0.95, mh*0.34), emptyMat);
+        tag.position.set(mx, yOff+sh*sl.h+0.12, mz+md/2+0.03);
+        tag.renderOrder=3;
         scene.add(tag);
 
         // 품명 오버레이: 금형 앞면 중앙 (점유 시만 표시)
-        var nameMat=new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthTest:false,side:THREE.DoubleSide});
-        var nameTag=new THREE.Mesh(new THREE.PlaneGeometry(mw*1.05, mh*0.85), nameMat);
-        nameTag.position.set(mx, my, mz+md/2+0.02);
+        // depthTest:true + polygonOffset으로 위아래 단·뒤쪽 랙 텍스트 간섭 차단
+        var nameMat=new THREE.MeshBasicMaterial({
+          transparent:true, opacity:0,
+          depthTest:true, depthWrite:false,
+          polygonOffset:true, polygonOffsetFactor:-3, polygonOffsetUnits:-6,
+          side:THREE.DoubleSide
+        });
+        var nameTag=new THREE.Mesh(new THREE.PlaneGeometry(mw*0.88, mh*0.50), nameMat);
+        nameTag.position.set(mx, my+mh*0.06, mz+md/2+0.05);
+        nameTag.renderOrder=4;
         nameTag.visible=false;
         scene.add(nameTag);
 
@@ -1923,26 +1936,49 @@ function updateSlotSprite(entry, text) {
   // 점유 슬롯 → 품명 텍스트만 금형 박스 위에 오버레이 (배경 없음)
   if (!entry.nameSprite) return;
 
-  var CW=512, CH=192;
+  var CW=512, CH=152; // 플레인 비율(0.88×0.50)에 맞춘 캔버스 비율
   var c=document.createElement('canvas'); c.width=CW; c.height=CH;
   var ctx=c.getContext('2d');
   ctx.clearRect(0,0,CW,CH);
 
-  // 텍스트만 (배경 없음) — 그림자로 가독성 확보
-  var fs1 = text.length<=8 ? 70 : text.length<=14 ? 50 : 36;
-  var maxLen = text.length<=8 ? 14 : text.length<=14 ? 20 : 28;
+  // ① 반투명 어두운 배경 (라운드 박스) — 주변 3D와 대비 확보
+  var bPad=12, bR=18;
+  ctx.fillStyle='rgba(0,0,0,0.82)';
+  ctx.beginPath();
+  ctx.moveTo(bPad+bR, bPad);
+  ctx.lineTo(CW-bPad-bR, bPad);
+  ctx.arcTo(CW-bPad, bPad, CW-bPad, bPad+bR, bR);
+  ctx.lineTo(CW-bPad, CH-bPad-bR);
+  ctx.arcTo(CW-bPad, CH-bPad, CW-bPad-bR, CH-bPad, bR);
+  ctx.lineTo(bPad+bR, CH-bPad);
+  ctx.arcTo(bPad, CH-bPad, bPad, CH-bPad-bR, bR);
+  ctx.lineTo(bPad, bPad+bR);
+  ctx.arcTo(bPad, bPad, bPad+bR, bPad, bR);
+  ctx.closePath();
+  ctx.fill();
+
+  // ② 텍스트 렌더링 — 길이에 따라 폰트 크기 축소
+  var maxLen = 14;
+  var disp = text.length > maxLen ? text.slice(0, maxLen)+'…' : text;
+  var fs1 = disp.length<=5 ? 58 : disp.length<=8 ? 48 : disp.length<=11 ? 38 : 30;
   ctx.font='bold '+fs1+'px Malgun Gothic,Arial';
   ctx.textAlign='center'; ctx.textBaseline='middle';
-  ctx.shadowColor='rgba(0,0,0,1)'; ctx.shadowBlur=16;
-  ctx.shadowOffsetX=0; ctx.shadowOffsetY=0;
-  // 그림자 여러 번 → 두꺼운 아웃라인 효과
-  ctx.fillStyle='rgba(0,0,0,0.9)';
-  ctx.fillText(text.length>maxLen?text.slice(0,maxLen)+'…':text, CW/2, CH/2);
-  ctx.shadowBlur=10;
-  ctx.fillStyle='#ffffff';
-  ctx.fillText(text.length>maxLen?text.slice(0,maxLen)+'…':text, CW/2, CH/2);
+  // 아웃라인 (검정 획) — 배경과 텍스트 경계 선명하게
+  ctx.strokeStyle='rgba(0,0,0,0.95)';
+  ctx.lineWidth=4;
+  ctx.lineJoin='round';
+  ctx.strokeText(disp, CW/2, CH/2);
+  ctx.fillStyle='#f0f8ff';
+  ctx.fillText(disp, CW/2, CH/2);
 
-  var newMat=new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(c),transparent:true,depthTest:false,side:THREE.DoubleSide});
+  var newMat=new THREE.MeshBasicMaterial({
+    map:new THREE.CanvasTexture(c),
+    transparent:true,
+    depthTest:true, depthWrite:false,
+    polygonOffset:true, polygonOffsetFactor:-3, polygonOffsetUnits:-6,
+    side:THREE.DoubleSide
+  });
+  entry.nameSprite.renderOrder=4;
   if(entry.nameSprite.material) {
     entry.nameSprite.material.map && entry.nameSprite.material.map.dispose();
     entry.nameSprite.material.dispose();
