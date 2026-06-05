@@ -979,16 +979,30 @@ var MOLD_TYPES = {
 // 고객사별 금형 색상 (하단 50% 색칠, 나머지 은색)
 // 미지정 고객사 → 전체 은색(0xb4bcc8) 적용
 var CUST_COLORS = {
-  'LG전자':  0x4CAF50,   // 녹색
-  '모트렉스': 0x2196F3,  // 파란색
-  '동국실업': 0x9E9E9E,  // 회색
-  '동아전기': 0xE53935   // 적색
+  'LG전자':       0x4CAF50,  // 녹색
+  '모트렉스':     0x2196F3,  // 파란색
+  '동국실업':     0x616161,  // 진한 회색
+  '동아전기':     0xE53935,  // 적색
+  '동아전기부품': 0xE53935   // 적색 (정식 고객사명)
 };
 var SILVER_COLOR = 0xb4bcc8; // 기본 은색
 
+// 고객사명 → 색상 매칭 (정확 일치 → 부분 일치 순서로 시도)
+function getCustHex(customer) {
+  if (!customer) return null;
+  var s = customer.trim();
+  if (CUST_COLORS[s]) return CUST_COLORS[s];
+  // 부분 일치: 엑셀 데이터에 추가 공백/문자가 있어도 매칭
+  var keys = Object.keys(CUST_COLORS);
+  for (var i = 0; i < keys.length; i++) {
+    if (s.indexOf(keys[i]) >= 0 || keys[i].indexOf(s) >= 0) return CUST_COLORS[keys[i]];
+  }
+  return null;
+}
+
 // 고객사 + 타입을 반영한 캔버스 2톤 재질 생성 (하단 50% = 고객사색, 상단 50% = 은색)
 function makeCustMoldMat(customer) {
-  var custHex = CUST_COLORS[customer ? customer.trim() : ''];
+  var custHex = getCustHex(customer);
   if (!custHex) {
     // 기본 은색 단색
     var m = MAT_MOLD.clone();
@@ -1897,7 +1911,7 @@ function applyMoldType(entry, typeName) {
   // 색상: 고객사 재질 유지 (점유 슬롯이면 재질 재적용)
   if (entry.moldData) {
     entry.mesh.material = makeCustMoldMat(entry.moldData.customer);
-    entry.baseColor = CUST_COLORS[(entry.moldData.customer||'').trim()] || SILVER_COLOR;
+    entry.baseColor = getCustHex(entry.moldData.customer) || SILVER_COLOR;
     entry.mesh.material.needsUpdate = true;
     entry.moldData.moldType = typeName;
   }
@@ -2172,7 +2186,7 @@ function assignMoldsToSlots() {
       var custMat = makeCustMoldMat(mold.customer);
       entry.mesh.material.dispose();
       entry.mesh.material = custMat;
-      entry.baseColor = CUST_COLORS[(mold.customer||'').trim()] || SILVER_COLOR;
+      entry.baseColor = getCustHex(mold.customer) || SILVER_COLOR;
       if(entry.ejMesh) entry.ejMesh.visible=true;
       if(entry.plusIcon) entry.plusIcon.visible=false;
       occupied.push({entry:entry, text:mold.partName||mold.moldNum});
