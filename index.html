@@ -898,23 +898,27 @@ var LS_LBL_KEY  = 'ssautotech_labels_v1';
 var SECTIONS = (function(){
   // 기본값 배열 (위치 x,z 포함)
   var _def = [
-    // P~U : 전면열, 24호기 우측(z=-14, mid row 라인) — 3단(랙 3단)
-    ['P', 35,-14,'shelf', 2,4,3], ['Q', 39,-14,'shelf', 2,4,3], ['R', 43,-14,'shelf', 2,4,3],
-    ['S', 47,-14,'shelf', 2,4,3], ['T', 51,-14,'shelf', 2,4,3], ['U', 55,-14,'shelf', 2,4,3],
-    // H~C : 후면열(z=-12), P~U와 정확히 밀착(back-to-back)
-    ['H', 35,-12,'shelf', 2,4,4], ['G', 39,-12,'shelf', 2,4,4], ['F', 43,-12,'shelf', 2,4,4],
-    ['E', 47,-12,'shelf', 2,4,4], ['D', 51,-12,'shelf', 2,4,4], ['C', 55,-12,'shelf', 2,4,4],
+    // P~U : 전면열, 24호기 우측(z=-14, mid row 라인) — 4단(랙 3단+천장 1단)
+    ['P', 35,-14,'shelf', 2,4,4], ['Q', 39,-14,'shelf', 2,4,4], ['R', 43,-14,'shelf', 2,4,4],
+    ['S', 47,-14,'shelf', 2,4,4], ['T', 51,-14,'shelf', 2,4,4], ['U', 55,-14,'shelf', 2,4,4],
+    // H~C : 후면열(z=-12), P~U와 정확히 밀착(back-to-back) — 5단(랙 4단+천장 1단)
+    ['H', 35,-12,'shelf', 2,4,5], ['G', 39,-12,'shelf', 2,4,5], ['F', 43,-12,'shelf', 2,4,5],
+    ['E', 47,-12,'shelf', 2,4,5], ['D', 51,-12,'shelf', 2,4,5], ['C', 55,-12,'shelf', 2,4,5],
     // BA~BE / BJ~BF : P~U그룹 바로 우측, 24호기 라인(z=-14)
     ['BA',60,-14,'medium',2,2,3], ['BB',65,-14,'medium',2,2,3], ['BC',70,-14,'medium',2,2,3],
     ['BD',75,-14,'medium',2,2,3], ['BE',80,-14,'medium',2,2,3],
     ['BJ',60,-12.7,'medium',2,2,3], ['BI',65,-12.7,'medium',2,2,3], ['BH',70,-12.7,'medium',2,2,3],
     ['BG',75,-12.7,'medium',2,2,3], ['BF',80,-12.7,'medium',2,2,3],
     ['B',-58, 5,'shelf', 1,5,3], ['A',-52, 5,'shelf', 1,5,3],
-    // K~I : 세로(Z)방향 배치 — K-L 밀착, M-N 밀착, J-O 밀착, I 단독
-    ['K',-44, 7,'shelf', 2,2,3], ['L',-44,11,'shelf', 2,2,3],
-    ['M',-44,16,'shelf', 2,2,3], ['N',-44,20,'shelf', 2,2,3],
-    ['J',-44,25,'shelf', 2,2,3], ['O',-44,29,'shelf', 2,2,3],
-    ['I',-44,34,'shelf', 2,2,3],
+    // K~I : X방향(좌우)으로 배치, 각 쌍은 앞뒤(Z) back-to-back 밀착 — P~U / H~C 방식과 동일
+    // K-L 쌍: z=5(전면), z=7(후면)
+    ['K',-44, 5,'shelf', 2,2,3], ['L',-44, 7,'shelf', 2,2,3],
+    // M-N 쌍 (1유닛 간격)
+    ['M',-38, 5,'shelf', 2,2,3], ['N',-38, 7,'shelf', 2,2,3],
+    // J-O 쌍
+    ['J',-32, 5,'shelf', 2,2,3], ['O',-32, 7,'shelf', 2,2,3],
+    // I 단독
+    ['I',-26, 5,'shelf', 2,2,3],
     // 중층 앞열(z=18): 가로3×세로7=21금형 (6구역) — 중파와 마주보는 위치
     ['중1',-55,18,'medium',7,3,1], ['중2',-50,18,'medium',7,3,1],
     ['중3',-45,18,'medium',7,3,1], ['중4',-40,18,'medium',7,3,1],
@@ -972,6 +976,41 @@ var MOLD_TYPES = {
   D: { label:'D타입', size:0.55, color:0xE53935, desc:'0.5m 이상' }
 };
 
+// 고객사별 금형 색상 (하단 50% 색칠, 나머지 은색)
+// 미지정 고객사 → 전체 은색(0xb4bcc8) 적용
+var CUST_COLORS = {
+  'LG전자':  0x4CAF50,   // 녹색
+  '모트렉스': 0x2196F3,  // 파란색
+  '동국실업': 0x9E9E9E,  // 회색
+  '동아전기': 0xE53935   // 적색
+};
+var SILVER_COLOR = 0xb4bcc8; // 기본 은색
+
+// 고객사 + 타입을 반영한 캔버스 2톤 재질 생성 (하단 50% = 고객사색, 상단 50% = 은색)
+function makeCustMoldMat(customer) {
+  var custHex = CUST_COLORS[customer ? customer.trim() : ''];
+  if (!custHex) {
+    // 기본 은색 단색
+    var m = MAT_MOLD.clone();
+    m.color.setHex(SILVER_COLOR); m.transparent=false; m.opacity=1;
+    return m;
+  }
+  // 2톤 캔버스 텍스처: 캔버스 상단(y=0~32) = 은색(UV v=0.5~1.0 = 메시 상단 50%)
+  //                    캔버스 하단(y=32~64) = 고객사 색(UV v=0~0.5 = 메시 하단 50%)
+  var sz = 64;
+  var cv = document.createElement('canvas'); cv.width=4; cv.height=sz;
+  var ctx = cv.getContext('2d');
+  ctx.fillStyle = '#' + ('000000' + SILVER_COLOR.toString(16)).slice(-6);
+  ctx.fillRect(0, 0, 4, sz/2);
+  ctx.fillStyle = '#' + ('000000' + custHex.toString(16)).slice(-6);
+  ctx.fillRect(0, sz/2, 4, sz/2);
+  var tex = new THREE.CanvasTexture(cv); tex.needsUpdate=true;
+  return new THREE.MeshStandardMaterial({
+    map: tex, roughness:0.35, metalness:0.65,
+    transparent:false, opacity:1
+  });
+}
+
 // 섹션별 랙 기본 크기 (w: 섹션 x간격에 맞춰 인접 배치, d: 깊이, h는 buildSection에서 2.5m 기준 자동 계산)
 var RACK_DEFAULTS = {};
 (function(){
@@ -987,9 +1026,9 @@ var RACK_DEFAULTS = {};
   ['H','G','F','E','D','C'].forEach(function(n){
     RACK_DEFAULTS[n] = { w:4.0, d:2.0 };
   });
-  // K~I 그룹: 세로(Z)방향 배치 → w=2.5(X폭), d=4.0(Z깊이)
+  // K~I 그룹: X방향 배치, back-to-back 쌍 → w=5.0(X폭), d=2.0(Z깊이)
   ['K','L','M','N','J','O','I'].forEach(function(n){
-    RACK_DEFAULTS[n] = { w:2.5, d:4.0 };
+    RACK_DEFAULTS[n] = { w:5.0, d:2.0 };
   });
   // A-B 그룹: x 간격 6m → w=6.0, 깊이 d=1.5 (가로5×세로1)
   ['A','B'].forEach(function(n){
@@ -1229,6 +1268,14 @@ function saveRackSizes(){
     try { localStorage.setItem(mk,'1'); } catch(e){}
   }
 })();
+// 마이그레이션 v19: P~U 4단, H~C 5단, K~I X방향 back-to-back 쌍 재배치
+(function(){
+  var mk = 'ssautotech_migration_v19';
+  if (!localStorage.getItem(mk)) {
+    try { localStorage.removeItem('ssautotech_sections_v2'); } catch(e){}
+    try { localStorage.setItem(mk,'1'); } catch(e){}
+  }
+})();
 
 var EXT_KW = ['금형창고','경기 화성','경기화성','LG평택','LG B-','MTX창고',
               '금형폐기','반납','사출현장','모베이스','금형실','하이게인','인팩'];
@@ -1418,8 +1465,8 @@ function makePlusSprite(w, h) {
 // ══════════════════════════════════════════════════════════════
 function buildFloorMoldSlots() {
   // 금형 존: addBox(65,.04,-21,42,.08,5,...) → x:44~86, z:-23.5~-18.5
-  // 좌측 75% (31.5m) 에 6슬롯 배치, 우측 25%(10.5m) 비워둠
-  var X0   = 44;        // 좌측 끝 x
+  // 우측 75% (31.5m) 에 6슬롯 배치, 좌측 25%(10.5m) 비워둠
+  var X0   = 54.5;      // 우측 75% 시작 x (= 86 - 31.5)
   var USEW = 31.5;      // 사용 가능 폭
   var ZC   = -21;       // Z 중심
   var N    = 6;
@@ -1840,8 +1887,7 @@ function rebuildSection(name) {
 function applyMoldType(entry, typeName) {
   if (!entry || !entry.mesh) return;
   var t = MOLD_TYPES[typeName]; if (!t) return;
-  // 슬롯 기본 크기 기준 비율 적용 (절대값 사용 안 함 → 랙 크기에 비례 유지)
-  // A(가장 작은 금형)→슬롯의 60%, D(가장 큰 금형)→슬롯의 95%
+  // 사이즈만 변경 (색상은 고객사별로 적용, 타입 색상 제거)
   var ratios = { A:0.60, B:0.72, C:0.84, D:0.95 };
   var r = ratios[typeName] || 0.80;
   var bw = entry.slotW || entry.mesh.geometry.parameters.width;
@@ -1849,11 +1895,13 @@ function applyMoldType(entry, typeName) {
   var bd = entry.slotD || entry.mesh.geometry.parameters.depth;
   entry.mesh.geometry.dispose();
   entry.mesh.geometry = new THREE.BoxGeometry(bw * r, bh, bd * r);
-  entry.mesh.material.color.setHex(t.color);
-  // 박스 확실히 표시
-  entry.mesh.material.transparent=false; entry.mesh.material.opacity=1; entry.mesh.material.needsUpdate=true;
-  entry.baseColor = t.color;
-  if (entry.moldData) entry.moldData.moldType = typeName;
+  // 색상: 고객사 재질 유지 (점유 슬롯이면 재질 재적용)
+  if (entry.moldData) {
+    entry.mesh.material = makeCustMoldMat(entry.moldData.customer);
+    entry.baseColor = CUST_COLORS[(entry.moldData.customer||'').trim()] || SILVER_COLOR;
+    entry.mesh.material.needsUpdate = true;
+    entry.moldData.moldType = typeName;
+  }
 }
 
 // 페이지 로드/재매핑 후 전체 타입 적용
@@ -1901,7 +1949,12 @@ var moveSrcEntry=null;
 function clearHL(){
   if(HL.mesh){
     var hlEntry=meshToSlot[HL.mesh.uuid];
-    HL.mesh.material.color.set(hlEntry?hlEntry.baseColor:0x6c7585);
+    // 캔버스 텍스처 재질(고객사 색)이면 color를 white로 복원하여 텍스처가 원색 표시되도록 함
+    if(hlEntry && hlEntry.moldData && HL.mesh.material.map){
+      HL.mesh.material.color.set(0xffffff);
+    } else {
+      HL.mesh.material.color.set(hlEntry?hlEntry.baseColor:0x6c7585);
+    }
     HL.mesh.material.emissive.set(0x000000);
     HL.mesh.material.emissiveIntensity=0;
     // 빈 슬롯이었으면 박스 다시 투명, + 아이콘 복원
@@ -2084,6 +2137,11 @@ function updateSlotSprite(entry, text) {
 function assignMoldsToSlots() {
   // 1단계: 전체 초기화 → 빈 슬롯 상태 (박스 숨김, + 아이콘 표시)
   allSlots.forEach(function(entry){
+    // 이전 고객사 캔버스 텍스처 재질 dispose (메모리 누수 방지)
+    if(entry.moldData && entry.mesh.material.map){
+      entry.mesh.material.map.dispose(); entry.mesh.material.dispose();
+      entry.mesh.material = MAT_MOLD.clone();
+    }
     entry.moldData=null; entry.baseColor=0x6c7585;
     entry.mesh.material.color.set(0x6c7585);
     entry.mesh.material.transparent=true; entry.mesh.material.opacity=0; entry.mesh.material.needsUpdate=true;
@@ -2110,9 +2168,12 @@ function assignMoldsToSlots() {
     }
     var entry=slotReg[k4]||slotReg[k3];
     if(entry&&!entry.moldData){
-      entry.moldData=mold; entry.baseColor=0x5a7090;
-      entry.mesh.material.color.set(0x5a7090);
-      entry.mesh.material.transparent=false; entry.mesh.material.opacity=1; entry.mesh.material.needsUpdate=true;
+      entry.moldData=mold;
+      // 고객사별 금형 색상 적용 (기본: 은색)
+      var custMat = makeCustMoldMat(mold.customer);
+      entry.mesh.material.dispose();
+      entry.mesh.material = custMat;
+      entry.baseColor = CUST_COLORS[(mold.customer||'').trim()] || SILVER_COLOR;
       if(entry.ejMesh) entry.ejMesh.visible=true;
       if(entry.plusIcon) entry.plusIcon.visible=false;
       occupied.push({entry:entry, text:mold.partName||mold.moldNum});
