@@ -898,17 +898,17 @@ var LS_LBL_KEY  = 'ssautotech_labels_v1';
 var SECTIONS = (function(){
   // 기본값 배열 (위치 x,z 포함)
   var _def = [
-    // P~U : 전면열(z=-28), 1호기 우측 아이슬 이후 배치
-    ['P', 52,-28,'shelf', 2,4,6], ['Q', 56,-28,'shelf', 2,4,6], ['R', 60,-28,'shelf', 2,4,6],
-    ['S', 64,-28,'shelf', 2,4,6], ['T', 68,-28,'shelf', 2,4,6], ['U', 72,-28,'shelf', 2,4,6],
-    // H~C : 후면열(z=-26), P~U와 정확히 밀착(back-to-back)
-    ['H', 52,-26,'shelf', 2,4,4], ['G', 56,-26,'shelf', 2,4,4], ['F', 60,-26,'shelf', 2,4,4],
-    ['E', 64,-26,'shelf', 2,4,4], ['D', 68,-26,'shelf', 2,4,4], ['C', 72,-26,'shelf', 2,4,4],
-    // BA~BE / BJ~BF : P~U그룹 바로 우측 밀착 배치
-    ['BA',77,-28,'medium',2,2,3], ['BB',82,-28,'medium',2,2,3], ['BC',87,-28,'medium',2,2,3],
-    ['BD',92,-28,'medium',2,2,3], ['BE',97,-28,'medium',2,2,3],
-    ['BJ',77,-26.7,'medium',2,2,3], ['BI',82,-26.7,'medium',2,2,3], ['BH',87,-26.7,'medium',2,2,3],
-    ['BG',92,-26.7,'medium',2,2,3], ['BF',97,-26.7,'medium',2,2,3],
+    // P~U : 전면열, 24호기 우측(z=-14, mid row 라인)
+    ['P', 35,-14,'shelf', 2,4,6], ['Q', 39,-14,'shelf', 2,4,6], ['R', 43,-14,'shelf', 2,4,6],
+    ['S', 47,-14,'shelf', 2,4,6], ['T', 51,-14,'shelf', 2,4,6], ['U', 55,-14,'shelf', 2,4,6],
+    // H~C : 후면열(z=-12), P~U와 정확히 밀착(back-to-back)
+    ['H', 35,-12,'shelf', 2,4,4], ['G', 39,-12,'shelf', 2,4,4], ['F', 43,-12,'shelf', 2,4,4],
+    ['E', 47,-12,'shelf', 2,4,4], ['D', 51,-12,'shelf', 2,4,4], ['C', 55,-12,'shelf', 2,4,4],
+    // BA~BE / BJ~BF : P~U그룹 바로 우측, 24호기 라인(z=-14)
+    ['BA',60,-14,'medium',2,2,3], ['BB',65,-14,'medium',2,2,3], ['BC',70,-14,'medium',2,2,3],
+    ['BD',75,-14,'medium',2,2,3], ['BE',80,-14,'medium',2,2,3],
+    ['BJ',60,-12.7,'medium',2,2,3], ['BI',65,-12.7,'medium',2,2,3], ['BH',70,-12.7,'medium',2,2,3],
+    ['BG',75,-12.7,'medium',2,2,3], ['BF',80,-12.7,'medium',2,2,3],
     ['B',-58, 5,'shelf', 1,5,5], ['A',-52, 5,'shelf', 1,5,5],
     ['K',-44, 5,'shelf', 2,2,3], ['L',-39, 5,'shelf', 2,2,3],
     ['M',-34, 5,'shelf', 2,2,3], ['N',-29, 5,'shelf', 2,2,3], ['J',-24, 5,'shelf', 2,2,3],
@@ -1215,6 +1215,14 @@ function saveRackSizes(){
     try { localStorage.setItem(mk,'1'); } catch(e){}
   }
 })();
+// 마이그레이션 v17: 랙 전체를 24호기 라인(z=-14)으로 이동, 1호기 우측 확장
+(function(){
+  var mk = 'ssautotech_migration_v17';
+  if (!localStorage.getItem(mk)) {
+    try { localStorage.removeItem('ssautotech_sections_v2'); } catch(e){}
+    try { localStorage.setItem(mk,'1'); } catch(e){}
+  }
+})();
 
 var EXT_KW = ['금형창고','경기 화성','경기화성','LG평택','LG B-','MTX창고',
               '금형폐기','반납','사출현장','모베이스','금형실','하이게인','인팩'];
@@ -1262,7 +1270,7 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 cvDiv.appendChild(renderer.domElement);
 
 var controls = new THREE.OrbitControls(camera, renderer.domElement);
-controls.target.set(18, 0, -5);
+controls.target.set(20, 0, -12);
 controls.enableDamping = true; controls.dampingFactor = 0.07;
 controls.minDistance = 4; controls.maxDistance = 250;
 controls.maxPolarAngle = Math.PI / 2.05;
@@ -1434,8 +1442,12 @@ function buildCustomLabels() {
 function buildZoneAreas() {
   addBox(-63,.8,-12,10,1.6,18,MAT_OFFICE,false);
   addLabel('사무동',-63,1.7,-12,'#90a0c0',4,1.2);
-  addBox(50,.5,-21,8,1,6,mat(0x0a1a4a,.9),false);
-  addLabel('금형대차',50,1.1,-21,'#4288f0',4,1.2);
+  addBox(88,.5,-28,8,1,8,mat(0x0a1a4a,.9),false);
+  addLabel('금형대차',88,1.1,-28,'#4288f0',4,1.2);
+  addBox(97,.5,-28,4,1,8,mat(0x1a2838,.9),false);
+  addLabel('SPARE',97,.9,-28,'#6080b0',3,1.0);
+  addBox(57,.04,-21,52,.08,5,mat(0x082010,.9),false);
+  addLabel('금형',57,.5,-21,'#50e896',5,1.2);
   addBox(-58,.04,33,22,.08,20,mat(0x403000,.9),false);
   addLabel('재고품\n(자재)',-58,.5,33,'#ffd600',4,1.4);
   addBox(-22,.04,30,36,.08,24,mat(0x082010,.9),false);
@@ -1474,7 +1486,7 @@ function buildMachines() {
     {n: 8,t:0, x:-31,w:5,h:3.4,c:0x0d3d8a},{n: 7,t:60,x:-25,w:5,h:3.0,c:0x0d3d8a},
     {n: 6,t:60,x:-19,w:5,h:3.0,c:0x0d3d8a},{n: 5,t:450,x:-4,w:13,h:5.5,c:0x0a2a6a},
     {n: 3,t:330,x:13,w:10,h:5.0,c:0x0a2a6a},{n:2,t:330,x:25,w:10,h:5.0,c:0x0a2a6a},
-    {n: 1,t:900,x:40,w:15,h:6.5,c:0x071840},
+    {n: 1,t:900,x:57,w:52,h:6.5,c:0x071840},
   ];
   topRow.forEach(function(m){drawMachine(m.x,-28,m.w,8,m.h,m.n,m.t,m.c);});
   var midRow = [
@@ -2364,7 +2376,7 @@ function onCanvasClick(e){
 // ══════════════════════════════════════════════════════════════
 //  § 13. 카메라
 // ══════════════════════════════════════════════════════════════
-var DEF_CAM={x:25,y:75,z:80}, DEF_TGT={x:18,y:0,z:-5};
+var DEF_CAM={x:25,y:75,z:80}, DEF_TGT={x:20,y:0,z:-12};
 
 function flyTo(pos){
   gsap.to(controls.target,{x:pos.x,y:pos.y,z:pos.z,duration:1.3,ease:'power3.inOut'});
