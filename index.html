@@ -1249,6 +1249,9 @@ function parseLocation(raw) {
   // 중N-열-깊이 (중층 팔렛, 단 없음): 중6-2-3
   m = s.match(/^(중\d+)-(\d+)-(\d+)$/);
   if (m) return { type:'int', sec:m[1], sh:0, c:+m[2], depth:+m[3], noShelf:true };
+  // 금형F-N (바닥 금형 슬롯): 금형F-1 ~ 금형F-6
+  m = s.match(/^금형F-(\d+)$/);
+  if (m) return { type:'int', sec:'금형F', sh:0, c:+m[1], depth:1, noShelf:true };
   // 일반 랙: 섹션-단-열 또는 섹션-단-열-앞뒤
   // U-2-2 → sh=2, c=2, depth=1(기본)
   // U-3-1-2 → sh=3, c=1, depth=2
@@ -1411,6 +1414,68 @@ function makePlusSprite(w, h) {
 }
 
 // ══════════════════════════════════════════════════════════════
+//  § 6-B. 바닥 금형 슬롯 (금형 구역 내 1층 팔렛 6개)
+// ══════════════════════════════════════════════════════════════
+function buildFloorMoldSlots() {
+  // 금형 존: addBox(65,.04,-21,42,.08,5,...) → x:44~86, z:-23.5~-18.5
+  // 좌측 75% (31.5m) 에 6슬롯 배치, 우측 25%(10.5m) 비워둠
+  var X0   = 44;        // 좌측 끝 x
+  var USEW = 31.5;      // 사용 가능 폭
+  var ZC   = -21;       // Z 중심
+  var N    = 6;
+  var slW  = USEW / N;  // 슬롯 간격 5.25m
+
+  for (var i = 0; i < N; i++) {
+    var cx  = X0 + slW * (i + 0.5);
+    var loc = '금형F-' + (i + 1);
+
+    // 항상 보이는 팔렛 테두리 프레임
+    var fw = slW - 0.25, fd = 4.0;
+    addBox(cx, 0.045, ZC, fw, 0.06, fd, mat(0x1e6b38, 0.60, 0.3), false);
+
+    // 슬롯 번호 라벨 (슬롯 앞쪽)
+    addLabel('F-' + (i + 1), cx, 0.5, ZC - fd * 0.3, '#50e896', 2.3, 0.9);
+
+    // 클릭/점유 메시 (빈 슬롯: 투명, 금형 적재 시 색상 표시)
+    var mw = fw - 0.2, md = fd - 0.2;
+    var sMat = MAT_MOLD.clone();
+    sMat.transparent = true; sMat.opacity = 0;
+    var sMesh = new THREE.Mesh(new THREE.BoxGeometry(mw, 0.55, md), sMat);
+    sMesh.position.set(cx, 0.32, ZC);
+    sMesh.castShadow = false;
+    scene.add(sMesh);
+
+    // 빈 슬롯 + 아이콘
+    var plusIcon = makePlusSprite(mw * 0.72, mw * 0.72);
+    plusIcon.position.set(cx, 0.65, ZC);
+    scene.add(plusIcon);
+
+    // 위치 코드 태그 (바닥 수평 플레인)
+    var tagMat = makeLocMat(loc);
+    var tag = new THREE.Mesh(new THREE.PlaneGeometry(mw * 0.86, mw * 0.28), tagMat);
+    tag.rotation.x = -Math.PI / 2;
+    tag.position.set(cx, 0.08, ZC + fd * 0.3);
+    tag.renderOrder = 3;
+    scene.add(tag);
+
+    var wp = new THREE.Vector3(cx, 0.32, ZC);
+    var entry = {
+      mesh: sMesh, worldPos: wp, sprite: tag, nameSprite: null,
+      moldData: null, locKey: loc, baseColor: 0x2e7d32,
+      spriteIsShared: false, secName: '금형F',
+      emptyMat: sMat, plusIcon: plusIcon, ejMesh: null,
+      slotW: mw, slotH: 0.55, slotD: md
+    };
+    // slotReg: k3 = '금형F-N', k4 = '금형F-N-1' (noShelf 패턴)
+    slotReg[loc]        = entry;
+    slotReg[loc + '-1'] = entry;
+    meshToSlot[sMesh.uuid] = entry;
+    allSlots.push(entry);
+    allSlotMeshes.push(sMesh);
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
 //  § 7. 공장 기본 구조
 // ══════════════════════════════════════════════════════════════
 function buildFactory() {
@@ -1431,7 +1496,7 @@ function buildFactory() {
   for (var ax=-58; ax<=38; ax+=9)
     addBox(ax,.015,16,.1,.02,50,MAT_SAFETY,false);
 
-  buildZoneAreas(); buildMachines(); buildAllRacks(); buildCustomLabels();
+  buildZoneAreas(); buildFloorMoldSlots(); buildMachines(); buildAllRacks(); buildCustomLabels();
 }
 
 function buildCustomLabels() {
