@@ -898,14 +898,17 @@ var LS_LBL_KEY  = 'ssautotech_labels_v1';
 var SECTIONS = (function(){
   // 기본값 배열 (위치 x,z 포함)
   var _def = [
+    // P~U : 한 열(z=-28), 좌→우 P,Q,R,S,T,U
     ['P', 40,-28,'shelf', 2,4,6], ['Q', 44,-28,'shelf', 2,4,6], ['R', 48,-28,'shelf', 2,4,6],
-    ['S', 40,-24,'shelf', 2,4,6], ['T', 44,-24,'shelf', 2,4,6], ['U', 48,-24,'shelf', 2,4,6],
-    ['H', 40,-20,'shelf', 2,4,4], ['G', 44,-20,'shelf', 2,4,4], ['F', 48,-20,'shelf', 2,4,4],
-    ['E', 40,-16,'shelf', 2,4,4], ['D', 44,-16,'shelf', 2,4,4], ['C', 48,-16,'shelf', 2,4,4],
-    ['BA',54,-28,'medium',2,2,3], ['BB',59,-28,'medium',2,2,3], ['BC',64,-28,'medium',2,2,3],
-    ['BD',69,-28,'medium',2,2,3], ['BE',74,-28,'medium',2,2,3],
-    ['BJ',54,-22,'medium',2,2,3], ['BI',59,-22,'medium',2,2,3], ['BH',64,-22,'medium',2,2,3],
-    ['BG',69,-22,'medium',2,2,3], ['BF',74,-22,'medium',2,2,3],
+    ['S', 52,-28,'shelf', 2,4,6], ['T', 56,-28,'shelf', 2,4,6], ['U', 60,-28,'shelf', 2,4,6],
+    // H~C : 한 열(z=-22), 좌→우 H,G,F,E,D,C
+    ['H', 40,-22,'shelf', 2,4,4], ['G', 44,-22,'shelf', 2,4,4], ['F', 48,-22,'shelf', 2,4,4],
+    ['E', 52,-22,'shelf', 2,4,4], ['D', 56,-22,'shelf', 2,4,4], ['C', 60,-22,'shelf', 2,4,4],
+    // BA~BE / BJ~BF : x=66부터 (P~U 그룹과 간격 확보)
+    ['BA',66,-28,'medium',2,2,3], ['BB',71,-28,'medium',2,2,3], ['BC',76,-28,'medium',2,2,3],
+    ['BD',81,-28,'medium',2,2,3], ['BE',86,-28,'medium',2,2,3],
+    ['BJ',66,-22,'medium',2,2,3], ['BI',71,-22,'medium',2,2,3], ['BH',76,-22,'medium',2,2,3],
+    ['BG',81,-22,'medium',2,2,3], ['BF',86,-22,'medium',2,2,3],
     ['B',-58, 5,'shelf', 1,5,5], ['A',-52, 5,'shelf', 1,5,5],
     ['K',-44, 5,'shelf', 2,2,3], ['L',-39, 5,'shelf', 2,2,3],
     ['M',-34, 5,'shelf', 2,2,3], ['N',-29, 5,'shelf', 2,2,3], ['J',-24, 5,'shelf', 2,2,3],
@@ -1192,6 +1195,14 @@ function saveRackSizes(){
   var mk = 'ssautotech_migration_v14';
   if (!localStorage.getItem(mk)) {
     // 중파 x/z 위치가 변경되었으므로 SECTIONS localStorage 초기화
+    try { localStorage.removeItem('ssautotech_sections_v2'); } catch(e){}
+    try { localStorage.setItem(mk,'1'); } catch(e){}
+  }
+})();
+(function(){
+  var mk = 'ssautotech_migration_v15';
+  if (!localStorage.getItem(mk)) {
+    // P~U / H~C 2열 배치 + BA-BE/BJ-BF x 이동으로 SECTIONS localStorage 초기화
     try { localStorage.removeItem('ssautotech_sections_v2'); } catch(e){}
     try { localStorage.setItem(mk,'1'); } catch(e){}
   }
