@@ -898,9 +898,9 @@ var LS_LBL_KEY  = 'ssautotech_labels_v1';
 var SECTIONS = (function(){
   // 기본값 배열 (위치 x,z 포함)
   var _def = [
-    // P~U : 전면열, 24호기 우측(z=-14, mid row 라인)
-    ['P', 35,-14,'shelf', 2,4,6], ['Q', 39,-14,'shelf', 2,4,6], ['R', 43,-14,'shelf', 2,4,6],
-    ['S', 47,-14,'shelf', 2,4,6], ['T', 51,-14,'shelf', 2,4,6], ['U', 55,-14,'shelf', 2,4,6],
+    // P~U : 전면열, 24호기 우측(z=-14, mid row 라인) — 3단(랙 3단)
+    ['P', 35,-14,'shelf', 2,4,3], ['Q', 39,-14,'shelf', 2,4,3], ['R', 43,-14,'shelf', 2,4,3],
+    ['S', 47,-14,'shelf', 2,4,3], ['T', 51,-14,'shelf', 2,4,3], ['U', 55,-14,'shelf', 2,4,3],
     // H~C : 후면열(z=-12), P~U와 정확히 밀착(back-to-back)
     ['H', 35,-12,'shelf', 2,4,4], ['G', 39,-12,'shelf', 2,4,4], ['F', 43,-12,'shelf', 2,4,4],
     ['E', 47,-12,'shelf', 2,4,4], ['D', 51,-12,'shelf', 2,4,4], ['C', 55,-12,'shelf', 2,4,4],
@@ -909,10 +909,12 @@ var SECTIONS = (function(){
     ['BD',75,-14,'medium',2,2,3], ['BE',80,-14,'medium',2,2,3],
     ['BJ',60,-12.7,'medium',2,2,3], ['BI',65,-12.7,'medium',2,2,3], ['BH',70,-12.7,'medium',2,2,3],
     ['BG',75,-12.7,'medium',2,2,3], ['BF',80,-12.7,'medium',2,2,3],
-    ['B',-58, 5,'shelf', 1,5,5], ['A',-52, 5,'shelf', 1,5,5],
-    ['K',-44, 5,'shelf', 2,2,3], ['L',-39, 5,'shelf', 2,2,3],
-    ['M',-34, 5,'shelf', 2,2,3], ['N',-29, 5,'shelf', 2,2,3], ['J',-24, 5,'shelf', 2,2,3],
-    ['O',-10, 5,'shelf', 3,3,3], ['I', -5, 5,'shelf', 3,3,3],
+    ['B',-58, 5,'shelf', 1,5,3], ['A',-52, 5,'shelf', 1,5,3],
+    // K~I : 세로(Z)방향 배치 — K-L 밀착, M-N 밀착, J-O 밀착, I 단독
+    ['K',-44, 7,'shelf', 2,2,3], ['L',-44,11,'shelf', 2,2,3],
+    ['M',-44,16,'shelf', 2,2,3], ['N',-44,20,'shelf', 2,2,3],
+    ['J',-44,25,'shelf', 2,2,3], ['O',-44,29,'shelf', 2,2,3],
+    ['I',-44,34,'shelf', 2,2,3],
     // 중층 앞열(z=18): 가로3×세로7=21금형 (6구역) — 중파와 마주보는 위치
     ['중1',-55,18,'medium',7,3,1], ['중2',-50,18,'medium',7,3,1],
     ['중3',-45,18,'medium',7,3,1], ['중4',-40,18,'medium',7,3,1],
@@ -985,13 +987,9 @@ var RACK_DEFAULTS = {};
   ['H','G','F','E','D','C'].forEach(function(n){
     RACK_DEFAULTS[n] = { w:4.0, d:2.0 };
   });
-  // K-J 그룹: x 간격 5m → w=5.0, 깊이 d=2.0 (가로2×세로2)
-  ['K','L','M','N','J'].forEach(function(n){
-    RACK_DEFAULTS[n] = { w:5.0, d:2.0 };
-  });
-  // O-I 그룹: x 간격 5m → w=5.0
-  ['O','I'].forEach(function(n){
-    RACK_DEFAULTS[n] = { w:5.0, d:2.0 };
+  // K~I 그룹: 세로(Z)방향 배치 → w=2.5(X폭), d=4.0(Z깊이)
+  ['K','L','M','N','J','O','I'].forEach(function(n){
+    RACK_DEFAULTS[n] = { w:2.5, d:4.0 };
   });
   // A-B 그룹: x 간격 6m → w=6.0, 깊이 d=1.5 (가로5×세로1)
   ['A','B'].forEach(function(n){
@@ -1218,6 +1216,14 @@ function saveRackSizes(){
 // 마이그레이션 v17: 랙 전체를 24호기 라인(z=-14)으로 이동, 1호기 우측 확장
 (function(){
   var mk = 'ssautotech_migration_v17';
+  if (!localStorage.getItem(mk)) {
+    try { localStorage.removeItem('ssautotech_sections_v2'); } catch(e){}
+    try { localStorage.setItem(mk,'1'); } catch(e){}
+  }
+})();
+// 마이그레이션 v18: P~U 3단, A~B 3단, K~I 세로(Z)방향 재배치
+(function(){
+  var mk = 'ssautotech_migration_v18';
   if (!localStorage.getItem(mk)) {
     try { localStorage.removeItem('ssautotech_sections_v2'); } catch(e){}
     try { localStorage.setItem(mk,'1'); } catch(e){}
