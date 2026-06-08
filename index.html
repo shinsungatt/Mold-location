@@ -1341,6 +1341,32 @@ function saveRackSizes(){
     try { localStorage.setItem(mk,'1'); } catch(e){}
   }
 })();
+// 마이그레이션 v22: v20/v21 되돌리기 — 데이터는 원래 올바른 규칙(앞=1,안=2)으로 입력돼 있었음
+// v20이 C를, v21이 나머지 1층을 잘못 스왑했으므로 전체를 다시 1↔2 교환하여 원상복구
+(function(){
+  var mk = 'ssautotech_migration_v22';
+  if (!localStorage.getItem(mk)) {
+    try {
+      var saved = localStorage.getItem(LS_KEY);
+      if (saved) {
+        var data = JSON.parse(saved);
+        var changed = false;
+        data.forEach(function(mold) {
+          if (!mold.location) return;
+          // 영문 섹션-단-열-[1|2] 형식 전체 (C 포함, 중/중파 제외)
+          var m = mold.location.match(/^([A-Z][A-Z0-9]*)-(\d+)-(\d+)-([12])$/);
+          if (m) {
+            mold.location = m[1]+'-'+m[2]+'-'+m[3]+'-'+(m[4]==='1' ? '2' : '1');
+            mold.parsed = null;
+            changed = true;
+          }
+        });
+        if (changed) localStorage.setItem(LS_KEY, JSON.stringify(data));
+      }
+    } catch(e){}
+    try { localStorage.setItem(mk,'1'); } catch(e){}
+  }
+})();
 
 var EXT_KW = ['금형창고','경기 화성','경기화성','LG평택','LG B-','MTX창고',
               '금형폐기','반납','사출현장','모베이스','금형실','하이게인','인팩'];
