@@ -1771,9 +1771,10 @@ function buildSection(name,sx,sz,type,rows,cols,shelves,yOff) {
     var slD = (rDef.d - (rows - 1) * 0.07) / rows;
     // 단높이: RACK_DEFAULTS가 없는 섹션만 커스텀 값 사용, 있으면 기본값 강제
     // 3.3 = 330T 사이즈 기준 (기존 2.22 대비 약 50% 증가)
+    // shelves=1인 팔렛형(중/중파): 슬롯 풋프린트(slW,slD)의 최솟값으로 높이 결정 → 과도한 높이 방지
     var slH = (sectionRackSizes[name] && sectionRackSizes[name].h > 0 && !RACK_DEFAULTS[name])
       ? sectionRackSizes[name].h
-      : (3.3 / shelves);
+      : (shelves === 1 ? Math.min(slW, slD) : (3.3 / shelves));
     sl = { w: slW, d: slD, h: slH };
   } else {
     sl = SLOT[type];
