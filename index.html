@@ -1367,6 +1367,22 @@ function saveRackSizes(){
     try { localStorage.setItem(mk,'1'); } catch(e){}
   }
 })();
+// 마이그레이션 v23: H~C 구역 랙 타입·크기 override 초기화
+// E 등 일부 구역에 사용자가 잘못 설정한 랙타입(D타입 등)이 남아
+// 동일 라인(H~C) 내에서 슬롯 크기가 달라지는 문제 수정
+// → sectionRackTypes/sectionRackSizes 를 지워 SECTIONS 기본값(rows:2,cols:4,shelves:5)으로 통일
+(function(){
+  var mk = 'ssautotech_migration_v23';
+  if (!localStorage.getItem(mk)) {
+    ['H','G','F','E','D','C'].forEach(function(n){
+      delete sectionRackTypes[n];
+      delete sectionRackSizes[n];
+    });
+    saveRackTypes();
+    saveRackSizes();
+    try { localStorage.setItem(mk,'1'); } catch(e){}
+  }
+})();
 
 var EXT_KW = ['금형창고','경기 화성','경기화성','LG평택','LG B-','MTX창고',
               '금형폐기','반납','사출현장','모베이스','금형실','하이게인','인팩'];
