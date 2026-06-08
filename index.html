@@ -2434,6 +2434,22 @@ function getWarehouseKey(location) {
   return null;
 }
 
+// 창고명 키워드를 제거한 나머지 텍스트를 존(구역)명으로 반환
+// 예) "경기 화성 J3" → "J3", "금형창고" → "" (구역 없음)
+function getZoneKey(location) {
+  if (!location) return '';
+  var s = String(location).trim();
+  for (var i = 0; i < EXT_KW.length; i++) {
+    var idx = s.indexOf(EXT_KW[i]);
+    if (idx >= 0) {
+      var zone = (s.substring(0, idx) + s.substring(idx + EXT_KW[i].length))
+                 .trim().replace(/\s+/g, ' ');
+      return zone;
+    }
+  }
+  return '';
+}
+
 function groupExtMolds() {
   var groups = {};
   moldData.forEach(function(m) {
@@ -2474,28 +2490,59 @@ function showExtWarehousePopup(whKey) {
   var molds  = groups[whKey] || [];
   document.getElementById('ewp-title').textContent = whKey;
   document.getElementById('ewp-sub').textContent   = '보관 금형 ' + molds.length + '벌';
+
+  // 존별 그룹핑 (키: 존명, '__default__': 구역 없음)
+  var zoneMap = {}, zoneIdxMap = {};
+  molds.forEach(function(m, i) {
+    var z = getZoneKey(m.location) || '__default__';
+    if (!zoneMap[z]) { zoneMap[z] = []; zoneIdxMap[z] = []; }
+    zoneMap[z].push(m);
+    zoneIdxMap[z].push(i);
+  });
+  var zoneKeys = Object.keys(zoneMap).sort(function(a, b) {
+    if (a === '__default__') return -1;
+    if (b === '__default__') return 1;
+    return a.localeCompare(b, 'ko');
+  });
+  var multiZone = zoneKeys.length > 1 ||
+    (zoneKeys.length === 1 && zoneKeys[0] !== '__default__');
+
+  // 존 수 통계
+  var zoneStat = multiZone
+    ? (' · <span style="color:#ffc06a">'+zoneKeys.length+'개 구역</span>') : '';
   document.getElementById('ewp-stats').innerHTML =
     '<div class="rp-stat s-used">보관 '+molds.length+'벌</div>'
-    +'<div class="rp-stat" style="background:rgba(255,140,0,0.1);color:#ffa04a">4열 배치</div>';
+    +'<div class="rp-stat" style="background:rgba(255,140,0,0.1);color:#ffa04a">4열 배치'+zoneStat+'</div>';
 
   var COLS = 4, html = '';
-  var rowCount = Math.ceil(molds.length / COLS);
-  for (var r = 0; r < rowCount; r++) {
-    html += '<div class="rp-grid-row">';
-    for (var c = 0; c < COLS; c++) {
-      var m = molds[r * COLS + c];
-      if (m) {
-        html += '<div class="rp-cell occ ewp-cell" data-idx="'+(r*COLS+c)+'" data-wh="'+esc(whKey)+'">'
-          +'<div class="rp-mnum">'+esc(m.moldNum||'-')+'</div>'
-          +(m.partName ? '<div class="rp-mpn">'+esc(m.partName)+'</div>' : '')
-          +(m.customer ? '<div class="rp-mpn" style="color:#ffa04a">'+esc(m.customer)+'</div>' : '')
-          +'</div>';
-      } else {
-        html += '<div class="rp-cell" style="opacity:0;pointer-events:none"></div>';
+  zoneKeys.forEach(function(zone) {
+    var zm = zoneMap[zone], zi = zoneIdxMap[zone];
+    html += '<div class="rp-shelf">';
+    if (multiZone) {
+      var lbl = zone === '__default__' ? '구역 미지정' : zone;
+      html += '<div class="rp-shelf-hdr" style="color:rgba(255,160,60,0.7)">'+esc(lbl)+'</div>';
+    }
+    var rowCount = Math.ceil(zm.length / COLS);
+    for (var r = 0; r < rowCount; r++) {
+      html += '<div class="rp-grid-row">';
+      for (var c = 0; c < COLS; c++) {
+        var ci = r * COLS + c;
+        var m  = zm[ci];
+        if (m) {
+          html += '<div class="rp-cell occ ewp-cell" data-idx="'+zi[ci]+'" data-wh="'+esc(whKey)+'">'
+            +'<div class="rp-mnum">'+esc(m.moldNum||'-')+'</div>'
+            +(m.partName ? '<div class="rp-mpn">'+esc(m.partName)+'</div>' : '')
+            +(m.customer ? '<div class="rp-mpn" style="color:#ffa04a">'+esc(m.customer)+'</div>' : '')
+            +'</div>';
+        } else {
+          html += '<div class="rp-cell" style="opacity:0;pointer-events:none"></div>';
+        }
       }
+      html += '</div>';
     }
     html += '</div>';
-  }
+  });
+
   var body = document.getElementById('ewp-body');
   body.innerHTML = html;
   body.querySelectorAll('.ewp-cell').forEach(function(cell) {
