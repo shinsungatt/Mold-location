@@ -1770,9 +1770,10 @@ function buildSection(name,sx,sz,type,rows,cols,shelves,yOff) {
     var slW = (rDef.w - (cols - 1) * 0.07) / cols;
     var slD = (rDef.d - (rows - 1) * 0.07) / rows;
     // 단높이: RACK_DEFAULTS가 없는 섹션만 커스텀 값 사용, 있으면 기본값 강제
+    // 3.3 = 330T 사이즈 기준 (기존 2.22 대비 약 50% 증가)
     var slH = (sectionRackSizes[name] && sectionRackSizes[name].h > 0 && !RACK_DEFAULTS[name])
       ? sectionRackSizes[name].h
-      : (2.22 / shelves);
+      : (3.3 / shelves);
     sl = { w: slW, d: slD, h: slH };
   } else {
     sl = SLOT[type];
@@ -1853,9 +1854,10 @@ function buildSection(name,sx,sz,type,rows,cols,shelves,yOff) {
         var mw,mh,md;
         if (type==='standing'){mw=sl.w*.56;mh=sl.h*.86;md=sl.d*.5;}
         else {
-          // 금형 크기: 슬롯 단위 크기(sl) 기반 고정 비율 → 모든 랙 갭 균일 20%
+          // 금형 크기: 슬롯 단위 크기(sl) 기반 고정 비율
+          // mh 0.78: B·D타입 가로세로 비율 균형 (기존 0.58 대비 높이 35% 증가)
           mw = sl.w * 0.80;
-          mh = sl.h*0.58;
+          mh = sl.h * 0.78;
           md = sl.d * 0.80;
         }
         // 존 기반 균등 중앙 배치: 가장자리 여백을 두고 균등 분산 (비율 기반)
@@ -2470,7 +2472,7 @@ function showRackPopup(secName){
   var rDefPop = sectionRackSizes[name] || RACK_DEFAULTS[name] || { w:5.0, d:1.5 };
   var computedH = (sectionRackSizes[name] && sectionRackSizes[name].h > 0)
     ? sectionRackSizes[name].h
-    : parseFloat((2.22 / curShelves).toFixed(3));
+    : parseFloat((3.3 / curShelves).toFixed(3));
   var editHtml = '<div class="rack-size-edit">'
     + '<div class="rse-hdr">크기 직접 설정</div>'
     + '<div class="rse-row">'
