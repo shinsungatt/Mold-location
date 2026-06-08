@@ -1290,6 +1290,57 @@ function saveRackSizes(){
     try { localStorage.setItem(mk,'1'); } catch(e){}
   }
 })();
+// 마이그레이션 v20: C 섹션 앞뒤 번호 수정 (꺼내는 앞쪽=1, 안쪽=2)
+(function(){
+  var mk = 'ssautotech_migration_v20';
+  if (!localStorage.getItem(mk)) {
+    try {
+      var saved = localStorage.getItem(LS_KEY);
+      if (saved) {
+        var data = JSON.parse(saved);
+        var changed = false;
+        data.forEach(function(mold) {
+          if (!mold.location) return;
+          // C-단-열-[1|2] 형식에서 앞뒤 번호 1↔2 교환
+          var m = mold.location.match(/^(C-\d+-\d+-)([12])$/);
+          if (m) {
+            mold.location = m[1] + (m[2]==='1' ? '2' : '1');
+            mold.parsed = null; // 다음 로드 시 재파싱
+            changed = true;
+          }
+        });
+        if (changed) localStorage.setItem(LS_KEY, JSON.stringify(data));
+      }
+    } catch(e){}
+    try { localStorage.setItem(mk,'1'); } catch(e){}
+  }
+})();
+// 마이그레이션 v21: 1층 전체(C 제외) 앞뒤 번호 수정 (꺼내는 앞쪽=1, 안쪽=2)
+// C 섹션은 v20에서 이미 처리, 중/중파는 한글 이름이므로 정규식으로 자동 제외
+(function(){
+  var mk = 'ssautotech_migration_v21';
+  if (!localStorage.getItem(mk)) {
+    try {
+      var saved = localStorage.getItem(LS_KEY);
+      if (saved) {
+        var data = JSON.parse(saved);
+        var changed = false;
+        data.forEach(function(mold) {
+          if (!mold.location) return;
+          // 영문 섹션-단-열-[1|2] 형식 (C 제외)
+          var m = mold.location.match(/^([A-Z][A-Z0-9]*)-(\d+)-(\d+)-([12])$/);
+          if (m && m[1] !== 'C') {
+            mold.location = m[1]+'-'+m[2]+'-'+m[3]+'-'+(m[4]==='1' ? '2' : '1');
+            mold.parsed = null;
+            changed = true;
+          }
+        });
+        if (changed) localStorage.setItem(LS_KEY, JSON.stringify(data));
+      }
+    } catch(e){}
+    try { localStorage.setItem(mk,'1'); } catch(e){}
+  }
+})();
 
 var EXT_KW = ['금형창고','경기 화성','경기화성','LG평택','LG B-','MTX창고',
               '금형폐기','반납','사출현장','모베이스','금형실','하이게인','인팩'];
@@ -1797,7 +1848,9 @@ function buildSection(name,sx,sz,type,rows,cols,shelves,yOff) {
           k4 = name+'-'+cn+'-'+(r+1);   // 섹션-열-앞뒤
           k3 = name+'-'+cn;              // 섹션-열
         } else {
-          k4 = name+'-'+(sh+1)+'-'+cn+'-'+(r+1);  // 섹션-단-열-앞뒤
+          // 1층 일반 랙: 꺼내는 앞쪽=1, 안쪽=2 (r이 클수록 앞쪽이므로 rows-r)
+          var depthNum = rows-r;
+          k4 = name+'-'+(sh+1)+'-'+cn+'-'+depthNum;  // 섹션-단-열-앞뒤
           k3 = name+'-'+(sh+1)+'-'+cn;              // 섹션-단-열
         }
 
@@ -2507,9 +2560,17 @@ function onCanvasClick(e){
     -((e.clientY-rect.top)/rect.height)*2+1
   );
   raycaster.setFromCamera(mouse,camera);
-  // 1순위: 금형 슬롯 클릭
+  // 1순위: 금형 슬롯 클릭 (금형 있는 슬롯 우선, 없으면 첫 번째 빈 슬롯)
   var hits=raycaster.intersectObjects(allSlotMeshes);
-  if(hits.length>0){var entry=meshToSlot[hits[0].object.uuid]; if(entry){onSlotClick(entry);return;}}
+  if(hits.length>0){
+    var _ce=null;
+    for(var _hi=0;_hi<hits.length;_hi++){
+      var _e=meshToSlot[hits[_hi].object.uuid];
+      if(_e&&_e.moldData){_ce=_e;break;}  // 금형 있는 슬롯 우선 선택
+    }
+    if(!_ce){var _e0=meshToSlot[hits[0].object.uuid];if(_e0)_ce=_e0;}  // 없으면 첫 번째(빈) 슬롯
+    if(_ce){onSlotClick(_ce);return;}
+  }
   // 2순위: 섹션 라벨 클릭 → 랙 팝업 오픈
   var lblHits=raycaster.intersectObjects(allLabelSprites);
   if(lblHits.length>0){
