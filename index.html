@@ -437,9 +437,10 @@ body { background:#1e3a5c; color:#e8f0ff; font-family:'Malgun Gothic','맑은 �
 
 /* ── 외부창고 선택 바 ── */
 #ext-wh-bar {
-  display:none; align-items:center; gap:8px; flex-wrap:wrap;
-  padding:6px 16px 6px; background:rgba(255,140,0,0.05);
-  border-bottom:1px solid rgba(255,140,0,0.14);
+  display:none; align-items:center; gap:8px; flex-wrap:nowrap; overflow-x:auto;
+  position:fixed; top:58px; left:0; right:320px; height:36px;
+  padding:0 16px; background:rgba(14,28,54,0.97);
+  border-bottom:1px solid rgba(255,140,0,0.18); z-index:99;
 }
 .ewb-lbl { font-size:11px; color:rgba(255,140,0,0.65); font-weight:700; white-space:nowrap; flex-shrink:0; letter-spacing:.5px; }
 .ewb-btn {
@@ -2445,14 +2446,20 @@ function groupExtMolds() {
   return groups;
 }
 
+function setExtBarVisible(visible) {
+  var cv = document.getElementById('cv');
+  if (cv) cv.style.top = visible ? '94px' : '58px';
+}
+
 function buildExtWarehouseMenu() {
   var groups = groupExtMolds();
   var keys = Object.keys(groups);
   var bar  = document.getElementById('ext-wh-bar');
   var btns = document.getElementById('ext-wh-btns');
   if (!bar || !btns) return;
-  if (!keys.length) { bar.style.display = 'none'; return; }
+  if (!keys.length) { bar.style.display = 'none'; setExtBarVisible(false); return; }
   bar.style.display = 'flex';
+  setExtBarVisible(true);
   btns.innerHTML = keys.map(function(k) {
     return '<button class="ewb-btn" data-wh="'+esc(k)+'">'
       +esc(k)+' <span class="ewb-cnt">'+groups[k].length+'</span></button>';
