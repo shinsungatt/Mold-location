@@ -958,24 +958,27 @@ var SECTIONS = (function(){
   // 기본값 배열 (위치 x,z 포함)
   var _def = [
     // P~U : 전면열, 24호기 우측(z=-14, mid row 라인) — 4단(랙 3단+천장 1단)
-    ['P', 35,-14,'shelf', 2,4,4], ['Q', 39,-14,'shelf', 2,4,4], ['R', 43,-14,'shelf', 2,4,4],
-    ['S', 47,-14,'shelf', 2,4,4], ['T', 51,-14,'shelf', 2,4,4], ['U', 55,-14,'shelf', 2,4,4],
+    // faceDir:-1 → 통로가 -Z 방향 (라벨을 -Z 면에 배치)
+    ['P', 35,-14,'shelf', 2,4,4,-1], ['Q', 39,-14,'shelf', 2,4,4,-1], ['R', 43,-14,'shelf', 2,4,4,-1],
+    ['S', 47,-14,'shelf', 2,4,4,-1], ['T', 51,-14,'shelf', 2,4,4,-1], ['U', 55,-14,'shelf', 2,4,4,-1],
     // H~C : 후면열(z=-12), P~U와 정확히 밀착(back-to-back) — 5단(랙 4단+천장 1단)
+    // faceDir:+1(기본) → 통로가 +Z 방향
     ['H', 35,-12,'shelf', 2,4,5], ['G', 39,-12,'shelf', 2,4,5], ['F', 43,-12,'shelf', 2,4,5],
     ['E', 47,-12,'shelf', 2,4,5], ['D', 51,-12,'shelf', 2,4,5], ['C', 55,-12,'shelf', 2,4,5],
     // BA~BE / BJ~BF : P~U그룹 바로 우측, 24호기 라인(z=-14)
-    ['BA',60,-14,'medium',2,2,3], ['BB',65,-14,'medium',2,2,3], ['BC',70,-14,'medium',2,2,3],
-    ['BD',75,-14,'medium',2,2,3], ['BE',80,-14,'medium',2,2,3],
+    // BA~BE: faceDir:-1, BJ~BF: faceDir:+1(기본)
+    ['BA',60,-14,'medium',2,2,3,-1], ['BB',65,-14,'medium',2,2,3,-1], ['BC',70,-14,'medium',2,2,3,-1],
+    ['BD',75,-14,'medium',2,2,3,-1], ['BE',80,-14,'medium',2,2,3,-1],
     ['BJ',60,-12.7,'medium',2,2,3], ['BI',65,-12.7,'medium',2,2,3], ['BH',70,-12.7,'medium',2,2,3],
     ['BG',75,-12.7,'medium',2,2,3], ['BF',80,-12.7,'medium',2,2,3],
     ['B',-58, 5,'shelf', 1,5,3], ['A',-52, 5,'shelf', 1,5,3],
     // K~I : X방향(좌우)으로 배치, 각 쌍은 앞뒤(Z) back-to-back 밀착 — P~U / H~C 방식과 동일
-    // K-L 쌍: z=5(전면), z=7(후면)
-    ['K',-44, 5,'shelf', 2,2,3], ['L',-44, 7,'shelf', 2,2,3],
+    // K-L 쌍: z=5(전면,-1), z=7(후면,+1)
+    ['K',-44, 5,'shelf', 2,2,3,-1], ['L',-44, 7,'shelf', 2,2,3],
     // M-N 쌍 (1유닛 간격)
-    ['M',-38, 5,'shelf', 2,2,3], ['N',-38, 7,'shelf', 2,2,3],
+    ['M',-38, 5,'shelf', 2,2,3,-1], ['N',-38, 7,'shelf', 2,2,3],
     // J-O 쌍
-    ['J',-32, 5,'shelf', 2,2,3], ['O',-32, 7,'shelf', 2,2,3],
+    ['J',-32, 5,'shelf', 2,2,3,-1], ['O',-32, 7,'shelf', 2,2,3],
     // I 단독
     ['I',-26, 5,'shelf', 2,2,3],
     // 중층 앞열(z=18): 가로3×세로7=21금형 (6구역) — 중파와 마주보는 위치
@@ -986,9 +989,9 @@ var SECTIONS = (function(){
     ['중파1',-55,26,'medium',4,4,1], ['중파2',-50,26,'medium',4,4,1], ['중파3',-45,26,'medium',4,4,1],
     ['중파4',-40,26,'medium',4,4,1], ['중파5',-35,26,'medium',4,4,1], ['중파6',-30,26,'medium',4,4,1],
   ];
-  // 섹션명 → [타입, rows, cols, shelves] 구조 맵 (localStorage 오염 방어)
+  // 섹션명 → [타입, rows, cols, shelves, faceDir] 구조 맵 (localStorage 오염 방어)
   var _struct = {};
-  _def.forEach(function(s){ _struct[s[0]] = [s[3],s[4],s[5],s[6]]; });
+  _def.forEach(function(s){ _struct[s[0]] = [s[3],s[4],s[5],s[6], s[7]||1]; });
 
   var _s = localStorage.getItem(LS_SEC_KEY);
   if (_s) {
@@ -997,10 +1000,10 @@ var SECTIONS = (function(){
       if (_p && _p.length) {
         // 코드에 없는 섹션(삭제된 중파6~10 등) 제거
         _p = _p.filter(function(sec){ return !!_struct[sec[0]]; });
-        // 위치(x, z)는 localStorage 유지, 타입/rows/cols/shelves는 코드 기본값으로 강제
+        // 위치(x, z)는 localStorage 유지, 타입/rows/cols/shelves/faceDir는 코드 기본값으로 강제
         _p.forEach(function(sec){
           var st = _struct[sec[0]];
-          if (st) { sec[3]=st[0]; sec[4]=st[1]; sec[5]=st[2]; sec[6]=st[3]; }
+          if (st) { sec[3]=st[0]; sec[4]=st[1]; sec[5]=st[2]; sec[6]=st[3]; sec[7]=st[4]; }
         });
         // 코드에 있지만 localStorage에 없는 새 섹션 추가
         var existNames = _p.map(function(s){ return s[0]; });
@@ -1813,7 +1816,7 @@ var MID_FLOOR_Y = 3.5; // 중2층 팔렛 바닥 높이 (3D 단위)
 function buildAllRacks() {
   SECTIONS.forEach(function(def){
     var yOff = /^중/.test(def[0]) ? MID_FLOOR_Y : 0;
-    buildSection(def[0],def[1],def[2],def[3],def[4],def[5],def[6],yOff);
+    buildSection(def[0],def[1],def[2],def[3],def[4],def[5],def[6],yOff,def[7]||1);
   });
 }
 
@@ -1822,8 +1825,9 @@ function colNum(secName, c, cols) {
   return /^중\d+$/.test(secName) ? cols - c : c + 1;
 }
 
-function buildSection(name,sx,sz,type,rows,cols,shelves,yOff) {
+function buildSection(name,sx,sz,type,rows,cols,shelves,yOff,faceDir) {
   yOff = yOff||0;
+  faceDir = faceDir||1; // +1: 통로가 +Z 방향(라벨 앞면), -1: 통로가 -Z 방향(라벨 앞면)
   // BA~BJ 그룹은 항상 D타입 강제 (sectionRackTypes/localStorage 무시 → cols/rows 항상 동일)
   var _bjGroup = ['BA','BB','BC','BD','BE','BJ','BI','BH','BG','BF'];
   var _rType = (_bjGroup.indexOf(name) !== -1)
@@ -1964,26 +1968,26 @@ function buildSection(name,sx,sz,type,rows,cols,shelves,yOff) {
         moldMesh.material.transparent=true; moldMesh.material.opacity=0; moldMesh.material.needsUpdate=true;
         scene.add(moldMesh);
 
-        // 이젝터 핀 (금형 앞면 = 카메라 방향, mz+md/2 쪽)
+        // 이젝터 핀 (금형 통로측 앞면 = faceDir 방향, faceDir>0: +Z, faceDir<0: -Z)
         var ej=new THREE.Mesh(new THREE.CylinderGeometry(0.08,0.08,.035,8),MAT_EJEC);  // 고정 크기 (타입 무관)
-        ej.rotation.x=Math.PI/2; ej.position.set(mx,my+mh*.12,mz+md/2+.004);
+        ej.rotation.x=Math.PI/2; ej.position.set(mx,my+mh*.12,mz+faceDir*(md/2+.004));
         ej.visible=false; // 초기: 숨김 (금형 있을 때만 표시)
         scene.add(ej);
         si.meshes.push(ej);
 
-        // 빈 슬롯 등록 아이콘 (카메라 방향 앞면에 배치)
+        // 빈 슬롯 등록 아이콘 (통로측 앞면에 배치)
         var plusIcon=makePlusSprite(mw, mh);
-        plusIcon.position.set(mx, my, mz+md/2+0.05);
+        plusIcon.position.set(mx, my, mz+faceDir*(md/2+0.05));
         scene.add(plusIcon);
 
-        // 위치 코드 태그: 카메라 방향 앞면 하단 (mz+md/2 쪽, PlaneGeometry 기본 법선은 +Z)
+        // 위치 코드 태그: 통로측 앞면 하단 (faceDir 방향, DoubleSide 재질)
         var emptyMat=makeLocMat(k4);
         var tag=new THREE.Mesh(new THREE.PlaneGeometry(mw*0.95, mh*0.34), emptyMat);
-        tag.position.set(mx, yOff+sh*sl.h+0.12, mz+md/2+0.03);
+        tag.position.set(mx, yOff+sh*sl.h+0.12, mz+faceDir*(md/2+0.03));
         tag.renderOrder=3;
         scene.add(tag);
 
-        // 품명 오버레이: 금형 앞면 중앙 (점유 시만 표시)
+        // 품명 오버레이: 금형 통로측 앞면 중앙 (점유 시만 표시)
         // depthTest:true + polygonOffset으로 위아래 단·뒤쪽 랙 텍스트 간섭 차단
         var nameMat=new THREE.MeshBasicMaterial({
           transparent:true, opacity:0,
@@ -1992,7 +1996,7 @@ function buildSection(name,sx,sz,type,rows,cols,shelves,yOff) {
           side:THREE.DoubleSide
         });
         var nameTag=new THREE.Mesh(new THREE.PlaneGeometry(mw*0.88, mh*0.50), nameMat);
-        nameTag.position.set(mx, my+mh*0.06, mz+md/2+0.05);
+        nameTag.position.set(mx, my+mh*0.06, mz+faceDir*(md/2+0.05));
         nameTag.renderOrder=4;
         nameTag.visible=false;
         scene.add(nameTag);
@@ -2048,7 +2052,7 @@ function rebuildSection(name) {
   for(var i=0;i<SECTIONS.length;i++){ if(SECTIONS[i][0]===name){secDef=SECTIONS[i];break;} }
   if(!secDef) return;
   var yOff = /^중/.test(name) ? MID_FLOOR_Y : 0;
-  buildSection(secDef[0],secDef[1],secDef[2],secDef[3],secDef[4],secDef[5],secDef[6],yOff);
+  buildSection(secDef[0],secDef[1],secDef[2],secDef[3],secDef[4],secDef[5],secDef[6],yOff,secDef[7]||1);
   assignMoldsToSlots();
   applyAllMoldTypeColors();
 }
