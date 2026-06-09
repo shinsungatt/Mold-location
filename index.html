@@ -981,13 +981,16 @@ var SECTIONS = (function(){
     ['J',-32, 5,'shelf', 2,2,3,-1], ['O',-32, 7,'shelf', 2,2,3],
     // I 단독
     ['I',-26, 5,'shelf', 2,2,3],
-    // 중층 앞열(z=18): 가로3×세로7=21금형 (6구역) — 중파와 마주보는 위치
-    ['중1',-55,18,'medium',7,3,1], ['중2',-50,18,'medium',7,3,1],
-    ['중3',-45,18,'medium',7,3,1], ['중4',-40,18,'medium',7,3,1],
-    ['중5',-35,18,'medium',7,3,1], ['중6',-30,18,'medium',7,3,1],
-    // 중층 뒷열(z=26, 벽쪽): 가로4×세로4=16금형 팔렛 6개 나란히 — 중과 동일 x 범위
+    // 중층 앞열(z=18) — 중파와 마주보는 위치
+    // 중1/중2: 가로2×세로8, 중3/중5: 가로2×세로6, 중4: 가로6×세로6, 중6: 가로3×세로7
+    ['중1',-55,18,'medium',8,2,1], ['중2',-50,18,'medium',8,2,1],
+    ['중3',-45,18,'medium',6,2,1], ['중4',-40,18,'medium',6,6,1],
+    ['중5',-35,18,'medium',6,2,1], ['중6',-30,18,'medium',7,3,1],
+    // 중층 뒷열(z=26, 벽쪽): 가로4×세로4=16금형 팔렛 10개 나란히
     ['중파1',-55,26,'medium',4,4,1], ['중파2',-50,26,'medium',4,4,1], ['중파3',-45,26,'medium',4,4,1],
     ['중파4',-40,26,'medium',4,4,1], ['중파5',-35,26,'medium',4,4,1], ['중파6',-30,26,'medium',4,4,1],
+    ['중파7',-25,26,'medium',4,4,1], ['중파8',-20,26,'medium',4,4,1],
+    ['중파9',-15,26,'medium',4,4,1], ['중파10',-10,26,'medium',4,4,1],
   ];
   // 섹션명 → [타입, rows, cols, shelves, faceDir] 구조 맵 (localStorage 오염 방어)
   var _struct = {};
@@ -1110,12 +1113,14 @@ var RACK_DEFAULTS = {};
   ['A','B'].forEach(function(n){
     RACK_DEFAULTS[n] = { w:6.0, d:1.5 };
   });
-  // 중1~중6: 가로3×세로7=21금형, x 간격 5m → w=4.5, 깊이 d=5.0
+  // 중1~중6: 가로2~6×세로6~8=팔렛형, x 간격 5m → w=4.5, 깊이 d=5.0
+  // moldRefRows:6 → rows 수에 무관하게 같은 금형 크기 (중3/중4/중5 기준)
   ['중1','중2','중3','중4','중5','중6'].forEach(function(n){
-    RACK_DEFAULTS[n] = { w:4.5, d:5.0 };
+    RACK_DEFAULTS[n] = { w:4.5, d:5.0, moldRefRows:6 };
   });
-  // 중파1~중파6: 가로4×세로4=16금형, x 간격 5m → w=4.5, 깊이 d=4.5
-  ['중파1','중파2','중파3','중파4','중파5','중파6'].forEach(function(n){
+  // 중파1~중파10: 가로4×세로4=16금형, x 간격 5m → w=4.5, 깊이 d=4.5
+  ['중파1','중파2','중파3','중파4','중파5','중파6',
+   '중파7','중파8','중파9','중파10'].forEach(function(n){
     RACK_DEFAULTS[n] = { w:4.5, d:4.5 };
   });
 })();
@@ -1446,6 +1451,20 @@ function saveRackSizes(){
   }
 })();
 
+// 마이그레이션 v24: 중1/중2(가로2×세로8), 중3/중5(가로2×세로6), 중4(가로6×세로6) 구조 변경
+(function(){
+  var mk = 'ssautotech_migration_v24';
+  if (!localStorage.getItem(mk)) {
+    ['중1','중2','중3','중4','중5','중6'].forEach(function(n){
+      delete sectionRackTypes[n];
+      delete sectionRackSizes[n];
+    });
+    saveRackTypes();
+    saveRackSizes();
+    try { localStorage.setItem(mk,'1'); } catch(e){}
+  }
+})();
+
 var EXT_KW = ['금형창고','경기 화성','경기화성','LG평택','LG B-','MTX창고',
               '금형폐기','반납','사출현장','모베이스','금형실','하이게인','인팩'];
 
@@ -1573,6 +1592,54 @@ function makeLocMat(locKey) {
     map:new THREE.CanvasTexture(c), transparent:true,
     depthTest:true, depthWrite:false,
     polygonOffset:true, polygonOffsetFactor:-2, polygonOffsetUnits:-4,
+    side:THREE.DoubleSide
+  });
+}
+
+// 카테고리 분류 헬퍼
+function getCategoryType(category) {
+  var cat = String(category||'').trim().toLowerCase().replace(/\s/g,'');
+  if (cat.indexOf('개발') >= 0) return 'dev';
+  if (cat.indexOf('서비스') >= 0 || cat.indexOf('a/s') >= 0
+      || cat === 'as' || cat === 'a.s') return 'as';
+  if (cat.indexOf('양산') >= 0) return 'prod';
+  return '';
+}
+// 카테고리 배지 캔버스 텍스처 생성 (양산:주황 / A/S·서비스:핑크 / 개발:보라)
+function makeCategoryBadgeMat(category) {
+  var type = getCategoryType(category);
+  var bgColor, text;
+  if (type === 'as') {
+    bgColor='#ff6eb4'; text='A/S';
+  } else if (type === 'dev') {
+    bgColor='#8b5cf6'; text='개발';
+  } else {
+    bgColor='#ff8c00'; text='양산';
+  }
+  var CW=256, CH=96;
+  var c=document.createElement('canvas'); c.width=CW; c.height=CH;
+  var ctx=c.getContext('2d');
+  var bR=24;
+  ctx.fillStyle=bgColor;
+  ctx.beginPath();
+  ctx.moveTo(bR,0); ctx.lineTo(CW-bR,0);
+  ctx.arcTo(CW,0,CW,bR,bR);
+  ctx.lineTo(CW,CH-bR);
+  ctx.arcTo(CW,CH,CW-bR,CH,bR);
+  ctx.lineTo(bR,CH);
+  ctx.arcTo(0,CH,0,CH-bR,bR);
+  ctx.lineTo(0,bR);
+  ctx.arcTo(0,0,bR,0,bR);
+  ctx.closePath(); ctx.fill();
+  ctx.font='bold 48px Malgun Gothic,Arial';
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillStyle='#ffffff';
+  ctx.shadowColor='rgba(0,0,0,0.5)'; ctx.shadowBlur=4;
+  ctx.fillText(text,CW/2,CH/2);
+  return new THREE.MeshBasicMaterial({
+    map:new THREE.CanvasTexture(c),
+    transparent:true, opacity:1,
+    depthTest:false, depthWrite:false,
     side:THREE.DoubleSide
   });
 }
@@ -1848,13 +1915,18 @@ function buildSection(name,sx,sz,type,rows,cols,shelves,yOff,faceDir) {
   if (rDef) {
     var slW = (rDef.w - (cols - 1) * 0.07) / cols;
     var slD = (rDef.d - (rows - 1) * 0.07) / rows;
+    // moldRefRows: 팔렛형(shelves===1)에서 rows 수와 무관하게 동일 금형 크기 보장
+    // slD_eff는 slH(단높이)와 mold크기 계산에만 사용, 실제 슬롯 간격(mz 위치)은 slD 유지
+    var slD_eff = (shelves === 1 && rDef.moldRefRows)
+      ? (rDef.d - (rDef.moldRefRows - 1) * 0.07) / rDef.moldRefRows
+      : slD;
     // 단높이: RACK_DEFAULTS가 없는 섹션만 커스텀 값 사용, 있으면 기본값 강제
     // 3.3 = 330T 사이즈 기준 (기존 2.22 대비 약 50% 증가)
-    // shelves=1인 팔렛형(중/중파): 슬롯 풋프린트(slW,slD)의 최솟값으로 높이 결정 → 과도한 높이 방지
+    // shelves=1인 팔렛형(중/중파): 기준 슬롯 깊이(slD_eff) 기반으로 높이 결정
     var slH = (sectionRackSizes[name] && sectionRackSizes[name].h > 0 && !RACK_DEFAULTS[name])
       ? sectionRackSizes[name].h
-      : (shelves === 1 ? Math.min(slW, slD) : (3.3 / shelves));
-    sl = { w: slW, d: slD, h: slH };
+      : (shelves === 1 ? Math.min(slW, slD_eff) : (3.3 / shelves));
+    sl = { w: slW, d: slD, h: slH };  // sl.d = 실제 슬롯 간격(위치 계산용)
   } else {
     sl = SLOT[type];
   }
@@ -1933,7 +2005,14 @@ function buildSection(name,sx,sz,type,rows,cols,shelves,yOff,faceDir) {
         // 금형 크기 먼저 결정 (RACK_DEFAULTS 있으면 존 기반 균등 여백, 없으면 슬롯 기반)
         var mw,mh,md;
         if (type==='standing'){mw=sl.w*.56;mh=sl.h*.86;md=sl.d*.5;}
-        else {
+        else if (shelves===1 && rDef && rDef.moldRefRows) {
+          // 팔렛형 + moldRefRows: rows 수 무관하게 동일 금형 크기 보장
+          // slD_eff는 이미 rDef 블록에서 계산됨 (재계산)
+          var _mRefSlD = (rDef.d - (rDef.moldRefRows - 1) * 0.07) / rDef.moldRefRows;
+          mw = sl.w * 0.80;
+          mh = sl.h * 0.78;  // sl.h 이미 slD_eff 기반 → 모든 섹션 동일
+          md = _mRefSlD * 0.80;
+        } else {
           // 금형 크기: 슬롯 단위 크기(sl) 기반 고정 비율
           // mh 0.78: B·D타입 가로세로 비율 균형 (기존 0.58 대비 높이 35% 증가)
           mw = sl.w * 0.80;
@@ -1980,32 +2059,80 @@ function buildSection(name,sx,sz,type,rows,cols,shelves,yOff,faceDir) {
         plusIcon.position.set(mx, my, mz+faceDir*(md/2+0.05));
         scene.add(plusIcon);
 
-        // 위치 코드 태그: 통로측 앞면 하단 (faceDir 방향, DoubleSide 재질)
+        // 위치 코드 태그
+        // 팔렛형(shelves===1, 중2층/중파): 상단면 → 위에서 내려다볼 때 모든 행 표시
+        // 1층 랙(shelves>1): 통로측 앞면 하단
         var emptyMat=makeLocMat(k4);
-        var tag=new THREE.Mesh(new THREE.PlaneGeometry(mw*0.95, mh*0.34), emptyMat);
-        tag.position.set(mx, yOff+sh*sl.h+0.12, mz+faceDir*(md/2+0.03));
-        if (faceDir < 0) tag.rotation.y = Math.PI; // faceDir=-1: Y축 180° 회전 → 거울 반전 방지
+        // 팔렛형(shelves===1) 윗면 3구역 레이아웃 (겹침 없음):
+        //   [뒤 z-] 품명(nameTag): mz-md*0.10, z범위 mz-md*0.35 ~ mz+md*0.15
+        //   [앞 z+] 위치코드(tag): 좌측, mz+md*0.30  |  뱃지(badge): 우측, mz+md*0.30
+        var tag=new THREE.Mesh(
+          shelves===1 ? new THREE.PlaneGeometry(mw*0.52, md*0.22)
+                      : new THREE.PlaneGeometry(mw*0.95, mh*0.34),
+          emptyMat
+        );
+        if (shelves===1) {
+          tag.position.set(mx-mw*0.16, my+mh*0.5+0.005, mz+md*0.30);
+          tag.rotation.x = -Math.PI/2;
+        } else {
+          tag.position.set(mx, yOff+sh*sl.h+0.12, mz+faceDir*(md/2+0.03));
+          if (faceDir < 0) tag.rotation.y = Math.PI;
+        }
         tag.renderOrder=3;
         scene.add(tag);
 
-        // 품명 오버레이: 금형 통로측 앞면 중앙 (점유 시만 표시)
-        // depthTest:true + polygonOffset으로 위아래 단·뒤쪽 랙 텍스트 간섭 차단
+        // 품명 오버레이
+        // 팔렛형(shelves===1): 상단면 뒤쪽(z-) 60% 구역 → 위치코드/뱃지와 겹침 없음
+        // 1층 랙(shelves>1): 통로측 앞면 중앙, depthTest:true로 단간 간섭 차단
         var nameMat=new THREE.MeshBasicMaterial({
           transparent:true, opacity:0,
-          depthTest:true, depthWrite:false,
+          depthTest: shelves>1,
+          depthWrite:false,
           polygonOffset:true, polygonOffsetFactor:-3, polygonOffsetUnits:-6,
           side:THREE.DoubleSide
         });
-        var nameTag=new THREE.Mesh(new THREE.PlaneGeometry(mw*0.88, mh*0.50), nameMat);
-        nameTag.position.set(mx, my+mh*0.06, mz+faceDir*(md/2+0.05));
-        if (faceDir < 0) nameTag.rotation.y = Math.PI; // faceDir=-1: Y축 180° 회전 → 거울 반전 방지
+        var nameTag=new THREE.Mesh(
+          shelves===1 ? new THREE.PlaneGeometry(mw*0.82, md*0.50)
+                      : new THREE.PlaneGeometry(mw*0.88, mh*0.50),
+          nameMat
+        );
+        if (shelves===1) {
+          nameTag.position.set(mx, my+mh*0.5+0.01, mz-md*0.10);
+          nameTag.rotation.x = -Math.PI/2;
+        } else {
+          nameTag.position.set(mx, my+mh*0.06, mz+faceDir*(md/2+0.05));
+          if (faceDir < 0) nameTag.rotation.y = Math.PI;
+        }
         nameTag.renderOrder=4;
         nameTag.visible=false;
         scene.add(nameTag);
 
+        // 카테고리 배지 메시: 점유 시만 표시
+        // 팔렛형(shelves===1): 윗면 우측 앞쪽 코너 (위에서 볼 때 우측 상단)
+        // 1층 랙(shelves>1): 앞면 우측 상단
+        var badgeMesh=new THREE.Mesh(
+          shelves===1
+            ? new THREE.PlaneGeometry(mw*0.28, md*0.22)
+            : new THREE.PlaneGeometry(mw*0.22, mh*0.14),
+          new THREE.MeshBasicMaterial({transparent:true,opacity:0,side:THREE.DoubleSide})
+        );
+        if (shelves===1) {
+          // 앞쪽 우측 코너 (위치코드 우측 옆, tag와 같은 z 구역)
+          badgeMesh.position.set(mx+mw*0.30, my+mh*0.5+0.015, mz+md*0.30);
+          badgeMesh.rotation.x = -Math.PI/2;
+        } else {
+          badgeMesh.position.set(mx+mw*0.27, my+mh*0.41, mz+faceDir*(md/2+0.06));
+          if(faceDir<0) badgeMesh.rotation.y=Math.PI;
+        }
+        badgeMesh.renderOrder=5;
+        badgeMesh.visible=false;
+        scene.add(badgeMesh);
+        si.meshes.push(badgeMesh);
+
         var wp=new THREE.Vector3(mx,my,mz);
         var entry={
           mesh:moldMesh, worldPos:wp, sprite:tag, nameSprite:nameTag,
+          badgeMesh:badgeMesh,
           moldData:null, locKey:k4, baseColor:0x6c7585,
           spriteIsShared:true, secName:name,
           emptyMat:emptyMat,
@@ -2151,15 +2278,31 @@ function doHighlight(entry){
     entry.mesh.material.transparent=true; entry.mesh.material.opacity=0.38; entry.mesh.material.needsUpdate=true;
     if(entry.plusIcon) entry.plusIcon.visible=false;
   }
-  HL.mesh.material.color.set(0xff6600);
-  HL.mesh.material.emissive.set(0xff3300);
+  // 카테고리별 하이라이트 색상 분기
+  var _catType=getCategoryType(entry.moldData ? entry.moldData.category : '');
+  var hlColor, hlEmissive, lightColor, auraColor, auraEmissive;
+  if(_catType==='as'){
+    // A/S: 연한 핑크빛
+    hlColor=0xff6eb4; hlEmissive=0xff4499; lightColor=0xff6eb4;
+    auraColor=0xff99cc; auraEmissive=0xff6eb4;
+  } else if(_catType==='dev'){
+    // 개발: 보라빛
+    hlColor=0xb06aff; hlEmissive=0x7c3aed; lightColor=0xb06aff;
+    auraColor=0xc084fc; auraEmissive=0x9b59b6;
+  } else {
+    // 양산 or 기본: 주황
+    hlColor=0xff6600; hlEmissive=0xff3300; lightColor=0xff6600;
+    auraColor=0xff4400; auraEmissive=0xff3300;
+  }
+  HL.mesh.material.color.set(hlColor);
+  HL.mesh.material.emissive.set(hlEmissive);
   HL.mesh.material.emissiveIntensity=.8;
-  HL.light=new THREE.PointLight(0xff6600,7,13);
+  HL.light=new THREE.PointLight(lightColor,7,13);
   HL.light.position.copy(entry.worldPos).add(new THREE.Vector3(0,1.3,0));
   scene.add(HL.light);
   HL.aura=new THREE.Mesh(
     new THREE.SphereGeometry(1.5,12,8),
-    new THREE.MeshStandardMaterial({color:0xff4400,transparent:true,opacity:.14,emissive:0xff3300,emissiveIntensity:.5})
+    new THREE.MeshStandardMaterial({color:auraColor,transparent:true,opacity:.14,emissive:auraEmissive,emissiveIntensity:.5})
   );
   HL.aura.position.copy(entry.worldPos); scene.add(HL.aura);
 }
@@ -2324,6 +2467,7 @@ function assignMoldsToSlots() {
     if(entry.ejMesh) entry.ejMesh.visible=false;
     if(entry.plusIcon) entry.plusIcon.visible=true;
     if(entry.nameSprite) entry.nameSprite.visible=false;
+    if(entry.badgeMesh) entry.badgeMesh.visible=false;
     entry.spriteIsShared=true;
   });
 
@@ -2352,6 +2496,15 @@ function assignMoldsToSlots() {
       entry.baseColor = getCustHex(mold.customer) || SILVER_COLOR;
       if(entry.ejMesh) entry.ejMesh.visible=true;
       if(entry.plusIcon) entry.plusIcon.visible=false;
+      // 카테고리 배지 표시 (양산/A/S·서비스/개발)
+      if(entry.badgeMesh) {
+        if(getCategoryType(mold.category)){
+          var _bm=makeCategoryBadgeMat(mold.category);
+          if(entry.badgeMesh.material) entry.badgeMesh.material.dispose();
+          entry.badgeMesh.material=_bm;
+          entry.badgeMesh.visible=true;
+        }
+      }
       occupied.push({entry:entry, text:mold.partName||mold.moldNum});
     }
   });
@@ -3053,7 +3206,7 @@ function loadExcel(file, mergeMode){
           custPN:   col(row,['고객사 P/N','고객P/N','P/N','고객 P/N']),
           model:    col(row,['품종(MODEL)','모델','Model','차종']),
           grade:    col(row,['금형등급','등급','Grade']),
-          category: col(row,['금형구분','구분','Category']),
+          category: col(row,['금형구분','구분','Category','금형 구분','분류','타입','Type','종류']),
           totalShot:Number(col(row,['금형보증SHOT수','보증SHOT','TotalShot'])||0),
           usedShot: Number(col(row,['금형사용SHOT수','사용SHOT','UsedShot'])||0),
         };
