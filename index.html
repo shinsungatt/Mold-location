@@ -206,6 +206,15 @@ body { background:#1e3a5c; color:#e8f0ff; font-family:'Malgun Gothic','맑은 �
   padding:4px 11px; font-size:11px; color:rgba(255,255,255,0.40); z-index:90;
   pointer-events:none; white-space:nowrap;
 }
+/* ── 저장 완료 토스트 ── */
+#save-toast {
+  position:fixed; bottom:52px; left:50%; transform:translateX(-50%) translateY(20px);
+  background:rgba(22,56,72,0.96); border:1px solid rgba(80,232,150,0.55);
+  border-radius:8px; padding:8px 20px; font-size:12px; font-weight:600;
+  color:#50e896; z-index:600; pointer-events:none; white-space:nowrap;
+  opacity:0; transition:opacity .25s, transform .25s;
+}
+#save-toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
 #loading {
   position:fixed; bottom:48px; left:50%; transform:translateX(-50%);
   background:rgba(18,36,68,0.95); border:1px solid rgba(100,160,255,0.35);
@@ -723,6 +732,7 @@ body { background:#1e3a5c; color:#e8f0ff; font-family:'Malgun Gothic','맑은 �
   <div class="lg-row"><div class="lg-dot" style="background:#ff8c00"></div>검색/선택 위치</div>
 </div>
 <div id="hint">🖱 드래그:회전 &nbsp;|&nbsp; 스크롤:줌 &nbsp;|&nbsp; 금형 클릭:상세정보 &nbsp;|&nbsp; 빈칸 클릭:등록</div>
+<div id="save-toast">✔ 저장 완료</div>
 <div id="loading">📊 데이터 불러오는 중...</div>
 
 <!-- ────── 레이아웃 편집기 ────── -->
@@ -1001,8 +1011,11 @@ var SECTIONS = (function(){
     try {
       var _p = JSON.parse(_s);
       if (_p && _p.length) {
-        // 코드에 없는 섹션(삭제된 중파6~10 등) 제거
-        _p = _p.filter(function(sec){ return !!_struct[sec[0]]; });
+        // 코드 기본 섹션은 _struct로 검증, 사용자 커스텀 섹션(레이아웃 편집기 추가)은 유지
+        // → 이름/좌표가 유효하면 보존 (커스텀 섹션 필터 제거로 등록 금형 유실 방지)
+        _p = _p.filter(function(sec){
+          return sec[0] && typeof sec[1]==='number' && typeof sec[2]==='number';
+        });
         // 위치(x, z)는 localStorage 유지, 타입/rows/cols/shelves/faceDir는 코드 기본값으로 강제
         _p.forEach(function(sec){
           var st = _struct[sec[0]];
@@ -1147,9 +1160,11 @@ function saveRackTypes(){
 
 // 섹션별 코드 기본 랙 타입 (사용자 설정 없을 때 적용)
 // BA~BJ: D타입 (0.5m 금형, 가로2×세로1×3단)
+// 중1~중6: B타입 (0.35m 금형, 가로3×세로2 팔렛형)
 var SECTION_DEFAULT_RACK_TYPES = {
   'BA':'D','BB':'D','BC':'D','BD':'D','BE':'D',
-  'BJ':'D','BI':'D','BH':'D','BG':'D','BF':'D'
+  'BJ':'D','BI':'D','BH':'D','BG':'D','BF':'D',
+  '중1':'B','중2':'B','중3':'B','중4':'B','중5':'B','중6':'B'
 };
 
 // 마이그레이션 v2: BA~BJ sectionRackTypes 이전 테스트 데이터 초기화
@@ -1463,6 +1478,17 @@ function saveRackSizes(){
     });
     saveRackTypes();
     saveRackSizes();
+    try { localStorage.setItem(mk,'1'); } catch(e){}
+  }
+})();
+// 마이그레이션 v25: 중1~중6 랙 타입 B로 기본 설정 (v24 초기화 후 재설정, 금형 크기 통일)
+(function(){
+  var mk = 'ssautotech_migration_v25';
+  if (!localStorage.getItem(mk)) {
+    ['중1','중2','중3','중4','중5','중6'].forEach(function(n){
+      if (!sectionRackTypes[n]) sectionRackTypes[n] = 'B';
+    });
+    saveRackTypes();
     try { localStorage.setItem(mk,'1'); } catch(e){}
   }
 })();
@@ -1902,9 +1928,11 @@ function buildSection(name,sx,sz,type,rows,cols,shelves,yOff,faceDir) {
   var _rType = (_bjGroup.indexOf(name) !== -1)
     ? SECTION_DEFAULT_RACK_TYPES[name]                           // BA~BJ: 항상 기본값(D)
     : (sectionRackTypes[name] || SECTION_DEFAULT_RACK_TYPES[name] || null);  // 기타: 사용자 설정 허용
+  var _origShelves = shelves;  // 팔렛형(shelves=1) 보존용 원본 단수
   if (_rType) {
     var rtCfg = RACK_TYPE_CONFIG[_rType];
-    if (rtCfg) { cols = rtCfg.cols; rows = rtCfg.rows; shelves = rtCfg.shelves; }
+    // 팔렛형(shelves=1) 섹션은 단수 유지 — 랙 타입은 cols/rows·mold 크기만 변경
+    if (rtCfg) { cols = rtCfg.cols; rows = rtCfg.rows; if (_origShelves > 1) shelves = rtCfg.shelves; }
   }
   // 커스텀 단수 오버라이드: 랙타입 적용 후 사용자가 직접 설정한 경우 우선 적용
   if (sectionRackSizes[name] && sectionRackSizes[name].shelves > 0) {
@@ -2017,9 +2045,10 @@ function buildSection(name,sx,sz,type,rows,cols,shelves,yOff,faceDir) {
         if (type==='standing') {
           mw=sl.w*.56; mh=sl.h*.86; md=sl.d*.5;
         } else if (_rtCfgForMold) {
-          mw = _rtCfgForMold.mw;
-          mh = _rtCfgForMold.mh;
-          md = _rtCfgForMold.md;
+          // 랙 타입 고정 크기 적용 — 슬롯 크기 초과 방지(클램핑)
+          mw = Math.min(_rtCfgForMold.mw, sl.w * 0.80);
+          mh = Math.min(_rtCfgForMold.mh, sl.h * 0.78);
+          md = Math.min(_rtCfgForMold.md, sl.d * 0.80);
         } else if (shelves===1 && rDef && rDef.moldRefRows) {
           // ② 팔렛형 + moldRefRows: rows 수 무관하게 동일 금형 크기 보장 (랙타입 미설정 시)
           var _mRefSlD = (rDef.d - (rDef.moldRefRows - 1) * 0.07) / rDef.moldRefRows;
@@ -2958,10 +2987,20 @@ function closeInputModal(){
   document.getElementById('slot-modal').style.display='none';
   currentModalSlot=null; currentModalMold=null;
 }
+var _saveToastTimer = null;
+function showSaveToast(msg) {
+  var el = document.getElementById('save-toast');
+  if (!el) return;
+  el.textContent = msg || '✔ 저장 완료';
+  el.classList.add('show');
+  if (_saveToastTimer) clearTimeout(_saveToastTimer);
+  _saveToastTimer = setTimeout(function(){ el.classList.remove('show'); }, 2000);
+}
 function assignMoldToSlot(slot,mold){
   mold.location=slot.locKey; mold.parsed=parseLocation(slot.locKey);
   assignMoldsToSlots();
   saveToStorage();
+  showSaveToast('✔ ' + mold.moldNum + ' 등록 저장 완료');
   showDetail(mold); doHighlight(slot); flyTo(slot.worldPos);
   closeInputModal();
 }
