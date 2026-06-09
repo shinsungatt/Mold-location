@@ -484,6 +484,33 @@ body { background:#1e3a5c; color:#e8f0ff; font-family:'Malgun Gothic','맑은 �
 }
 .ewp-cell.occ:hover { background:rgba(255,140,0,0.22) !important; border-color:rgba(255,140,0,0.6) !important; color:#fff !important; transform:scale(1.03); }
 
+/* ── 사출현장 팝업 ── */
+#sfp-bg {
+  position:fixed; inset:0; background:rgba(0,0,0,0.75);
+  display:none; align-items:center; justify-content:center; z-index:800;
+}
+#sfp-box {
+  background:#0d2218; border:1px solid rgba(80,232,150,0.32);
+  border-radius:14px; padding:20px 22px;
+  max-width:760px; width:92vw; max-height:82vh;
+  display:flex; flex-direction:column;
+  box-shadow:0 0 90px rgba(0,0,0,0.85);
+}
+#sfp-hdr { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+#sfp-title { font-size:20px; font-weight:700; color:#50e896; flex:1; }
+#sfp-sub { font-size:12px; color:rgba(255,255,255,0.32); }
+#sfp-stats { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; }
+#sfp-body { overflow-y:auto; flex:1; padding-right:4px; }
+#sfp-body::-webkit-scrollbar { width:3px; }
+#sfp-body::-webkit-scrollbar-thumb { background:rgba(80,232,150,0.2); border-radius:2px; }
+.sfp-cell.occ {
+  background:rgba(80,232,150,0.08) !important; border-color:rgba(80,232,150,0.26) !important;
+  color:#50e896 !important; cursor:pointer;
+}
+.sfp-cell.occ:hover { background:rgba(80,232,150,0.22) !important; border-color:rgba(80,232,150,0.6) !important; color:#fff !important; transform:scale(1.03); }
+/* ── st-mr / st-sf 통계 숨김 기본 ── */
+#st-mr, #st-sf { display:none; }
+
 /* ── 금형 타입 버튼 ── */
 .d-type-row { align-items:flex-start; }
 .type-btn-grp { display:flex; gap:4px; flex-wrap:nowrap; }
@@ -676,7 +703,9 @@ body { background:#1e3a5c; color:#e8f0ff; font-family:'Malgun Gothic','맑은 �
       <option value="all">📍 전체</option>
       <option value="1f">본사 1층</option>
       <option value="2f">본사 중2층</option>
-      <option value="ext">🏭 외부창고</option>
+      <option value="mr">🔧 본사 금형실</option>
+      <option value="sf">🏭 본사 사출현장</option>
+      <option value="ext">📦 외부창고</option>
     </select>
     <div id="st-int">
       <div class="st-chip">총 <b id="st-total-py">-</b>평</div>
@@ -687,6 +716,12 @@ body { background:#1e3a5c; color:#e8f0ff; font-family:'Malgun Gothic','맑은 �
     </div>
     <div id="st-ext">
       <div class="st-chip st-x">외부 보관 <b id="st-ext-cnt">-</b>벌</div>
+    </div>
+    <div id="st-mr">
+      <div class="st-chip" style="background:rgba(77,182,172,0.12);border-color:rgba(77,182,172,0.35);color:#4db6ac">금형실 <b id="st-mr-cnt">-</b>벌</div>
+    </div>
+    <div id="st-sf">
+      <div class="st-chip" style="background:rgba(80,232,150,0.10);border-color:rgba(80,232,150,0.32);color:#50e896">사출현장 <b id="st-sf-cnt">-</b>벌</div>
     </div>
     <div id="st-diag" style="font-size:10px;color:rgba(255,255,255,0.28);padding:2px 4px;display:none;word-break:break-all;line-height:1.5;cursor:pointer;text-decoration:underline dotted" title="클릭하면 상세 매칭 진단 보기"></div>
   </div>
@@ -894,6 +929,19 @@ body { background:#1e3a5c; color:#e8f0ff; font-family:'Malgun Gothic','맑은 �
   </div>
 </div>
 
+<!-- ────── 사출현장 팝업 ────── -->
+<div id="sfp-bg">
+  <div id="sfp-box">
+    <div id="sfp-hdr">
+      <div id="sfp-title">🏭 본사 사출현장</div>
+      <div id="sfp-sub"></div>
+      <button class="rp-close-btn" id="sfp-close">✕</button>
+    </div>
+    <div id="sfp-stats"></div>
+    <div id="sfp-body"></div>
+  </div>
+</div>
+
 <!-- ────── 금형 상세 팝업 ────── -->
 <div id="mold-popup-bg">
   <div id="mold-popup">
@@ -987,10 +1035,10 @@ var SECTIONS = (function(){
     ['K',-44, 5,'shelf', 2,2,3,-1], ['L',-44, 7,'shelf', 2,2,3],
     // M-N 쌍 (1유닛 간격)
     ['M',-38, 5,'shelf', 2,2,3,-1], ['N',-38, 7,'shelf', 2,2,3],
-    // J-O 쌍
-    ['J',-32, 5,'shelf', 2,2,3,-1], ['O',-32, 7,'shelf', 2,2,3],
-    // I 단독
-    ['I',-26, 5,'shelf', 2,2,3],
+    // J 단독 (O 제거 → 사출현장 바닥 슬롯으로 대체)
+    ['J',-32, 5,'shelf', 2,2,3,-1],
+    // 금형실 랙 2개 (PC책상 왼쪽: 금형실1=3단, 금형실2=4단)
+    ['금형실1',-7, 5,'shelf', 2,4,3], ['금형실2',-2, 5,'shelf', 2,4,4],
     // 중층 앞열(z=18) — 중파와 마주보는 위치
     // 중1/중2: 가로2×세로8, 중3/중5: 가로2×세로6, 중4: 가로6×세로6, 중6: 가로3×세로7
     ['중1',-55,18,'medium',8,2,1], ['중2',-50,18,'medium',8,2,1],
@@ -1118,9 +1166,14 @@ var RACK_DEFAULTS = {};
   ['H','G','F','E','D','C'].forEach(function(n){
     RACK_DEFAULTS[n] = { w:4.0, d:2.0 };
   });
-  // K~I 그룹: X방향 배치, back-to-back 쌍 → w=5.0(X폭), d=2.0(Z깊이)
-  ['K','L','M','N','J','O','I'].forEach(function(n){
+  // K~J 그룹: X방향 배치, back-to-back 쌍 → w=5.0(X폭), d=2.0(Z깊이)
+  // I, O는 금형실 랙으로 이전됨
+  ['K','L','M','N','J'].forEach(function(n){
     RACK_DEFAULTS[n] = { w:5.0, d:2.0 };
+  });
+  // 금형실 랙: PC책상 왼쪽 배치, cols=4×rows=2 (금형실1:3단, 금형실2:4단)
+  ['금형실1','금형실2'].forEach(function(n){
+    RACK_DEFAULTS[n] = { w:4.0, d:1.8 };
   });
   // A-B 그룹: x 간격 6m → w=6.0, 깊이 d=1.5 (가로5×세로1)
   ['A','B'].forEach(function(n){
@@ -1493,8 +1546,34 @@ function saveRackSizes(){
   }
 })();
 
+// '금형실', '사출현장'은 본사 구역으로 이전 → EXT_KW에서 제거
 var EXT_KW = ['금형창고','경기 화성','경기화성','LG평택','LG B-','MTX창고',
-              '금형폐기','반납','사출현장','모베이스','금형실','하이게인','인팩'];
+              '금형폐기','반납','모베이스','하이게인','인팩'];
+// 마이그레이션 v26: 기존 ext 타입이었던 금형실/사출현장 데이터 parsed 재설정
+(function(){
+  var mk = 'ssautotech_migration_v26';
+  if (!localStorage.getItem(mk)) {
+    try {
+      var saved = localStorage.getItem(LS_KEY);
+      if (saved) {
+        var data = JSON.parse(saved);
+        if (data && data.length) {
+          var changed = false;
+          data.forEach(function(m) {
+            var loc = m.location ? String(m.location).trim() : '';
+            if (loc.indexOf('금형실') >= 0) {
+              m.parsed = { type:'mr', raw:loc }; changed = true;
+            } else if (loc.indexOf('사출현장') >= 0 || loc.indexOf('1호기 앞') >= 0) {
+              m.parsed = { type:'sf', raw:loc }; changed = true;
+            }
+          });
+          if (changed) localStorage.setItem(LS_KEY, JSON.stringify(data));
+        }
+      }
+    } catch(e) {}
+    try { localStorage.setItem(mk,'1'); } catch(e) {}
+  }
+})();
 
 // ══════════════════════════════════════════════════════════════
 //  § 3. 위치 코드 파서
@@ -1503,6 +1582,10 @@ function parseLocation(raw) {
   if (!raw) return null;
   var s = String(raw).trim();
   if (!s || s === 'undefined') return null;
+  // 본사 금형실: '금형실' 포함 위치 → type:'mr'
+  if (s.indexOf('금형실') >= 0) return { type:'mr', raw:s };
+  // 본사 사출현장: '사출현장' 또는 '1호기 앞' 포함 → type:'sf'
+  if (s.indexOf('사출현장') >= 0 || s.indexOf('1호기 앞') >= 0) return { type:'sf', raw:s };
   for (var i = 0; i < EXT_KW.length; i++)
     if (s.indexOf(EXT_KW[i]) >= 0) return { type:'ext', raw:s };
   var m;
@@ -1512,12 +1595,16 @@ function parseLocation(raw) {
   // 중N-열-깊이 (중층 팔렛, 단 없음): 중6-2-3
   m = s.match(/^(중\d+)-(\d+)-(\d+)$/);
   if (m) return { type:'int', sec:m[1], sh:0, c:+m[2], depth:+m[3], noShelf:true };
-  // 금형F-N (바닥 금형 슬롯): 금형F-1 ~ 금형F-6
+  // 금형F-N (1호기 앞 바닥 금형 슬롯): 금형F-1 ~ 금형F-6
   m = s.match(/^금형F-(\d+)$/);
   if (m) return { type:'int', sec:'금형F', sh:0, c:+m[1], depth:1, noShelf:true };
-  // 일반 랙: 섹션-단-열 또는 섹션-단-열-앞뒤
-  // U-2-2 → sh=2, c=2, depth=1(기본)
-  // U-3-1-2 → sh=3, c=1, depth=2
+  // 사출SF-N (사출현장 바닥 슬롯): 사출SF-1 ~ 사출SF-10 → type:'int' (3D 슬롯 매칭용)
+  m = s.match(/^사출SF-(\d+)$/);
+  if (m) return { type:'int', sec:'사출SF', sh:0, c:+m[1], depth:1, noShelf:true };
+  // 금형실N-단-열[-앞뒤] (금형실 랙 슬롯) → type:'int' (3D 슬롯 매칭용)
+  m = s.match(/^(금형실\d+)-(\d+)-(\d+)(?:-(\d+))?$/);
+  if (m) return { type:'int', sec:m[1], sh:+m[2], c:+m[3], depth:m[4]?+m[4]:1 };
+  // 일반 랙 (ASCII 섹션 이름): U-2-2, BA-1-3
   m = s.match(/^([A-Za-z]+\d*)-(\d+)-(\d+)(?:-(\d+))?$/);
   if (m) return { type:'int', sec:m[1].toUpperCase(), sh:+m[2], c:+m[3], depth:m[4]?+m[4]:1 };
   return { type:'unk', raw:s };
@@ -1786,6 +1873,69 @@ function buildFloorMoldSlots() {
 }
 
 // ══════════════════════════════════════════════════════════════
+//  § 6-C. 사출현장 바닥 슬롯 (구 I·O랙 위치 → 5×2 = 10개 포인트)
+// ══════════════════════════════════════════════════════════════
+function buildSFFloorSpots() {
+  // 구 I 랙 위치: sx=-26, sz=5, 폭5m×깊이2m (x: -26 ~ -21, z: 5 ~ 7)
+  var X0 = -26, Z0 = 5;
+  var COLS = 5, ROWS = 2;
+  var slW = 5.0 / COLS;  // 1.0m
+  var slD = 2.0 / ROWS;  // 1.0m
+
+  for (var r = 0; r < ROWS; r++) {
+    for (var c = 0; c < COLS; c++) {
+      var idx = r * COLS + c + 1; // 1 ~ 10
+      var cx = X0 + (c + 0.5) * slW;
+      var cz = Z0 + (r + 0.5) * slD;
+      var loc = '사출SF-' + idx;
+
+      // 녹색 바닥 프레임
+      var fw = slW - 0.15, fd = slD - 0.15;
+      addBox(cx, 0.045, cz, fw, 0.06, fd, mat(0x2e7d32, 0.55, 0.3), false);
+
+      // 슬롯 번호 라벨
+      addLabel('SF-' + idx, cx, 0.5, cz, '#50e896', 1.8, 0.8);
+
+      // 클릭/점유 메시
+      var mw = fw - 0.1, md = fd - 0.1;
+      var sMat = MAT_MOLD.clone();
+      sMat.transparent = true; sMat.opacity = 0;
+      var sMesh = new THREE.Mesh(new THREE.BoxGeometry(mw, 0.55, md), sMat);
+      sMesh.position.set(cx, 0.32, cz);
+      sMesh.castShadow = false;
+      scene.add(sMesh);
+
+      // 빈 슬롯 + 아이콘
+      var plusIcon = makePlusSprite(mw * 0.65, mw * 0.65);
+      plusIcon.position.set(cx, 0.65, cz);
+      scene.add(plusIcon);
+
+      // 위치 코드 태그
+      var tagMat = makeLocMat(loc);
+      var tag = new THREE.Mesh(new THREE.PlaneGeometry(mw * 0.9, mw * 0.35), tagMat);
+      tag.rotation.x = -Math.PI / 2;
+      tag.position.set(cx, 0.08, cz + fd * 0.25);
+      tag.renderOrder = 3;
+      scene.add(tag);
+
+      var wp = new THREE.Vector3(cx, 0.32, cz);
+      var entry = {
+        mesh: sMesh, worldPos: wp, sprite: tag, nameSprite: null,
+        moldData: null, locKey: loc, baseColor: 0x2e7d32,
+        spriteIsShared: false, secName: '사출현장',
+        emptyMat: sMat, plusIcon: plusIcon, ejMesh: null,
+        slotW: mw, slotH: 0.55, slotD: md
+      };
+      slotReg[loc]        = entry;
+      slotReg[loc + '-1'] = entry;
+      meshToSlot[sMesh.uuid] = entry;
+      allSlots.push(entry);
+      allSlotMeshes.push(sMesh);
+    }
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
 //  § 7. 공장 기본 구조
 // ══════════════════════════════════════════════════════════════
 function buildFactory() {
@@ -1806,7 +1956,7 @@ function buildFactory() {
   for (var ax=-58; ax<=38; ax+=9)
     addBox(ax,.015,16,.1,.02,50,MAT_SAFETY,false);
 
-  buildZoneAreas(); buildFloorMoldSlots(); buildMachines(); buildAllRacks(); buildCustomLabels();
+  buildZoneAreas(); buildFloorMoldSlots(); buildSFFloorSpots(); buildMachines(); buildAllRacks(); buildCustomLabels();
 }
 
 function buildCustomLabels() {
@@ -1855,6 +2005,12 @@ function buildZoneAreas() {
   addLabel('공 BOX 대차',-15,.8,5,'#ffd600',4,1.1);
   addBox(-25,.04,2,12,.04,7,mat(0x0a200a,.9),false);
   addLabel('금형대기',-25,.5,2,'#60c060',4,1.1);
+  // 사출현장 바닥 구역 마킹 (구 I랙 위치: x=-26~-21, z=5~7)
+  addBox(-23.5,.03,6,5,.04,2,mat(0x0a3a0a,.9),false);
+  addLabel('사출현장',-23.5,.5,6,'#50e896',4.5,1.1);
+  // 금형실 구역 마킹 (금형실1/2 랙 영역: x=-11~2, z=5~7)
+  addBox(-4.5,.03,6.5,13,.04,2.5,mat(0x082a20,.9),false);
+  addLabel('금형실',-4.5,.5,5.5,'#4db6ac',3.5,1.0);
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -2558,6 +2714,8 @@ function assignMoldsToSlots() {
     if(!mold.parsed){ _diag.noLoc++; return; }
     var t=mold.parsed.type;
     if(t==='ext'){ _diag.ext++; return; }
+    // mr/sf Excel molds (슬롯 미등록, raw 형태) → 외부 통계로 처리
+    if(t==='mr'||t==='sf'){ _diag.ext++; return; }
     if(t==='unk'){
       _diag.unk++;
       if(_diag.unkEx.length<50) _diag.unkEx.push({ num:mold.moldNum||'?', loc:mold.location||'?' });
@@ -2758,6 +2916,57 @@ function showExtWarehousePopup(whKey) {
 
 function closeExtWarehousePopup() {
   document.getElementById('ewp-bg').style.display = 'none';
+}
+
+// ── 사출현장 팝업 ──
+function showSFPopup() {
+  var sfMolds = moldData.filter(function(m){ return m.parsed && m.parsed.type === 'sf'; });
+  document.getElementById('sfp-sub').textContent = '보관 금형 ' + sfMolds.length + '벌';
+  document.getElementById('sfp-stats').innerHTML =
+    '<div class="rp-stat s-used">보관 '+sfMolds.length+'벌</div>'
+    +'<div class="rp-stat" style="background:rgba(80,232,150,0.1);color:#50e896">1호기 앞 + SF 지점</div>';
+
+  var COLS = 4, html = '';
+  if (sfMolds.length === 0) {
+    html = '<div style="color:rgba(255,255,255,0.35);text-align:center;padding:24px">등록된 금형 없음</div>';
+  } else {
+    html += '<div class="rp-shelf"><div class="rp-grid-row" style="flex-wrap:wrap;gap:4px">';
+    var rowCount = Math.ceil(sfMolds.length / COLS);
+    for (var r = 0; r < rowCount; r++) {
+      html += '<div class="rp-grid-row">';
+      for (var c = 0; c < COLS; c++) {
+        var ci = r * COLS + c;
+        var m = sfMolds[ci];
+        if (m) {
+          var gIdx = moldData.indexOf(m);
+          html += '<div class="rp-cell occ sfp-cell" data-idx="'+gIdx+'">'
+            +'<div class="rp-mnum">'+esc(m.moldNum||'-')+'</div>'
+            +(m.partName?'<div class="rp-mpn">'+esc(m.partName)+'</div>':'')
+            +(m.customer?'<div class="rp-mpn" style="color:#50e896">'+esc(m.customer)+'</div>':'')
+            +'<div class="rp-mpn" style="color:rgba(255,255,255,0.35);font-size:10px">'+esc(m.location||'')+'</div>'
+            +'</div>';
+        } else {
+          html += '<div class="rp-cell" style="opacity:0;pointer-events:none"></div>';
+        }
+      }
+      html += '</div>';
+    }
+    html += '</div></div>';
+  }
+  var body = document.getElementById('sfp-body');
+  body.innerHTML = html;
+  body.querySelectorAll('.sfp-cell').forEach(function(cell) {
+    cell.addEventListener('click', function() {
+      var m = moldData[parseInt(this.dataset.idx)];
+      if (m) { showDetail(m); closeSFPopup(); }
+    });
+  });
+  document.getElementById('sfp-bg').style.display = 'flex';
+}
+
+function closeSFPopup() {
+  var bg = document.getElementById('sfp-bg');
+  if (bg) bg.style.display = 'none';
 }
 
 // 3D 슬롯 클릭 → 검색 결과와 동일 구조로 우측 패널 전체 업데이트
@@ -3064,12 +3273,18 @@ function switchFloor(f){
 var CUR_ZONE='all';
 // 중층(중파) 섹션 여부
 function isZone2F(name){ return /^중/.test(name); }
+// 금형실 섹션 여부
+function isZoneMR(name){ return /^금형실/.test(name); }
 
-// 구역별 통계 계산
+// 구역별 통계 계산 (1f/2f에서 금형실 섹션 제외)
 function calcZoneStats(zoneId){
   var total=0,used=0,sqm=0;
   allSlots.forEach(function(e){
-    var is2f=isZone2F(e.secName||'');
+    var nm=e.secName||'';
+    var is2f=isZone2F(nm);
+    var isMR=isZoneMR(nm);
+    var isSF=(nm==='사출현장');
+    if(isMR||isSF)return; // 금형실·사출현장은 별도 존
     if(zoneId==='1f'&&is2f)return;
     if(zoneId==='2f'&&!is2f)return;
     total++; if(e.moldData)used++;
@@ -3077,6 +3292,8 @@ function calcZoneStats(zoneId){
   SECTIONS.forEach(function(sec){
     var nm=sec[0],type=sec[3],rows=sec[4],cols=sec[5];
     var is2f=isZone2F(nm);
+    var isMR=isZoneMR(nm);
+    if(isMR)return;
     if(zoneId==='1f'&&is2f)return;
     if(zoneId==='2f'&&!is2f)return;
     var sl=SLOT[type]||{w:1.65,d:1.65};
@@ -3094,18 +3311,58 @@ function calcExtCount(){
   if(!moldData.length)return 0;
   return moldData.filter(function(m){return m.parsed&&m.parsed.type==='ext';}).length;
 }
+// 사출현장 금형 수 (Excel sf타입 + 사출SF 슬롯 + 금형F 슬롯)
+function calcSFCount(){
+  if(!moldData.length)return 0;
+  return moldData.filter(function(m){
+    if(!m.parsed)return false;
+    if(m.parsed.type==='sf')return true;
+    if(m.parsed.type==='int'){
+      var sec=m.parsed.sec||'';
+      // 사출SF 바닥 슬롯 또는 금형F(1호기 앞) 슬롯
+      if(sec==='사출SF'||sec==='금형F')return true;
+      // 1호기 앞 금형적재대 커스텀 섹션
+      if(m.location&&String(m.location).indexOf('1호기 앞')>=0)return true;
+    }
+    return false;
+  }).length;
+}
+// 금형실 금형 수 (Excel mr타입 + 금형실 랙 슬롯)
+function calcMRCount(){
+  if(!moldData.length)return 0;
+  return moldData.filter(function(m){
+    if(!m.parsed)return false;
+    if(m.parsed.type==='mr')return true;
+    if(m.parsed.type==='int'){
+      var sec=m.parsed.sec||'';
+      if(/^금형실/.test(sec))return true;
+    }
+    return false;
+  }).length;
+}
 
 // DOM 통계 업데이트
 function updateStatsUI(zoneId){
   var z=zoneId||CUR_ZONE;
   var intDiv=document.getElementById('st-int');
   var extDiv=document.getElementById('st-ext');
+  var mrDiv =document.getElementById('st-mr');
+  var sfDiv =document.getElementById('st-sf');
   if(!intDiv)return;
+  // 모두 숨기고 해당 존만 표시
+  intDiv.style.display='none';
+  extDiv.style.display='none';
+  if(mrDiv)mrDiv.style.display='none';
+  if(sfDiv)sfDiv.style.display='none';
   if(z==='ext'){
-    intDiv.style.display='none'; extDiv.style.display='flex';
+    extDiv.style.display='flex';
     document.getElementById('st-ext-cnt').textContent=calcExtCount();
+  }else if(z==='mr'){
+    if(mrDiv){mrDiv.style.display='flex'; document.getElementById('st-mr-cnt').textContent=calcMRCount();}
+  }else if(z==='sf'){
+    if(sfDiv){sfDiv.style.display='flex'; document.getElementById('st-sf-cnt').textContent=calcSFCount();}
   }else{
-    intDiv.style.display='flex'; extDiv.style.display='none';
+    intDiv.style.display='flex';
     var s=calcZoneStats(z);
     document.getElementById('st-total-py').textContent=s.totalPy;
     document.getElementById('st-used-py').textContent=s.usedPy;
@@ -3144,11 +3401,14 @@ var ZONE_CAM={
   all: {pos:{x:10,y:75,z:80},tgt:{x:5,y:0,z:-5}},
   '1f':{pos:{x:15,y:55,z:58},tgt:{x:15,y:0,z:-12}},
   '2f':{pos:{x:-28,y:38,z:58},tgt:{x:-28,y:0,z:22}},
+  'mr':{pos:{x:-5,y:18,z:22},tgt:{x:-5,y:2,z:6}},
 };
 
 // 구역 적용 (카메라 + dim + 통계)
 function applyZone(zoneId){
   CUR_ZONE=zoneId;
+  // 사출현장 팝업 닫기 (다른 존 이동 시)
+  if(zoneId!=='sf') closeSFPopup();
   // f2g 가시성
   if(zoneId==='2f'){build2F();f2g.visible=true;}
   else{f2g.visible=false;}
@@ -3157,16 +3417,23 @@ function applyZone(zoneId){
   if(zoneId==='1f'||zoneId==='2f'){
     SECTIONS.forEach(function(sec){
       var is2f=isZone2F(sec[0]);
-      var dimThisSec=(zoneId==='1f'&&is2f)||(zoneId==='2f'&&!is2f);
+      var isMR=isZoneMR(sec[0]);
+      var dimThisSec=(zoneId==='1f'&&(is2f||isMR))||(zoneId==='2f'&&(!is2f||isMR));
       if(dimThisSec)setSecDim(sec[0],true);
+    });
+  }else if(zoneId==='mr'){
+    SECTIONS.forEach(function(sec){
+      if(!isZoneMR(sec[0]))setSecDim(sec[0],true);
     });
   }
   // 카메라 이동
-  if(zoneId!=='ext'){
+  if(zoneId!=='ext'&&zoneId!=='sf'){
     var cv=ZONE_CAM[zoneId]||ZONE_CAM.all;
     gsap.to(camera.position,{x:cv.pos.x,y:cv.pos.y,z:cv.pos.z,duration:1.3,ease:'power3.inOut'});
     gsap.to(controls.target,{x:cv.tgt.x,y:cv.tgt.y,z:cv.tgt.z,duration:1.3,ease:'power3.inOut'});
   }
+  // 사출현장 팝업 표시
+  if(zoneId==='sf') showSFPopup();
   // 통계 갱신
   updateStatsUI(zoneId);
   clearHL(); deselectAll();
@@ -3866,6 +4133,10 @@ document.getElementById('mold-popup-bg').addEventListener('click', function(e){
 document.getElementById('ewp-close').addEventListener('click', closeExtWarehousePopup);
 document.getElementById('ewp-bg').addEventListener('click', function(e){
   if(e.target===this) closeExtWarehousePopup();
+});
+document.getElementById('sfp-close').addEventListener('click', closeSFPopup);
+document.getElementById('sfp-bg').addEventListener('click', function(e){
+  if(e.target===this) closeSFPopup();
 });
 document.getElementById('mp-back').addEventListener('click', function(){
   closeMoldPopup();
