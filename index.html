@@ -1127,11 +1127,13 @@ var RACK_DEFAULTS = {};
 
 // 랙 타입 A~D 구조 정의 (실제 금형 배치 기준)
 // 가로(cols) × 세로(rows) = 한 단 안 금형 배치 수, 단수(shelves) = 1.8m 랙 기준 3단
+// mw/mh/md: RACK_DEFAULTS 섹션(중1~중6, 중파 등)에서 섹션 크기와 무관하게 적용되는 고정 금형 크기
+// → 같은 타입이면 어느 섹션에서나 동일한 금형 크기로 표시됨
 var RACK_TYPE_CONFIG = {
-  A: { cols:4, rows:2, shelves:3, desc:'가로4×세로2, 3단 (0.30m 금형)' },
-  B: { cols:3, rows:2, shelves:3, desc:'가로3×세로2, 3단 (0.35m 금형)' },
-  C: { cols:2, rows:2, shelves:3, desc:'가로2×세로2, 3단 (0.40m 금형)' },
-  D: { cols:2, rows:1, shelves:3, desc:'가로2×세로1, 3단 (0.50m 금형)' }
+  A: { cols:4, rows:2, shelves:3, desc:'가로4×세로2, 3단 (0.30m 금형)', mw:0.80, mh:0.65, md:0.80 },
+  B: { cols:3, rows:2, shelves:3, desc:'가로3×세로2, 3단 (0.35m 금형)', mw:1.00, mh:0.82, md:1.00 },
+  C: { cols:2, rows:2, shelves:3, desc:'가로2×세로2, 3단 (0.40m 금형)', mw:1.25, mh:1.00, md:1.25 },
+  D: { cols:2, rows:1, shelves:3, desc:'가로2×세로1, 3단 (0.50m 금형)', mw:1.45, mh:1.10, md:1.45 }
 };
 // localStorage에서 섹션별 랙 타입 로드
 var LS_RACK_TYPE_KEY = 'ssautotech_rack_types_v1';
@@ -1922,10 +1924,14 @@ function buildSection(name,sx,sz,type,rows,cols,shelves,yOff,faceDir) {
       : slD;
     // 단높이: RACK_DEFAULTS가 없는 섹션만 커스텀 값 사용, 있으면 기본값 강제
     // 3.3 = 330T 사이즈 기준 (기존 2.22 대비 약 50% 증가)
-    // shelves=1인 팔렛형(중/중파): 기준 슬롯 깊이(slD_eff) 기반으로 높이 결정
+    // shelves=1인 팔렛형 + 랙타입 설정: 타입별 고정 금형 높이(mh)로 역산 → 섹션 프레임도 통일
+    var _rTypeH = (_rType && type==='medium' && shelves===1 && RACK_TYPE_CONFIG[_rType])
+      ? RACK_TYPE_CONFIG[_rType].mh : null;
     var slH = (sectionRackSizes[name] && sectionRackSizes[name].h > 0 && !RACK_DEFAULTS[name])
       ? sectionRackSizes[name].h
-      : (shelves === 1 ? Math.min(slW, slD_eff) : (3.3 / shelves));
+      : (shelves === 1
+        ? (_rTypeH ? _rTypeH / 0.78 : Math.min(slW, slD_eff))
+        : (3.3 / shelves));
     sl = { w: slW, d: slD, h: slH };  // sl.d = 실제 슬롯 간격(위치 계산용)
   } else {
     sl = SLOT[type];
@@ -2004,17 +2010,24 @@ function buildSection(name,sx,sz,type,rows,cols,shelves,yOff,faceDir) {
       for (var sh=0;sh<shelves;sh++) {
         // 금형 크기 먼저 결정 (RACK_DEFAULTS 있으면 존 기반 균등 여백, 없으면 슬롯 기반)
         var mw,mh,md;
-        if (type==='standing'){mw=sl.w*.56;mh=sl.h*.86;md=sl.d*.5;}
-        else if (shelves===1 && rDef && rDef.moldRefRows) {
-          // 팔렛형 + moldRefRows: rows 수 무관하게 동일 금형 크기 보장
-          // slD_eff는 이미 rDef 블록에서 계산됨 (재계산)
+        // ① 랙 타입(A/B/C/D) + RACK_DEFAULTS 섹션: 타입별 고정 금형 크기 (섹션 크기 무관)
+        //    → 같은 타입이면 어느 섹션(중1, 중파 등)에서나 동일 크기로 표시
+        var _rtCfgForMold = (_rType && rDef && RACK_TYPE_CONFIG[_rType] && RACK_TYPE_CONFIG[_rType].mw)
+          ? RACK_TYPE_CONFIG[_rType] : null;
+        if (type==='standing') {
+          mw=sl.w*.56; mh=sl.h*.86; md=sl.d*.5;
+        } else if (_rtCfgForMold) {
+          mw = _rtCfgForMold.mw;
+          mh = _rtCfgForMold.mh;
+          md = _rtCfgForMold.md;
+        } else if (shelves===1 && rDef && rDef.moldRefRows) {
+          // ② 팔렛형 + moldRefRows: rows 수 무관하게 동일 금형 크기 보장 (랙타입 미설정 시)
           var _mRefSlD = (rDef.d - (rDef.moldRefRows - 1) * 0.07) / rDef.moldRefRows;
           mw = sl.w * 0.80;
-          mh = sl.h * 0.78;  // sl.h 이미 slD_eff 기반 → 모든 섹션 동일
+          mh = sl.h * 0.78;
           md = _mRefSlD * 0.80;
         } else {
-          // 금형 크기: 슬롯 단위 크기(sl) 기반 고정 비율
-          // mh 0.78: B·D타입 가로세로 비율 균형 (기존 0.58 대비 높이 35% 증가)
+          // ③ 기본: 슬롯 단위 크기 기반 고정 비율
           mw = sl.w * 0.80;
           mh = sl.h * 0.78;
           md = sl.d * 0.80;
