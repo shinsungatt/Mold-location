@@ -8,21 +8,29 @@
 * { margin:0; padding:0; box-sizing:border-box; }
 body { background:#1e3a5c; color:#e8f0ff; font-family:'Malgun Gothic','맑은 고딕',sans-serif; overflow:hidden; height:100vh; }
 
-/* ── Top Bar ── */
+/* ── Top Bar (2줄: 검색행 + 통계행) ── */
 #top-bar {
-  position:fixed; top:0; left:0; right:0; height:58px;
+  position:fixed; top:0; left:0; right:0;
   background:rgba(18,36,68,0.96); backdrop-filter:blur(12px);
   border-bottom:1px solid rgba(100,160,255,0.28);
-  display:flex; align-items:center; padding:0 14px; gap:10px; z-index:100;
+  display:flex; flex-direction:column; z-index:100;
+}
+#top-row-1 {
+  display:flex; align-items:center; padding:0 14px; gap:10px; height:50px;
+}
+#top-row-2 {
+  display:flex; align-items:center; padding:0 12px; gap:7px; height:36px;
+  border-top:1px solid rgba(100,160,255,0.10);
+  background:rgba(10,22,48,0.55);
 }
 #logo { font-size:14px; font-weight:700; color:#5a9ef8; white-space:nowrap; }
 #logo span { color:#ff8c00; }
-#search-wrap { flex:1; max-width:400px; position:relative; }
+#search-wrap { flex:1; min-width:0; position:relative; }
 #search-input {
-  width:100%; padding:8px 34px 8px 13px;
-  background:rgba(255,255,255,0.06);
-  border:1px solid rgba(80,140,255,0.28); border-radius:7px;
-  color:#fff; font-size:13px; outline:none; transition:border-color .2s;
+  width:100%; padding:10px 36px 10px 14px;
+  background:rgba(255,255,255,0.08);
+  border:1px solid rgba(80,140,255,0.35); border-radius:7px;
+  color:#fff; font-size:14px; outline:none; transition:border-color .2s;
 }
 #search-input:focus { border-color:rgba(80,140,255,0.75); }
 #search-input::placeholder { color:rgba(255,255,255,0.3); }
@@ -44,7 +52,7 @@ body { background:#1e3a5c; color:#e8f0ff; font-family:'Malgun Gothic','맑은 �
 .ac-sub { font-size:11px; color:rgba(255,255,255,0.36); margin-top:1px; }
 
 /* ── 구역 통계 ── */
-#zone-stats-wrap { display:flex; align-items:center; gap:7px; flex-shrink:0; }
+#zone-stats-wrap { display:flex; align-items:center; gap:7px; flex:1; }
 #zone-select {
   padding:5px 28px 5px 10px; background:rgba(80,140,255,0.1);
   border:1px solid rgba(80,140,255,0.3); border-radius:6px; color:#8ab4f8;
@@ -57,11 +65,11 @@ body { background:#1e3a5c; color:#e8f0ff; font-family:'Malgun Gothic','맑은 �
 #zone-select option { background:#162848; }
 #zone-select:focus { border-color:rgba(80,140,255,0.65); }
 .st-chip {
-  padding:4px 9px; background:rgba(255,255,255,0.04);
-  border:1px solid rgba(255,255,255,0.08); border-radius:5px;
-  font-size:11px; color:rgba(255,255,255,0.45); white-space:nowrap;
+  padding:4px 10px; background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.10); border-radius:5px;
+  font-size:12px; color:rgba(255,255,255,0.58); white-space:nowrap;
 }
-.st-chip b { font-size:13px; font-weight:700; }
+.st-chip b { font-size:14px; font-weight:700; }
 .st-chip.st-u b { color:#50e896; }
 .st-chip.st-e b { color:#ff8c00; }
 .st-chip.st-x b { color:#ffb040; }
@@ -76,6 +84,20 @@ body { background:#1e3a5c; color:#e8f0ff; font-family:'Malgun Gothic','맑은 �
   transition:width .7s cubic-bezier(.4,0,.2,1);
 }
 #st-pct { font-size:12px; font-weight:700; color:#7eb8f7; min-width:32px; text-align:right; }
+/* ── 구역별 추가 적재 패널 ── */
+#st-section-panel {
+  position:fixed; top:86px; left:0; right:0;
+  background:rgba(14,28,56,0.97); backdrop-filter:blur(12px);
+  border-bottom:1px solid rgba(255,193,7,0.18);
+  padding:7px 16px; gap:6px; flex-wrap:wrap; align-items:center;
+  display:none; z-index:99;
+}
+.sp-tag {
+  padding:3px 9px; background:rgba(255,193,7,0.09);
+  border:1px solid rgba(255,193,7,0.28); border-radius:4px;
+  font-size:11px; color:#ffd54f; white-space:nowrap;
+}
+.sp-tag b { font-size:12px; color:#ffc107; margin-right:2px; }
 /* ── 툴바 버튼 (레이아웃 편집기용으로 유지) ── */
 .f-btn {
   padding:6px 12px; background:rgba(255,255,255,0.05);
@@ -89,7 +111,8 @@ body { background:#1e3a5c; color:#e8f0ff; font-family:'Malgun Gothic','맑은 �
 .f-btn.reset:hover { background:rgba(255,140,0,0.13); }
 
 /* ── Excel 버튼 ── */
-#excel-btns { display:flex; gap:5px; margin-left:auto; }
+#excel-main { display:flex; gap:6px; flex-shrink:0; }
+#excel-aux  { display:flex; gap:6px; margin-left:auto; }
 .xl-btn {
   display:flex; align-items:center; gap:5px;
   padding:6px 11px; border-radius:6px; cursor:pointer;
@@ -101,12 +124,12 @@ body { background:#1e3a5c; color:#e8f0ff; font-family:'Malgun Gothic','맑은 �
 .xl-download:hover { background:rgba(80,140,255,0.2); border-color:#7eb8f7; }
 
 /* ── Canvas ── */
-#cv { position:fixed; top:58px; left:0; right:320px; bottom:0; }
+#cv { position:fixed; top:86px; left:0; right:320px; bottom:0; }
 #cv canvas { width:100%!important; height:100%!important; }
 
 /* ── Right Panel ── */
 #panel {
-  position:fixed; top:58px; right:0; width:320px; bottom:0;
+  position:fixed; top:86px; right:0; width:320px; bottom:0;
   background:rgba(18,36,68,0.97); border-left:1px solid rgba(100,160,255,0.18);
   display:flex; flex-direction:column;
 }
@@ -447,7 +470,7 @@ body { background:#1e3a5c; color:#e8f0ff; font-family:'Malgun Gothic','맑은 �
 /* ── 외부창고 선택 바 ── */
 #ext-wh-bar {
   display:none; align-items:center; gap:8px; flex-wrap:nowrap; overflow-x:auto;
-  position:fixed; top:58px; left:0; right:320px; height:36px;
+  position:fixed; top:86px; left:0; right:320px; height:36px;
   padding:0 16px; background:rgba(14,28,54,0.97);
   border-bottom:1px solid rgba(255,140,0,0.18); z-index:99;
 }
@@ -690,56 +713,68 @@ body { background:#1e3a5c; color:#e8f0ff; font-family:'Malgun Gothic','맑은 �
   <input type="file" id="file-in" accept=".xlsx,.xls">
 </div>
 
-<!-- ────── 상단 바 ────── -->
+<!-- ────── 상단 바 (Row1: 검색행 / Row2: 통계행) ────── -->
 <div id="top-bar">
-  <div id="logo">⚙ 신성오토텍 <span>금형위치</span></div>
-  <div id="search-wrap">
-    <input type="text" id="search-input" placeholder="금형번호 / P/N / 부품명 / 고객사...">
-    <span id="search-clear">✕</span>
-    <div id="autocomplete"></div>
+  <!-- Row 1: 로고 + 검색 + 업로드/다운로드 -->
+  <div id="top-row-1">
+    <div id="logo">⚙ 신성오토텍 <span>금형위치</span></div>
+    <div id="search-wrap">
+      <input type="text" id="search-input" placeholder="금형번호 / P/N / 부품명 / 고객사 검색...">
+      <span id="search-clear">✕</span>
+      <div id="autocomplete"></div>
+    </div>
+    <div id="excel-main">
+      <div class="xl-btn xl-upload" id="btn-upload" title="새 엑셀 파일로 업데이트">
+        <span>⬆</span> 업로드
+      </div>
+      <div class="xl-btn xl-download" id="btn-download" title="현재 데이터 다운로드">
+        <span>⬇</span> 다운로드
+      </div>
+    </div>
   </div>
-  <div id="zone-stats-wrap">
-    <select id="zone-select">
-      <option value="all">📍 전체</option>
-      <option value="1f">본사 1층</option>
-      <option value="2f">본사 중2층</option>
-      <option value="mr">🔧 본사 금형실</option>
-      <option value="sf">🏭 본사 사출현장</option>
-      <option value="ext">📦 외부창고</option>
-    </select>
-    <div id="st-int">
-      <div class="st-chip">총 <b id="st-total-py">-</b>평</div>
-      <div class="st-chip st-u">사용 <b id="st-used-py">-</b>평 <span id="st-slots" style="font-size:10px;color:rgba(255,255,255,0.28)"></span></div>
-      <div class="st-chip st-e">여유 <b id="st-empty-py">-</b>평</div>
-      <div id="st-bar-wrap"><div id="st-bar-fill" style="width:0%"></div></div>
-      <div id="st-pct">-</div>
+  <!-- Row 2: 구역 선택 + 통계 칩 + 보조 버튼 -->
+  <div id="top-row-2">
+    <div id="zone-stats-wrap">
+      <select id="zone-select">
+        <option value="all">📍 전체</option>
+        <option value="1f">본사 1층</option>
+        <option value="2f">본사 중2층</option>
+        <option value="mr">🔧 본사 금형실</option>
+        <option value="sf">🏭 본사 사출현장</option>
+        <option value="ext">📦 외부창고</option>
+      </select>
+      <div id="st-int">
+        <div class="st-chip">총 <b id="st-total-py">-</b>평</div>
+        <div class="st-chip st-u">사용 <b id="st-used-py">-</b>평 <span id="st-slots" style="font-size:11px;color:rgba(255,255,255,0.35)"></span></div>
+        <div class="st-chip st-e">여유 <b id="st-empty-py">-</b>평</div>
+        <div id="st-bar-wrap"><div id="st-bar-fill" style="width:0%"></div></div>
+        <div id="st-pct">-</div>
+        <div class="st-chip" id="st-extra-chip" style="display:none;background:rgba(255,193,7,0.12);border-color:rgba(255,193,7,0.40);color:#ffc107;white-space:nowrap;cursor:pointer" title="클릭하면 구역별 상세 보기">추가 <b id="st-extra-txt"></b> <span id="st-extra-arrow" style="font-size:10px;opacity:0.7">▼</span></div>
+      </div>
+      <div id="st-ext">
+        <div class="st-chip st-x">외부 보관 <b id="st-ext-cnt">-</b>벌</div>
+      </div>
+      <div id="st-mr">
+        <div class="st-chip" style="background:rgba(77,182,172,0.12);border-color:rgba(77,182,172,0.35);color:#4db6ac">금형실 <b id="st-mr-cnt">-</b>벌</div>
+      </div>
+      <div id="st-sf">
+        <div class="st-chip" style="background:rgba(80,232,150,0.10);border-color:rgba(80,232,150,0.32);color:#50e896">사출현장 <b id="st-sf-cnt">-</b>벌</div>
+      </div>
+      <div id="st-diag" style="font-size:11px;color:rgba(100,180,255,0.7);padding:3px 8px;display:none;white-space:nowrap;cursor:pointer;background:rgba(80,140,255,0.1);border:1px solid rgba(80,140,255,0.25);border-radius:4px;flex-shrink:0" title="클릭하면 상세 매칭 진단 보기"></div>
     </div>
-    <div id="st-ext">
-      <div class="st-chip st-x">외부 보관 <b id="st-ext-cnt">-</b>벌</div>
-    </div>
-    <div id="st-mr">
-      <div class="st-chip" style="background:rgba(77,182,172,0.12);border-color:rgba(77,182,172,0.35);color:#4db6ac">금형실 <b id="st-mr-cnt">-</b>벌</div>
-    </div>
-    <div id="st-sf">
-      <div class="st-chip" style="background:rgba(80,232,150,0.10);border-color:rgba(80,232,150,0.32);color:#50e896">사출현장 <b id="st-sf-cnt">-</b>벌</div>
-    </div>
-    <div id="st-diag" style="font-size:10px;color:rgba(255,255,255,0.28);padding:2px 4px;display:none;word-break:break-all;line-height:1.5;cursor:pointer;text-decoration:underline dotted" title="클릭하면 상세 매칭 진단 보기"></div>
-  </div>
-  <div id="excel-btns">
-    <div class="xl-btn xl-upload" id="btn-upload" title="새 엑셀 파일로 업데이트">
-      <span>⬆</span> 업로드
-    </div>
-    <div class="xl-btn xl-download" id="btn-download" title="현재 데이터 다운로드">
-      <span>⬇</span> 다운로드
-    </div>
-    <div class="xl-btn xl-layout-up" id="btn-layout-upload" title="위치 매칭 Excel 업로드 (시트별 레이아웃 형식)">
-      <span>📋</span> 위치Excel
-    </div>
-    <div class="xl-btn xl-layout" id="btn-layout" title="보관대 레이아웃 편집">
-      <span>📐</span> 레이아웃
+    <div id="excel-aux">
+      <div class="xl-btn xl-layout-up" id="btn-layout-upload" title="위치 매칭 Excel 업로드 (시트별 레이아웃 형식)">
+        <span>📋</span> 위치Excel
+      </div>
+      <div class="xl-btn xl-layout" id="btn-layout" title="보관대 레이아웃 편집">
+        <span>📐</span> 레이아웃
+      </div>
     </div>
   </div>
 </div>
+
+<!-- ────── 구역별 추가 적재 패널 ────── -->
+<div id="st-section-panel"></div>
 
 <!-- ────── 외부창고 선택 바 ────── -->
 <div id="ext-wh-bar">
@@ -1030,21 +1065,18 @@ var SECTIONS = (function(){
     ['BJ',60,-12.7,'medium',2,2,3], ['BI',65,-12.7,'medium',2,2,3], ['BH',70,-12.7,'medium',2,2,3],
     ['BG',75,-12.7,'medium',2,2,3], ['BF',80,-12.7,'medium',2,2,3],
     ['B',-58, 5,'shelf', 1,5,3], ['A',-52, 5,'shelf', 1,5,3],
-    // K~I : X방향(좌우)으로 배치, 각 쌍은 앞뒤(Z) back-to-back 밀착 — P~U / H~C 방식과 동일
-    // K-L 쌍: z=5(전면,-1), z=7(후면,+1)
-    ['K',-44, 5,'shelf', 2,2,3,-1], ['L',-44, 7,'shelf', 2,2,3],
-    // M-N 쌍 (1유닛 간격)
-    ['M',-38, 5,'shelf', 2,2,3,-1], ['N',-38, 7,'shelf', 2,2,3],
-    // J 단독 (O 제거 → 사출현장 바닥 슬롯으로 대체)
-    ['J',-32, 5,'shelf', 2,2,3,-1],
+    // K~J : faceDir=+2 → X방향(+X 면이 통로측) 90°CCW 회전
+    ['K',-44, 5,'shelf', 2,2,3, 2], ['L',-44,10,'shelf', 2,2,3, 2],
+    ['M',-38, 5,'shelf', 2,2,3, 2], ['N',-38,10,'shelf', 2,2,3, 2],
+    ['J',-32, 5,'shelf', 2,2,3, 2],
     // 금형실 랙 2개 (PC책상 왼쪽: 금형실1=3단, 금형실2=4단)
     ['금형실1',-7, 5,'shelf', 2,4,3], ['금형실2',-2, 5,'shelf', 2,4,4],
     // 중층 앞열(z=18) — 중파와 마주보는 위치
-    // 중1/중2: 가로2×세로8, 중3/중5: 가로2×세로6, 중4: 가로6×세로6, 중6: 가로3×세로7
-    ['중1',-55,18,'medium',8,2,1], ['중2',-50,18,'medium',8,2,1],
+    // 중1: 가로2×세로5, 중2: 가로2×세로8, 중3/중5: 가로2×세로6, 중4: 가로6×세로6, 중6: 가로3×세로7
+    ['중1',-55,18,'medium',5,2,1], ['중2',-50,18,'medium',8,2,1],
     ['중3',-45,18,'medium',6,2,1], ['중4',-40,18,'medium',6,6,1],
     ['중5',-35,18,'medium',6,2,1], ['중6',-30,18,'medium',7,3,1],
-    // 중층 뒷열(z=26, 벽쪽): 가로4×세로4=16금형 팔렛 10개 나란히
+    // 중층 뒷열(z=26, 벽쪽): 가로4×세로4=16금형 팔렛 10개 나란히 (중파N-M: M=열, 1행; 중파N-열-행: 최대 4×4)
     ['중파1',-55,26,'medium',4,4,1], ['중파2',-50,26,'medium',4,4,1], ['중파3',-45,26,'medium',4,4,1],
     ['중파4',-40,26,'medium',4,4,1], ['중파5',-35,26,'medium',4,4,1], ['중파6',-30,26,'medium',4,4,1],
     ['중파7',-25,26,'medium',4,4,1], ['중파8',-20,26,'medium',4,4,1],
@@ -1184,7 +1216,7 @@ var RACK_DEFAULTS = {};
   ['중1','중2','중3','중4','중5','중6'].forEach(function(n){
     RACK_DEFAULTS[n] = { w:4.5, d:5.0, moldRefRows:6 };
   });
-  // 중파1~중파10: 가로4×세로4=16금형, x 간격 5m → w=4.5, 깊이 d=4.5
+  // 중파1~중파10: 가로4×세로4=최대16금형, x 간격 5m → w=4.5, 깊이 d=4.5
   ['중파1','중파2','중파3','중파4','중파5','중파6',
    '중파7','중파8','중파9','중파10'].forEach(function(n){
     RACK_DEFAULTS[n] = { w:4.5, d:4.5 };
@@ -1201,6 +1233,9 @@ var RACK_TYPE_CONFIG = {
   C: { cols:2, rows:2, shelves:3, desc:'가로2×세로2, 3단 (0.40m 금형)', mw:1.25, mh:1.00, md:1.25 },
   D: { cols:2, rows:1, shelves:3, desc:'가로2×세로1, 3단 (0.50m 금형)', mw:1.45, mh:1.10, md:1.45 }
 };
+// 실제 금형 바닥면적 (m²): 타입별 실제 크기² → 평수·추가적재 계산 기준
+// A=0.30m, B=0.35m, C=0.40m, D=0.50m (RACK_TYPE_CONFIG desc의 금형 크기)
+var MOLD_REAL_SQ = { A:0.30*0.30, B:0.35*0.35, C:0.40*0.40, D:0.50*0.50 };
 // localStorage에서 섹션별 랙 타입 로드
 var LS_RACK_TYPE_KEY = 'ssautotech_rack_types_v1';
 var sectionRackTypes = (function(){
@@ -1545,7 +1580,6 @@ function saveRackSizes(){
     try { localStorage.setItem(mk,'1'); } catch(e){}
   }
 })();
-
 // '금형실', '사출현장'은 본사 구역으로 이전 → EXT_KW에서 제거
 var EXT_KW = ['금형창고','경기 화성','경기화성','LG평택','LG B-','MTX창고',
               '금형폐기','반납','모베이스','하이게인','인팩'];
@@ -1574,6 +1608,94 @@ var EXT_KW = ['금형창고','경기 화성','경기화성','LG평택','LG B-','
     try { localStorage.setItem(mk,'1'); } catch(e) {}
   }
 })();
+// 마이그레이션 v27: 중파 rows=1/cols=4 구조 변경 + 중1 rows=5 → SECTIONS localStorage 초기화
+(function(){
+  var mk = 'ssautotech_migration_v27';
+  if (!localStorage.getItem(mk)) {
+    try { localStorage.removeItem('ssautotech_sections_v2'); } catch(e){}
+    try { localStorage.setItem(mk,'1'); } catch(e){}
+  }
+})();
+// 마이그레이션 v28: 중파 rows=4 복원 + 중파N-M(2파트) unk 금형 parsed 강제 재파싱
+(function(){
+  var mk = 'ssautotech_migration_v28';
+  if (!localStorage.getItem(mk)) {
+    // sections 초기화 (rows=4 반영)
+    try { localStorage.removeItem('ssautotech_sections_v2'); } catch(e){}
+    // 중파N-M(2파트) 위치 금형이 unk로 저장된 경우 parsed=null 로 초기화 → loadFromStorage에서 재파싱
+    try {
+      var saved = localStorage.getItem('ssautotech_mold_v2');
+      if (saved) {
+        var data = JSON.parse(saved);
+        if (data && data.length) {
+          var changed = false;
+          data.forEach(function(m) {
+            if (!m.location) return;
+            var loc = String(m.location).trim();
+            // 중파N-M (2파트) 형식 → 이전에 unk였으면 재파싱 필요
+            if (/^중파\d+-\d+$/.test(loc)) {
+              m.parsed = null;
+              changed = true;
+            }
+          });
+          if (changed) localStorage.setItem('ssautotech_mold_v2', JSON.stringify(data));
+        }
+      }
+    } catch(e) {}
+    try { localStorage.setItem(mk,'1'); } catch(e){}
+  }
+})();
+
+// 마이그레이션 v29: K/L/M/N faceDir=-1 (L·N 방향 수정) → sections 초기화
+(function(){
+  var mk = 'ssautotech_migration_v29';
+  if (!localStorage.getItem(mk)) {
+    try { localStorage.removeItem('ssautotech_sections_v2'); } catch(e){}
+    try { localStorage.setItem(mk,'1'); } catch(e){}
+  }
+})();
+
+// 마이그레이션 v30: K/L/M/N/J faceDir=+2 (X방향 90°CCW) + 엑셀 O/I → 금형실1/2 매핑
+(function(){
+  var mk = 'ssautotech_migration_v30';
+  if (!localStorage.getItem(mk)) {
+    // ① 메모리상 SECTIONS 즉시 업데이트 (이번 로드에서 바로 반영)
+    if (typeof SECTIONS !== 'undefined') {
+      SECTIONS.forEach(function(sec) {
+        if (sec[0]==='K'||sec[0]==='L'||sec[0]==='M'||sec[0]==='N'||sec[0]==='J') sec[7]=2;
+      });
+    }
+    // ② 저장된 금형 중 sec='O'/'I'로 저장된 것을 금형실1/2로 수정
+    try {
+      var saved = localStorage.getItem('ssautotech_mold_v2');
+      if (saved) {
+        var data = JSON.parse(saved);
+        if (data && data.length) {
+          var changed = false;
+          data.forEach(function(md) {
+            if (md.parsed && md.parsed.type==='int') {
+              if (md.parsed.sec==='O'){md.parsed.sec='금형실1'; changed=true;}
+              if (md.parsed.sec==='I'){md.parsed.sec='금형실2'; changed=true;}
+            }
+          });
+          if (changed) localStorage.setItem('ssautotech_mold_v2', JSON.stringify(data));
+        }
+      }
+    } catch(e){}
+    // ③ sections 캐시 초기화 (faceDir 변경 반영)
+    try { localStorage.removeItem('ssautotech_sections_v2'); } catch(e){}
+    try { localStorage.setItem(mk,'1'); } catch(e){}
+  }
+})();
+
+// 마이그레이션 v31: L/N sz 위치 수정(7→10) + K/L/M/N/J geometry 스왑 → sections 캐시 초기화
+(function(){
+  var mk = 'ssautotech_migration_v31';
+  if (!localStorage.getItem(mk)) {
+    try { localStorage.removeItem('ssautotech_sections_v2'); } catch(e){}
+    try { localStorage.setItem(mk,'1'); } catch(e){}
+  }
+})();
 
 // ══════════════════════════════════════════════════════════════
 //  § 3. 위치 코드 파서
@@ -1589,7 +1711,10 @@ function parseLocation(raw) {
   for (var i = 0; i < EXT_KW.length; i++)
     if (s.indexOf(EXT_KW[i]) >= 0) return { type:'ext', raw:s };
   var m;
-  // 중파N-열-깊이 (2층 팔렛, 단 없음): 중파8-3-3
+  // 중파N-열 (2파트, 엑셀 마스터 형식): 중파1-1 ~ 중파2-4 → M번째 열, 1행
+  m = s.match(/^(중파\d+)-(\d+)$/);
+  if (m) return { type:'int', sec:m[1], sh:0, c:+m[2], depth:1, noShelf:true };
+  // 중파N-열-깊이 (3파트, 구형 형식): 중파8-3-3
   m = s.match(/^(중파\d+)-(\d+)-(\d+)$/);
   if (m) return { type:'int', sec:m[1], sh:0, c:+m[2], depth:+m[3], noShelf:true };
   // 중N-열-깊이 (중층 팔렛, 단 없음): 중6-2-3
@@ -1605,8 +1730,14 @@ function parseLocation(raw) {
   m = s.match(/^(금형실\d+)-(\d+)-(\d+)(?:-(\d+))?$/);
   if (m) return { type:'int', sec:m[1], sh:+m[2], c:+m[3], depth:m[4]?+m[4]:1 };
   // 일반 랙 (ASCII 섹션 이름): U-2-2, BA-1-3
+  // 엑셀 별칭: O=금형실1, I=금형실2
   m = s.match(/^([A-Za-z]+\d*)-(\d+)-(\d+)(?:-(\d+))?$/);
-  if (m) return { type:'int', sec:m[1].toUpperCase(), sh:+m[2], c:+m[3], depth:m[4]?+m[4]:1 };
+  if (m) {
+    var _sn = m[1].toUpperCase();
+    if (_sn === 'O') _sn = '금형실1'; // 엑셀 O → 금형실1 랙
+    if (_sn === 'I') _sn = '금형실2'; // 엑셀 I → 금형실2 랙
+    return { type:'int', sec:_sn, sh:+m[2], c:+m[3], depth:m[4]?+m[4]:1 };
+  }
   return { type:'unk', raw:s };
 }
 
@@ -2078,7 +2209,10 @@ function colNum(secName, c, cols) {
 
 function buildSection(name,sx,sz,type,rows,cols,shelves,yOff,faceDir) {
   yOff = yOff||0;
-  faceDir = faceDir||1; // +1: 통로가 +Z 방향(라벨 앞면), -1: 통로가 -Z 방향(라벨 앞면)
+  faceDir = faceDir||1; // +1: 통로가 +Z 방향, -1: 통로가 -Z 방향, ±2: X방향(90° CCW)
+  var _xFace=(Math.abs(faceDir)===2); // X방향 facing 여부
+  var _fdx=_xFace?(faceDir>0?1:-1):0; // X방향 부호 (±2일 때만)
+  var _fdz=_xFace?0:faceDir;          // Z방향 부호 (±1일 때만)
   // BA~BJ 그룹은 항상 D타입 강제 (sectionRackTypes/localStorage 무시 → cols/rows 항상 동일)
   var _bjGroup = ['BA','BB','BC','BD','BE','BJ','BI','BH','BG','BF'];
   var _rType = (_bjGroup.indexOf(name) !== -1)
@@ -2087,8 +2221,9 @@ function buildSection(name,sx,sz,type,rows,cols,shelves,yOff,faceDir) {
   var _origShelves = shelves;  // 팔렛형(shelves=1) 보존용 원본 단수
   if (_rType) {
     var rtCfg = RACK_TYPE_CONFIG[_rType];
-    // 팔렛형(shelves=1) 섹션은 단수 유지 — 랙 타입은 cols/rows·mold 크기만 변경
-    if (rtCfg) { cols = rtCfg.cols; rows = rtCfg.rows; if (_origShelves > 1) shelves = rtCfg.shelves; }
+    // 팔렛형(shelves=1) 섹션: rack type은 금형 크기(mw/mh/md)만 적용, cols/rows는 SECTIONS 그대로 유지
+    // → 일반 랙(shelves>1)만 rack type의 cols/rows/shelves 적용
+    if (rtCfg && _origShelves > 1) { cols = rtCfg.cols; rows = rtCfg.rows; shelves = rtCfg.shelves; }
   }
   // 커스텀 단수 오버라이드: 랙타입 적용 후 사용자가 직접 설정한 경우 우선 적용
   if (sectionRackSizes[name] && sectionRackSizes[name].shelves > 0) {
@@ -2125,6 +2260,7 @@ function buildSection(name,sx,sz,type,rows,cols,shelves,yOff,faceDir) {
   // 천장 없는 랙: A, B (개방형 5단 랙)
   var noCeiling = (name === 'A' || name === 'B');
   var tw=cols*sl.w+(cols-1)*.07, td=rows*sl.d+(rows-1)*.07, th=shelves*sl.h+.28;
+  if(_xFace){var _twt=tw;tw=td;td=_twt;} // _xFace 90°회전: X(tw)↔Z(td) 교환
   // 유형별 구분 색: 소형(파랑) / 중형(청록) / 세움형(갈색)
   var gcol=(type==='standing')?0x6d4c41:(type==='medium')?0x00695c:0x283593;
   var gm=mat(gcol,.6,.22); var ph=th+.12; var PR=.06;
@@ -2217,11 +2353,16 @@ function buildSection(name,sx,sz,type,rows,cols,shelves,yOff,faceDir) {
           mh = sl.h * 0.78;
           md = sl.d * 0.80;
         }
+        // _xFace 90°회전: X(mw)↔Z(md) 교환 (랙이 90° 돌았으므로 금형도 동일하게 회전)
+        if(_xFace){var _mwt=mw;mw=md;md=_mwt;}
         // 존 기반 균등 중앙 배치: 가장자리 여백을 두고 균등 분산 (비율 기반)
-        var _epx = tw * 0.06; // x방향 가장자리 여백: 랙 너비의 6%
-        var _epz = td * 0.04; // z방향 가장자리 여백: 랙 깊이의 4%
-        var mx = rDef ? sx+_epx+(c+0.5)*((tw-2*_epx)/cols) : sx+c*(sl.w+.07)+sl.w/2;
-        var mz = rDef ? sz+_epz+(r+0.5)*((td-2*_epz)/rows) : sz+r*(sl.d+.07)+sl.d/2;
+        // _xFace: c→Z방향, r→X방향으로 인덱스 스왑
+        var _epx = tw * 0.06;
+        var _epz = td * 0.04;
+        var _ci=_xFace?r:c, _ri=_xFace?c:r, _nx=_xFace?rows:cols, _nz=_xFace?cols:rows;
+        var _slx=_xFace?sl.d:sl.w, _slz=_xFace?sl.w:sl.d;
+        var mx = rDef ? sx+_epx+(_ci+0.5)*((tw-2*_epx)/_nx) : sx+_ci*(_slx+.07)+_slx/2;
+        var mz = rDef ? sz+_epz+(_ri+0.5)*((td-2*_epz)/_nz) : sz+_ri*(_slz+.07)+_slz/2;
         var my = yOff + sh*sl.h + 0.10 + mh*0.5;  // 선반 판 위에 올려진 중앙 높이
 
         // 위치 키 먼저 계산 (스프라이트 텍스처에 사용)
@@ -2245,16 +2386,17 @@ function buildSection(name,sx,sz,type,rows,cols,shelves,yOff,faceDir) {
         moldMesh.material.transparent=true; moldMesh.material.opacity=0; moldMesh.material.needsUpdate=true;
         scene.add(moldMesh);
 
-        // 이젝터 핀 (금형 통로측 앞면 = faceDir 방향, faceDir>0: +Z, faceDir<0: -Z)
+        // 이젝터 핀 (금형 통로측 앞면 = faceDir 방향, faceDir>0: +Z, faceDir<0: -Z, ±2: X방향)
         var ej=new THREE.Mesh(new THREE.CylinderGeometry(0.08,0.08,.035,8),MAT_EJEC);  // 고정 크기 (타입 무관)
-        ej.rotation.x=Math.PI/2; ej.position.set(mx,my+mh*.12,mz+faceDir*(md/2+.004));
+        if(_xFace){ej.rotation.z=-Math.PI/2;}else{ej.rotation.x=Math.PI/2;}
+        ej.position.set(mx+_fdx*(mw/2+.004),my+mh*.12,mz+_fdz*(md/2+.004));
         ej.visible=false; // 초기: 숨김 (금형 있을 때만 표시)
         scene.add(ej);
         si.meshes.push(ej);
 
         // 빈 슬롯 등록 아이콘 (통로측 앞면에 배치)
-        var plusIcon=makePlusSprite(mw, mh);
-        plusIcon.position.set(mx, my, mz+faceDir*(md/2+0.05));
+        var plusIcon=makePlusSprite(_xFace?md:mw, mh);
+        plusIcon.position.set(mx+_fdx*(mw/2+0.05), my, mz+_fdz*(md/2+0.05));
         scene.add(plusIcon);
 
         // 위치 코드 태그
@@ -2266,15 +2408,16 @@ function buildSection(name,sx,sz,type,rows,cols,shelves,yOff,faceDir) {
         //   [앞 z+] 위치코드(tag): 좌측, mz+md*0.30  |  뱃지(badge): 우측, mz+md*0.30
         var tag=new THREE.Mesh(
           shelves===1 ? new THREE.PlaneGeometry(mw*0.52, md*0.22)
-                      : new THREE.PlaneGeometry(mw*0.95, mh*0.34),
+                      : new THREE.PlaneGeometry((_xFace?md:mw)*0.95, mh*0.34),
           emptyMat
         );
         if (shelves===1) {
           tag.position.set(mx-mw*0.16, my+mh*0.5+0.005, mz+md*0.30);
           tag.rotation.x = -Math.PI/2;
         } else {
-          tag.position.set(mx, yOff+sh*sl.h+0.12, mz+faceDir*(md/2+0.03));
-          if (faceDir < 0) tag.rotation.y = Math.PI;
+          tag.position.set(mx+_fdx*(mw/2+0.03), yOff+sh*sl.h+0.12, mz+_fdz*(md/2+0.03));
+          // rotation.y: _xFace의 경우 +PI/2(-PI/2의 반대)를 사용해야 텍스트가 정방향으로 보임
+          if(_xFace){tag.rotation.y=_fdx>0?Math.PI/2:-Math.PI/2;}else if(faceDir<0){tag.rotation.y=Math.PI;}
         }
         tag.renderOrder=3;
         scene.add(tag);
@@ -2291,15 +2434,15 @@ function buildSection(name,sx,sz,type,rows,cols,shelves,yOff,faceDir) {
         });
         var nameTag=new THREE.Mesh(
           shelves===1 ? new THREE.PlaneGeometry(mw*0.82, md*0.50)
-                      : new THREE.PlaneGeometry(mw*0.88, mh*0.50),
+                      : new THREE.PlaneGeometry((_xFace?md:mw)*0.88, mh*0.50),
           nameMat
         );
         if (shelves===1) {
           nameTag.position.set(mx, my+mh*0.5+0.01, mz-md*0.10);
           nameTag.rotation.x = -Math.PI/2;
         } else {
-          nameTag.position.set(mx, my+mh*0.06, mz+faceDir*(md/2+0.05));
-          if (faceDir < 0) nameTag.rotation.y = Math.PI;
+          nameTag.position.set(mx+_fdx*(mw/2+0.05), my+mh*0.06, mz+_fdz*(md/2+0.05));
+          if(_xFace){nameTag.rotation.y=_fdx>0?Math.PI/2:-Math.PI/2;}else if(faceDir<0){nameTag.rotation.y=Math.PI;}
         }
         nameTag.renderOrder=4;
         nameTag.visible=false;
@@ -2311,7 +2454,7 @@ function buildSection(name,sx,sz,type,rows,cols,shelves,yOff,faceDir) {
         var badgeMesh=new THREE.Mesh(
           shelves===1
             ? new THREE.PlaneGeometry(mw*0.28, md*0.22)
-            : new THREE.PlaneGeometry(mw*0.22, mh*0.14),
+            : new THREE.PlaneGeometry((_xFace?md:mw)*0.22, mh*0.14),
           new THREE.MeshBasicMaterial({transparent:true,opacity:0,side:THREE.DoubleSide})
         );
         if (shelves===1) {
@@ -2319,8 +2462,9 @@ function buildSection(name,sx,sz,type,rows,cols,shelves,yOff,faceDir) {
           badgeMesh.position.set(mx+mw*0.30, my+mh*0.5+0.015, mz+md*0.30);
           badgeMesh.rotation.x = -Math.PI/2;
         } else {
-          badgeMesh.position.set(mx+mw*0.27, my+mh*0.41, mz+faceDir*(md/2+0.06));
-          if(faceDir<0) badgeMesh.rotation.y=Math.PI;
+          if(_xFace){badgeMesh.position.set(mx+_fdx*(mw/2+0.06),my+mh*0.41,mz+md*0.27);}
+          else{badgeMesh.position.set(mx+mw*0.27,my+mh*0.41,mz+_fdz*(md/2+0.06));}
+          if(_xFace){badgeMesh.rotation.y=_fdx>0?Math.PI/2:-Math.PI/2;}else if(faceDir<0){badgeMesh.rotation.y=Math.PI;}
         }
         badgeMesh.renderOrder=5;
         badgeMesh.visible=false;
@@ -2757,11 +2901,11 @@ function assignMoldsToSlots() {
   var diagEl=document.getElementById('st-diag');
   if(diagEl){
     diagEl.style.display='block';
-    diagEl.innerHTML='📊 매칭 <b style="color:#50e896">'+_matched+'</b>/내부 '+_diag.intTotal
-      +(_diag.noSlot?' | <span style="color:#ff6b6b">슬롯없음 '+_diag.noSlot+'</span>':'')
-      +(_diag.unk?' | 미인식 '+_diag.unk:'')
-      +' | 외부 '+_diag.ext+' | 위치없음 '+_diag.noLoc
-      +'<span style="color:rgba(100,180,255,0.6);margin-left:4px">[상세보기]</span>';
+    // 콤팩트 배지: 핵심 수치만 표시, 상세는 클릭 팝업
+    var _warn=(_diag.noSlot||_diag.unk)?'<span style="color:#ff8c00">⚠</span> ':'';
+    diagEl.innerHTML='📊 '+_warn+'<b style="color:#50e896">'+_matched+'</b>/'+_diag.intTotal
+      +(_diag.noSlot?'<span style="color:#ff6b6b;margin-left:3px">!'+_diag.noSlot+'</span>':'')
+      +'<span style="color:rgba(100,180,255,0.5);margin-left:4px;font-size:10px">▶</span>';
   }
 
   // 3단계: 스프라이트 텍스처는 rAF 배치 처리 (30개/프레임)
@@ -2823,7 +2967,7 @@ function groupExtMolds() {
 
 function setExtBarVisible(visible) {
   var cv = document.getElementById('cv');
-  if (cv) cv.style.top = visible ? '94px' : '58px';
+  if (cv) cv.style.top = visible ? '122px' : '86px';
 }
 
 function buildExtWarehouseMenu() {
@@ -3276,34 +3420,40 @@ function isZone2F(name){ return /^중/.test(name); }
 // 금형실 섹션 여부
 function isZoneMR(name){ return /^금형실/.test(name); }
 
-// 구역별 통계 계산 (1f/2f에서 금형실 섹션 제외)
+// 구역별 통계 계산 (실제 금형 바닥면적 기반, 1f/2f에서 금형실·사출현장 제외)
 function calcZoneStats(zoneId){
-  var total=0,used=0,sqm=0;
+  var _bjGrp=['BA','BB','BC','BD','BE','BJ','BI','BH','BG','BF'];
+  function _getRType(nm){
+    if(_bjGrp.indexOf(nm)!==-1)return 'D';
+    return sectionRackTypes[nm]||SECTION_DEFAULT_RACK_TYPES[nm]||null;
+  }
+  var total=0,used=0,totalSqm=0,usedSqm=0,emptyCnt={},bySection={};
   allSlots.forEach(function(e){
     var nm=e.secName||'';
-    var is2f=isZone2F(nm);
-    var isMR=isZoneMR(nm);
-    var isSF=(nm==='사출현장');
+    var is2f=isZone2F(nm),isMR=isZoneMR(nm),isSF=(nm==='사출현장');
     if(isMR||isSF)return; // 금형실·사출현장은 별도 존
     if(zoneId==='1f'&&is2f)return;
     if(zoneId==='2f'&&!is2f)return;
-    total++; if(e.moldData)used++;
-  });
-  SECTIONS.forEach(function(sec){
-    var nm=sec[0],type=sec[3],rows=sec[4],cols=sec[5];
-    var is2f=isZone2F(nm);
-    var isMR=isZoneMR(nm);
-    if(isMR)return;
-    if(zoneId==='1f'&&is2f)return;
-    if(zoneId==='2f'&&!is2f)return;
-    var sl=SLOT[type]||{w:1.65,d:1.65};
-    sqm+=cols*sl.w*rows*sl.d;
+    var rt=_getRType(nm);
+    // 랙타입 있으면 실제 금형 바닥면적, 없으면 슬롯 크기(fallback)
+    var sq=(rt&&MOLD_REAL_SQ[rt])?MOLD_REAL_SQ[rt]:(e.slotW*e.slotD);
+    total++; totalSqm+=sq;
+    if(e.moldData){ used++; usedSqm+=sq; }
+    else{
+      var tk=(rt&&MOLD_REAL_SQ[rt])?rt:null; if(tk)emptyCnt[tk]=(emptyCnt[tk]||0)+1;
+      bySection[nm]=(bySection[nm]||0)+1; // 구역별 빈 슬롯 카운트
+    }
   });
   var pct=total>0?Math.round(used/total*100):0;
-  var totalPy=Math.round(sqm/3.3058*10)/10;
-  var usedPy=Math.round(totalPy*(total>0?used/total:0)*10)/10;
-  var emptyPy=Math.round((totalPy-usedPy)*10)/10;
-  return{total:total,used:used,empty:total-used,pct:pct,totalPy:totalPy,usedPy:usedPy,emptyPy:emptyPy};
+  var totalPy=Math.round(totalSqm/3.3058*10)/10;
+  var usedPy=Math.round(usedSqm/3.3058*10)/10;
+  var emptyPy=Math.round((totalSqm-usedSqm)/3.3058*10)/10;
+  // 추가 적재 가능: D타입 우선 → C → B → A 순
+  var extraParts=[];
+  ['D','C','B','A'].forEach(function(t){ if(emptyCnt[t])extraParts.push(t+'타입 '+emptyCnt[t]+'벌'); });
+  return{total:total,used:used,empty:total-used,pct:pct,
+         totalPy:totalPy,usedPy:usedPy,emptyPy:emptyPy,
+         extraText:extraParts.join(' · '), bySection:bySection};
 }
 
 // 외부창고 금형 수
@@ -3342,13 +3492,59 @@ function calcMRCount(){
 }
 
 // DOM 통계 업데이트
+var _extraChipInited = false;
+function _initExtraChip(){
+  if(_extraChipInited)return; _extraChipInited=true;
+  var chip=document.getElementById('st-extra-chip');
+  if(!chip)return;
+  chip.addEventListener('click',function(){
+    var panel=document.getElementById('st-section-panel');
+    if(!panel)return;
+    var open=panel.style.display==='flex';
+    panel.style.display=open?'none':'flex';
+    var arrow=document.getElementById('st-extra-arrow');
+    if(arrow)arrow.textContent=open?'▼':'▲';
+  });
+}
+function _closeSectionPanel(){
+  var panel=document.getElementById('st-section-panel');
+  if(panel)panel.style.display='none';
+  var arrow=document.getElementById('st-extra-arrow');
+  if(arrow)arrow.textContent='▼';
+}
+function _renderSectionPanel(bySection){
+  var panel=document.getElementById('st-section-panel');
+  if(!panel)return;
+  var nms=Object.keys(bySection).filter(function(k){return bySection[k]>0;});
+  // 정렬: BA~BJ → 중N → 중파N → K/L/M/N/J → 기타
+  nms.sort(function(a,b){
+    var ord=function(n){
+      if(/^B[A-J]$/.test(n))return 1;
+      if(/^중\d+$/.test(n))return 2;
+      if(/^중파\d+$/.test(n))return 3;
+      if(/^[K-N]$/.test(n)||n==='J')return 4;
+      return 5;
+    };
+    var oa=ord(a),ob=ord(b); if(oa!==ob)return oa-ob;
+    return a.localeCompare(b,'ko');
+  });
+  if(nms.length===0){
+    panel.innerHTML='<span style="color:rgba(255,255,255,0.3);font-size:11px">모든 슬롯 사용 중 (빈 자리 없음)</span>';
+  }else{
+    panel.innerHTML='<span style="color:rgba(255,193,7,0.55);font-size:11px;margin-right:6px;white-space:nowrap">구역별 추가 적재 가능</span>'+
+      nms.map(function(n){return '<div class="sp-tag"><b>'+n+'</b>'+bySection[n]+'벌</div>';}).join('');
+  }
+}
 function updateStatsUI(zoneId){
+  _initExtraChip();
   var z=zoneId||CUR_ZONE;
   var intDiv=document.getElementById('st-int');
   var extDiv=document.getElementById('st-ext');
   var mrDiv =document.getElementById('st-mr');
   var sfDiv =document.getElementById('st-sf');
   if(!intDiv)return;
+  // 존 전환 시 패널 닫기
+  _closeSectionPanel();
   // 모두 숨기고 해당 존만 표시
   intDiv.style.display='none';
   extDiv.style.display='none';
@@ -3375,6 +3571,15 @@ function updateStatsUI(zoneId){
                s.pct>=60?'linear-gradient(90deg,#e65100,#ef6c00)':
                          'linear-gradient(90deg,#1565c0,#43a047)';
     document.getElementById('st-bar-fill').style.background=barCol;
+    // 추가 적재 가능 칩 (타입별 빈 슬롯 수)
+    var extraChip=document.getElementById('st-extra-chip');
+    var extraTxt=document.getElementById('st-extra-txt');
+    if(extraChip&&extraTxt){
+      if(s.extraText){ extraChip.style.display=''; extraTxt.textContent=s.extraText; }
+      else{ extraChip.style.display='none'; }
+    }
+    // 구역별 패널 데이터 업데이트 (패널이 열린 경우 즉시 갱신)
+    _renderSectionPanel(s.bySection||{});
   }
 }
 
