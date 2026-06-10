@@ -1066,8 +1066,8 @@ var SECTIONS = (function(){
     ['BG',75,-12.7,'medium',2,2,3], ['BF',80,-12.7,'medium',2,2,3],
     ['B',-58, 5,'shelf', 1,5,3], ['A',-52, 5,'shelf', 1,5,3],
     // K~J : faceDir=+2 → X방향(+X 면이 통로측) 90°CCW 회전
-    ['K',-44, 5,'shelf', 2,2,3, 2], ['L',-44,10,'shelf', 2,2,3, 2],
-    ['M',-38, 5,'shelf', 2,2,3, 2], ['N',-38,10,'shelf', 2,2,3, 2],
+    ['K',-44, 5,'shelf', 2,2,3, 2], ['L',-42, 5,'shelf', 2,2,3],
+    ['M',-38, 5,'shelf', 2,2,3, 2], ['N',-36, 5,'shelf', 2,2,3],
     ['J',-32, 5,'shelf', 2,2,3, 2],
     // 금형실 랙 2개 (PC책상 왼쪽: 금형실1=3단, 금형실2=4단)
     ['금형실1',-7, 5,'shelf', 2,4,3], ['금형실2',-2, 5,'shelf', 2,4,4],
@@ -1198,10 +1198,14 @@ var RACK_DEFAULTS = {};
   ['H','G','F','E','D','C'].forEach(function(n){
     RACK_DEFAULTS[n] = { w:4.0, d:2.0 };
   });
-  // K~J 그룹: X방향 배치, back-to-back 쌍 → w=5.0(X폭), d=2.0(Z깊이)
-  // I, O는 금형실 랙으로 이전됨
-  ['K','L','M','N','J'].forEach(function(n){
+  // K/M/J: faceDir=+2(+X방향) → tw↔td 스왑 적용됨, 원본 w=5.0(X) d=2.0(Z) 유지
+  ['K','M','J'].forEach(function(n){
     RACK_DEFAULTS[n] = { w:5.0, d:2.0 };
+  });
+  // L/N: faceDir=+1(+Z방향, 중2층쪽) → 스왑 없음, 이미 회전된 치수로 직접 지정
+  // w=2.0(X좁게), d=5.0(Z넓게) → K/M/J와 동일한 물리적 형태
+  ['L','N'].forEach(function(n){
+    RACK_DEFAULTS[n] = { w:2.0, d:5.0 };
   });
   // 금형실 랙: PC책상 왼쪽 배치, cols=4×rows=2 (금형실1:3단, 금형실2:4단)
   ['금형실1','금형실2'].forEach(function(n){
@@ -1683,6 +1687,15 @@ var EXT_KW = ['금형창고','경기 화성','경기화성','LG평택','LG B-','
       }
     } catch(e){}
     // ③ sections 캐시 초기화 (faceDir 변경 반영)
+    try { localStorage.removeItem('ssautotech_sections_v2'); } catch(e){}
+    try { localStorage.setItem(mk,'1'); } catch(e){}
+  }
+})();
+
+// 마이그레이션 v32: L/N 위치 재배치(K옆·M옆 X방향) + faceDir=+1 전환 → sections 캐시 초기화
+(function(){
+  var mk = 'ssautotech_migration_v32';
+  if (!localStorage.getItem(mk)) {
     try { localStorage.removeItem('ssautotech_sections_v2'); } catch(e){}
     try { localStorage.setItem(mk,'1'); } catch(e){}
   }
