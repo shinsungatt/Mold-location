@@ -5,6 +5,7 @@ config.json
 
 # bkit 내부 파일
 .bkit/
+docs/
 
 # 참조 자료 (이미지 등 대용량)
 참조자료/
