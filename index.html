@@ -2017,18 +2017,19 @@ function buildFloorMoldSlots() {
 }
 
 // ══════════════════════════════════════════════════════════════
-//  § 6-C. 사출현장 바닥 슬롯 (구 I·O랙 위치 → 5×2 = 10개 포인트)
+//  § 6-C. 사출현장 바닥 슬롯 (J랙~공BOX 대차 사이 → 5×3 = 15개 포인트)
 // ══════════════════════════════════════════════════════════════
 function buildSFFloorSpots() {
-  // 구 I 랙 위치: sx=-26, sz=5, 폭5m×깊이2m (x: -26 ~ -21, z: 5 ~ 7)
-  var X0 = -26, Z0 = 5;
-  var COLS = 5, ROWS = 2;
-  var slW = 5.0 / COLS;  // 1.0m
-  var slD = 2.0 / ROWS;  // 1.0m
+  // J랙 우측끝(x=-31)에서 1타일(2m) 여백 후 공BOX 대차 좌측끝(x=-19)까지
+  // x: -29 ~ -19 (10m = 5타일), z: 5 ~ 8 (3m)
+  var X0 = -29, Z0 = 5;
+  var COLS = 5, ROWS = 3;
+  var slW = 10.0 / COLS;  // 2.0m
+  var slD = 3.0 / ROWS;   // 1.0m
 
   for (var r = 0; r < ROWS; r++) {
     for (var c = 0; c < COLS; c++) {
-      var idx = r * COLS + c + 1; // 1 ~ 10
+      var idx = r * COLS + c + 1; // 1 ~ 15
       var cx = X0 + (c + 0.5) * slW;
       var cz = Z0 + (r + 0.5) * slD;
       var loc = '사출SF-' + idx;
@@ -2147,11 +2148,9 @@ function buildZoneAreas() {
   addLabel('계단',   70,.8,46,'#60a0ff',3,1.2);
   addBox(-15,.3,5,8,.6,8,mat(0x3a3000,.8),false);
   addLabel('공 BOX 대차',-15,.8,5,'#ffd600',4,1.1);
-  addBox(-25,.04,2,12,.04,7,mat(0x0a200a,.9),false);
-  addLabel('금형대기',-25,.5,2,'#60c060',4,1.1);
-  // 사출현장 바닥 구역 마킹 (구 I랙 위치: x=-26~-21, z=5~7)
-  addBox(-23.5,.03,6,5,.04,2,mat(0x0a3a0a,.9),false);
-  addLabel('사출현장',-23.5,.5,6,'#50e896',4.5,1.1);
+  // 사출현장 바닥 구역 마킹 (x:-29~-19=10m, z:5~8=3m, 15슬롯)
+  addBox(-24,.03,6.5,10,.04,3,mat(0x0a3a0a,.9),false);
+  addLabel('사출현장',-24,.5,6.5,'#50e896',4.5,1.1);
   // 금형실 구역 마킹 (금형실1/2 랙 영역: x=-11~2, z=5~7)
   addBox(-4.5,.03,6.5,13,.04,2.5,mat(0x082a20,.9),false);
   addLabel('금형실',-4.5,.5,5.5,'#4db6ac',3.5,1.0);
@@ -2162,38 +2161,59 @@ function buildZoneAreas() {
 // ══════════════════════════════════════════════════════════════
 function buildMachines() {
   var topRow = [
-    {n:12,t:60,x:-55,w:5,h:3.0,c:0x0d3d8a},{n:11,t:80,x:-49,w:5,h:3.2,c:0x0d3d8a},
-    {n:10,t:80,x:-43,w:5,h:3.2,c:0x0d3d8a},{n: 9,t:80,x:-37,w:5,h:3.2,c:0x0d3d8a},
-    {n: 8,t:0, x:-31,w:5,h:3.4,c:0x0d3d8a},{n: 7,t:60,x:-25,w:5,h:3.0,c:0x0d3d8a},
-    {n: 6,t:60,x:-19,w:5,h:3.0,c:0x0d3d8a},{n: 5,t:450,x:1,w:23,h:5.5,c:0x0a2a6a},
-    {n: 3,t:330,x:21,w:14,h:5.0,c:0x0a2a6a},{n:2,t:330,x:36,w:14,h:5.0,c:0x0a2a6a},
-    {n: 1,t:900,x:65,w:42,h:6.5,c:0x071840},
+    {n:12,t:60,x:-55,w:5,h:3.0,c:0xf0f0f0},{n:11,t:80,x:-49,w:5,h:3.2,c:0xf0f0f0},
+    {n:10,t:80,x:-43,w:5,h:3.2,c:0xf0f0f0},{n: 9,t:80,x:-37,w:5,h:3.2,c:0xf0f0f0},
+    {n: 8,t:0, x:-31,w:5,h:3.4,c:0xf0f0f0},{n: 7,t:60,x:-25,w:5,h:3.0,c:0xf0f0f0},
+    {n: 6,t:60,x:-19,w:5,h:3.0,c:0xf0f0f0},{n: 5,t:450,x:1,w:23,h:5.5,c:0xf0f0f0},
+    {n: 3,t:330,x:21,w:14,h:5.0,c:0xf0f0f0},{n:2,t:330,x:36,w:14,h:5.0,c:0xf0f0f0},
+    {n: 1,t:900,x:65,w:42,h:6.5,c:0xf0f0f0},
   ];
   topRow.forEach(function(m){drawMachine(m.x,-28,m.w,8,m.h,m.n,m.t,m.c);});
   var midRow = [
-    {n:13,t:100,x:-50,w:5,h:3.8,c:0x0d3d8a},{n:14,t:110,x:-44,w:5,h:4.0,c:0x0d3d8a},
-    {n:15,t:150,x:-38,w:5,h:4.2,c:0x0d3d8a},{n:16,t:150,x:-32,w:5,h:4.2,c:0x0d3d8a},
-    {n:17,t:350,x:-24,w:8,h:5.2,c:0x0a2a6a},{n:18,t:170,x:-15,w:5,h:4.3,c:0x0d3d8a},
-    {n:19,t:280,x:-6, w:7,h:4.8,c:0x0a2a6a},{n:20,t:250,x:2,  w:6,h:4.5,c:0x0d3d8a},
-    {n:21,t:250,x:9,  w:6,h:4.5,c:0x0d3d8a},{n:22,t:250,x:16, w:6,h:4.5,c:0x0d3d8a},
-    {n:23,t:250,x:23, w:6,h:4.5,c:0x0d3d8a},{n:24,t:60, x:30, w:5,h:3.0,c:0x0d3d8a},
+    {n:13,t:100,x:-50,w:5,h:3.8,c:0xf0f0f0},{n:14,t:110,x:-44,w:5,h:4.0,c:0xf0f0f0},
+    {n:15,t:150,x:-38,w:5,h:4.2,c:0xf0f0f0},{n:16,t:150,x:-32,w:5,h:4.2,c:0xf0f0f0},
+    {n:17,t:350,x:-24,w:8,h:5.2,c:0xf0f0f0},{n:18,t:170,x:-15,w:5,h:4.3,c:0xf0f0f0},
+    {n:19,t:280,x:-6, w:7,h:4.8,c:0xf0f0f0},{n:20,t:250,x:2,  w:6,h:4.5,c:0xf0f0f0},
+    {n:21,t:250,x:9,  w:6,h:4.5,c:0xf0f0f0},{n:22,t:250,x:16, w:6,h:4.5,c:0xf0f0f0},
+    {n:23,t:250,x:23, w:6,h:4.5,c:0xf0f0f0},{n:24,t:60, x:30, w:5,h:3.0,c:0xf0f0f0},
   ];
   midRow.forEach(function(m){drawMachine(m.x,-14,m.w,7,m.h,m.n,m.t,m.c);});
-  var hFrameX=[-45,-39,-33,-27,-20,-12,-3,5,12,19,26];
-  hFrameX.forEach(function(hx){
-    var hm=mat(0x1b5e20,.6,.3);
-    addBox(hx,1.8,-8,1.5,3.5,1.5,hm); addBox(hx,3.2,-8,1.8,.2,1.5,hm);
-  });
 }
 function drawMachine(cx,cz,w,d,h,num,ton,color){
-  var bm=mat(color,.5,.4); var am=mat(0x1565c0,.38,.58);
-  addBox(cx,h/2,cz,w,h,d,bm); addBox(cx,h+.35,cz,w*.5,.7,d*.5,am);
-  addBox(cx,h*.42,cz-d*.4,.28,h*.55,d*.2,MAT_CTRL);
-  addBox(cx+w*.35,h*.5,cz-d*.32,.16,h*.42,d*.2,MAT_CTRL);
-  var cy=new THREE.Mesh(new THREE.CylinderGeometry(.1,.1,.4,8),mat(0x00e5ff,.3,.1));
-  cy.position.set(cx,h+.8,cz); cy.castShadow=true; scene.add(cy);
-  var lbl=makeSprite((ton>0?num+'호기 '+ton+'T':num+'호기'),h>5?'#42a5f5':'#5ba8d8',18);
-  lbl.position.set(cx,h+2.0,cz); lbl.scale.set(h>4?7.0:5.5,2.2,1); scene.add(lbl);
+  // 실사 기반 사출기 형태 (흰색 본체 + 네이비 하부 + 파란색 포인트)
+  var matBody = mat(0xf0f0f0,.06,.28);   // 흰색 도장 본체
+  var matBase = mat(0x1a2a4a,.10,.42);   // 네이비 하부 프레임
+  var matBlue = mat(0x1565c0,.10,.38);   // 파란색 포인트 패널
+  var matGray = mat(0x546e7a,.15,.45);   // 금속 회색 (배럴부)
+  var matCtrl = mat(0x1a2535,.20,.65);   // 제어판 (다크)
+
+  var hb = h * 0.32;   // 하부 베이스 높이 (32%)
+  var hu = h - hb;     // 상부 바디 높이 (68%)
+
+  // ① 하부 베이스 (네이비) ─ 바닥~32%
+  addBox(cx, hb*0.5, cz, w, hb, d, matBase);
+
+  // ② 상부 메인 바디 (흰색) ─ 32%~100%
+  addBox(cx, hb+hu*0.5, cz, w, hu, d*0.85, matBody);
+
+  // ③ 좌측 클램핑 유닛 측면 패널 (파란색)
+  addBox(cx-w*0.28, hb+hu*0.5, cz, w*0.17, hu*0.90, d*0.87, matBlue);
+
+  // ④ 우측 사출 유닛 상단 박스 (흰색, 돌출)
+  addBox(cx+w*0.20, hb+hu*0.65, cz, w*0.38, hu*0.55, d*0.68, matBody);
+
+  // ⑤ 사출 배럴 / 호퍼 암시 (회색, 우측 상단)
+  addBox(cx+w*0.38, hb+hu*0.62, cz, w*0.16, hu*0.22, d*0.30, matGray);
+
+  // ⑥ 제어판 스탠드 (전면부, 통로쪽)
+  addBox(cx-w*0.28, hb+hu*0.42, cz+d*0.44, w*0.09, hu*0.36, 0.20, matCtrl);
+
+  // ⑦ 상단 파란 강조 스트립
+  addBox(cx, hb+hu*0.99, cz, w, hu*0.04, d*0.86, matBlue);
+
+  // ⑧ 기계 번호 라벨
+  var lbl=makeSprite((ton>0?num+'호기 '+ton+'T':num+'호기'),h>5?'#42a5f5':'#90caf9',18);
+  lbl.position.set(cx,h+1.8,cz); lbl.scale.set(h>4?7.0:5.5,2.2,1); scene.add(lbl);
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -2274,9 +2294,9 @@ function buildSection(name,sx,sz,type,rows,cols,shelves,yOff,faceDir) {
   var noCeiling = (name === 'A' || name === 'B');
   var tw=cols*sl.w+(cols-1)*.07, td=rows*sl.d+(rows-1)*.07, th=shelves*sl.h+.28;
   if(_xFace){var _twt=tw;tw=td;td=_twt;} // _xFace 90°회전: X(tw)↔Z(td) 교환
-  // 유형별 구분 색: 소형(파랑) / 중형(청록) / 세움형(갈색)
-  var gcol=(type==='standing')?0x6d4c41:(type==='medium')?0x00695c:0x283593;
-  var gm=mat(gcol,.6,.22); var ph=th+.12; var PR=.06;
+  // 유형별 구분 색: 소형(녹색) / 중형(녹색) / 세움형(갈색)
+  var gcol=(type==='standing')?0x6d4c41:(type==='medium')?0x388e3c:0x4caf50;
+  var gm=mat(gcol,.55,.20); var ph=th+.12; var PR=.06;
   // 섹션 추적 정보 초기화 (meshes: 프레임 메시 목록, 재빌드 시 제거용)
   var si={gm:gm, panelMats:[], labelSprite:null, slots:[], sqm: cols*sl.w * rows*sl.d, meshes:[]};
   sectionInfo[name]=si;
@@ -2331,7 +2351,7 @@ function buildSection(name,sx,sz,type,rows,cols,shelves,yOff,faceDir) {
     }
   }
   // 최상단 천장 덮개판 제거 - 맨 위 금형이 천장판 위에 올라가는 문제 수정
-  var lc=(type==='medium')?'#81c784':'#aed6f1';
+  var lc=(type==='medium')?'#a5d6a7':'#c8e6c9';
   var lbl=makeSprite(name,lc,24);
   lbl.position.set(sx+tw/2,yOff+th+1.1,sz+td/2); lbl.scale.set(4.2,1.8,1); scene.add(lbl);
   lbl.userData.secName = name; // 클릭 감지용
