@@ -25,7 +25,7 @@ body { background:#1e3a5c; color:#e8f0ff; font-family:'Malgun Gothic','맑은 �
 }
 #logo { font-size:14px; font-weight:700; color:#5a9ef8; white-space:nowrap; }
 #logo span { color:#ff8c00; }
-#search-wrap { flex:1; min-width:0; position:relative; }
+#search-wrap { width:260px; flex-shrink:0; position:relative; }
 #search-input {
   width:100%; padding:10px 36px 10px 14px;
   background:rgba(255,255,255,0.08);
@@ -112,7 +112,7 @@ body { background:#1e3a5c; color:#e8f0ff; font-family:'Malgun Gothic','맑은 �
 
 /* ── Excel 버튼 ── */
 #excel-main { display:flex; gap:6px; flex-shrink:0; }
-#excel-aux  { display:flex; gap:6px; margin-left:auto; }
+#excel-aux  { display:flex; gap:6px; }
 .xl-btn {
   display:flex; align-items:center; gap:5px;
   padding:6px 11px; border-radius:6px; cursor:pointer;
@@ -713,9 +713,9 @@ body { background:#1e3a5c; color:#e8f0ff; font-family:'Malgun Gothic','맑은 �
   <input type="file" id="file-in" accept=".xlsx,.xls">
 </div>
 
-<!-- ────── 상단 바 (Row1: 검색행 / Row2: 통계행) ────── -->
+<!-- ────── 상단 바 (Row1: 검색+버튼 / Row2: 통계행) ────── -->
 <div id="top-bar">
-  <!-- Row 1: 로고 + 검색 + 업로드/다운로드 -->
+  <!-- Row 1: 로고 + 검색(축소) + 진단 + [spacer] + 업로드/다운로드/위치Excel/레이아웃 -->
   <div id="top-row-1">
     <div id="logo">⚙ 신성오토텍 <span>금형위치</span></div>
     <div id="search-wrap">
@@ -723,6 +723,8 @@ body { background:#1e3a5c; color:#e8f0ff; font-family:'Malgun Gothic','맑은 �
       <span id="search-clear">✕</span>
       <div id="autocomplete"></div>
     </div>
+    <div id="st-diag" style="font-size:11px;color:rgba(100,180,255,0.7);padding:3px 8px;display:none;white-space:nowrap;cursor:pointer;background:rgba(80,140,255,0.1);border:1px solid rgba(80,140,255,0.25);border-radius:4px;flex-shrink:0" title="클릭하면 상세 매칭 진단 보기"></div>
+    <div style="flex:1"></div>
     <div id="excel-main">
       <div class="xl-btn xl-upload" id="btn-upload" title="새 엑셀 파일로 업데이트">
         <span>⬆</span> 업로드
@@ -731,8 +733,16 @@ body { background:#1e3a5c; color:#e8f0ff; font-family:'Malgun Gothic','맑은 �
         <span>⬇</span> 다운로드
       </div>
     </div>
+    <div id="excel-aux">
+      <div class="xl-btn xl-layout-up" id="btn-layout-upload" title="위치 매칭 Excel 업로드 (시트별 레이아웃 형식)">
+        <span>📋</span> 위치Excel
+      </div>
+      <div class="xl-btn xl-layout" id="btn-layout" title="보관대 레이아웃 편집">
+        <span>📐</span> 레이아웃
+      </div>
+    </div>
   </div>
-  <!-- Row 2: 구역 선택 + 통계 칩 + 보조 버튼 -->
+  <!-- Row 2: 구역 선택 + 통계 칩 -->
   <div id="top-row-2">
     <div id="zone-stats-wrap">
       <select id="zone-select">
@@ -759,15 +769,6 @@ body { background:#1e3a5c; color:#e8f0ff; font-family:'Malgun Gothic','맑은 �
       </div>
       <div id="st-sf">
         <div class="st-chip" style="background:rgba(80,232,150,0.10);border-color:rgba(80,232,150,0.32);color:#50e896">사출현장 <b id="st-sf-cnt">-</b>벌</div>
-      </div>
-      <div id="st-diag" style="font-size:11px;color:rgba(100,180,255,0.7);padding:3px 8px;display:none;white-space:nowrap;cursor:pointer;background:rgba(80,140,255,0.1);border:1px solid rgba(80,140,255,0.25);border-radius:4px;flex-shrink:0" title="클릭하면 상세 매칭 진단 보기"></div>
-    </div>
-    <div id="excel-aux">
-      <div class="xl-btn xl-layout-up" id="btn-layout-upload" title="위치 매칭 Excel 업로드 (시트별 레이아웃 형식)">
-        <span>📋</span> 위치Excel
-      </div>
-      <div class="xl-btn xl-layout" id="btn-layout" title="보관대 레이아웃 편집">
-        <span>📐</span> 레이아웃
       </div>
     </div>
   </div>
