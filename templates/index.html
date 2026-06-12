@@ -4690,6 +4690,12 @@ var clock=new THREE.Clock();
 buildFactory();
 loadFromStorage(); // 저장된 데이터 있으면 자동 로드
 
+// 일반사용자: 데이터 유무와 관계없이 업로드 화면 스킵
+if (!window._IS_ADMIN) {
+  var _dropEl = document.getElementById('drop');
+  if (_dropEl) _dropEl.style.display = 'none';
+}
+
 // ══════════════════════════════════════════════════════════════
 //  § 20. 레이아웃 편집기
 // ══════════════════════════════════════════════════════════════
@@ -5220,19 +5226,10 @@ async function doLogout() {
   window.location.replace('/login');
 }
 
-// 일반사용자: 드롭존 비활성화 안내
+// 일반사용자: 파일 input 비활성화
 if (!window._IS_ADMIN) {
   window.addEventListener('DOMContentLoaded', function() {
-    var dropZone = document.getElementById('drop-zone');
     var fileIn = document.getElementById('file-in');
-    if (dropZone) {
-      dropZone.style.pointerEvents = 'none';
-      dropZone.style.opacity = '0.4';
-      var msg = document.createElement('div');
-      msg.style.cssText = 'font-size:12px;color:rgba(180,200,240,0.6);margin-top:10px';
-      msg.textContent = '조회 전용 계정입니다. 관리자에게 문의하세요.';
-      dropZone.after(msg);
-    }
     if (fileIn) fileIn.disabled = true;
   });
 }
