@@ -1177,8 +1177,8 @@ var SECTIONS = (function(){
     ['B',-58, 5,'shelf', 1,5,3], ['A',-52, 5,'shelf', 1,5,3],
     // K~J : faceDir=+2 → X방향(+X 면이 통로측) 90°CCW 회전
     // 마스터 기준: 5단(shelves=5), 4열(cols=4), 2행(rows=2) — K/L/M/N/J 각각 독립 렉
-    ['K',-44, 5,'shelf', 2,4,5, 2], ['L',-42, 5,'shelf', 2,4,5, 2],
-    ['M',-38, 5,'shelf', 2,4,5, 2], ['N',-36, 5,'shelf', 2,4,5, 2],
+    ['K',-44, 5,'shelf', 2,4,5, 2], ['L',-41, 5,'shelf', 2,4,5, 2],
+    ['M',-38, 5,'shelf', 2,4,5, 2], ['N',-35, 5,'shelf', 2,4,5, 2],
     ['J',-32, 5,'shelf', 2,4,5, 2],
     // 금형실 랙 2개 (PC책상 왼쪽: 금형실1=3단, 금형실2=4단)
     ['금형실1',-7, 5,'shelf', 2,4,3], ['금형실2',-2, 5,'shelf', 2,4,4],
@@ -1854,6 +1854,15 @@ var EXT_KW = ['금형창고','경기 화성','경기화성','LG평택','LG B-','
         }
       }
     } catch(e){}
+    try { localStorage.removeItem('ssautotech_sections_v2'); } catch(e){}
+    try { localStorage.setItem(mk,'1'); } catch(e){}
+  }
+})();
+
+// 마이그레이션 v35: L(x=-42→-41), N(x=-36→-35) 위치 조정 → K/M와 1m 간격 확보
+(function(){
+  var mk = 'ssautotech_migration_v35';
+  if (!localStorage.getItem(mk)) {
     try { localStorage.removeItem('ssautotech_sections_v2'); } catch(e){}
     try { localStorage.setItem(mk,'1'); } catch(e){}
   }
