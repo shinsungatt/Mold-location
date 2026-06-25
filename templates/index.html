@@ -1825,6 +1825,40 @@ var EXT_KW = ['금형창고','경기 화성','경기화성','LG평택','LG B-','
   }
 })();
 
+// 마이그레이션 v34: K/L/M/N/J sectionRackTypes·sectionRackSizes 초기화
+// → 사용자 설정 랙타입이 cols/rows/shelves를 덮어쓰는 문제 수정
+(function(){
+  var mk = 'ssautotech_migration_v34';
+  if (!localStorage.getItem(mk)) {
+    try {
+      var _rts = localStorage.getItem('ssautotech_rack_types_v1');
+      if (_rts) {
+        var rt = JSON.parse(_rts) || {};
+        ['K','L','M','N','J'].forEach(function(n){ delete rt[n]; });
+        localStorage.setItem('ssautotech_rack_types_v1', JSON.stringify(rt));
+        // 메모리 반영
+        if (typeof sectionRackTypes !== 'undefined') {
+          ['K','L','M','N','J'].forEach(function(n){ delete sectionRackTypes[n]; });
+        }
+      }
+    } catch(e){}
+    try {
+      var _rss = localStorage.getItem('ssautotech_rack_sizes_v1');
+      if (_rss) {
+        var rs = JSON.parse(_rss) || {};
+        ['K','L','M','N','J'].forEach(function(n){ delete rs[n]; });
+        localStorage.setItem('ssautotech_rack_sizes_v1', JSON.stringify(rs));
+        // 메모리 반영
+        if (typeof sectionRackSizes !== 'undefined') {
+          ['K','L','M','N','J'].forEach(function(n){ delete sectionRackSizes[n]; });
+        }
+      }
+    } catch(e){}
+    try { localStorage.removeItem('ssautotech_sections_v2'); } catch(e){}
+    try { localStorage.setItem(mk,'1'); } catch(e){}
+  }
+})();
+
 // ══════════════════════════════════════════════════════════════
 //  § 3. 위치 코드 파서
 // ══════════════════════════════════════════════════════════════
