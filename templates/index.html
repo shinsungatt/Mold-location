@@ -2401,6 +2401,8 @@ function colNum(secName, c, cols) {
 function buildSection(name,sx,sz,type,rows,cols,shelves,yOff,faceDir) {
   yOff = yOff||0;
   faceDir = faceDir||1; // +1: 통로가 +Z 방향, -1: 통로가 -Z 방향, ±2: X방향(90° CCW)
+  // K/L/M/N/J: 항상 faceDir=2 강제 (localStorage/마이그레이션 무관하게 X방향 facing 보장)
+  if (['K','L','M','N','J'].indexOf(name) !== -1) faceDir = 2;
   var _xFace=(Math.abs(faceDir)===2); // X방향 facing 여부
   var _fdx=_xFace?(faceDir>0?1:-1):0; // X방향 부호 (±2일 때만)
   var _fdz=_xFace?0:faceDir;          // Z방향 부호 (±1일 때만)
