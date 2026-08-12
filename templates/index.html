@@ -3,6 +3,27 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+/* ── 모바일/태블릿 뷰포트 자동 설정 (렌더링 전 실행) ── */
+(function(){
+  var m=null;
+  try{m=localStorage.getItem('_moldViewMode');}catch(e){}
+  var vp=document.querySelector('meta[name=viewport]');
+  if(!vp)return;
+  var isTouch=('ontouchstart' in window)||navigator.maxTouchPoints>0;
+  var sw=screen.width;
+  /* 기기 너비별 강제 뷰포트:
+     태블릿(480~1400px) → 1280px (PC와 동일)
+     핸드폰(< 480px)   →  900px (레이아웃 유지하면서 최대 확대) */
+  function _forcedWidth(){
+    return sw<480 ? 900 : 1280;
+  }
+  /* 저장값='pc' 이거나, 저장값 없을 때 터치기기+좁은화면 → 강제 뷰포트 적용 */
+  if(m==='pc'||(m===null&&isTouch&&sw<1400)){
+    vp.content='width='+_forcedWidth()+',initial-scale=1.0';
+  }
+})();
+</script>
 <title>신성오토텍 금형 INDEX</title>
 
 <!-- ── 서버 인증 정보 및 데이터 주입 ── -->
@@ -845,6 +866,11 @@ body { background:#1e3a5c; color:#e8f0ff; font-family:'Malgun Gothic','맑은 �
     </div>
     <!-- 로그아웃 버튼 -->
     <div id="auth-area" style="display:flex;align-items:center;gap:6px;margin-left:6px;flex-shrink:0">
+      <!-- 태블릿/PC 뷰 모드 토글 버튼 (터치기기에서만 표시) -->
+      <div class="xl-btn" id="btn-view-mode" title="PC뷰 ↔ 자동 전환" onclick="toggleViewMode()"
+        style="display:none;background:rgba(100,180,100,0.12);border-color:rgba(100,180,100,0.3);color:#80c080;font-size:11px;padding:5px 9px">
+        <span id="view-mode-icon">🖥</span><span id="view-mode-label"> PC뷰</span>
+      </div>
       <span id="role-badge" style="font-size:10px;padding:2px 7px;border-radius:3px;background:{% if is_admin %}rgba(90,200,90,0.15){% else %}rgba(90,158,248,0.15){% endif %};color:{% if is_admin %}#7de87d{% else %}#5a9ef8{% endif %};border:1px solid {% if is_admin %}rgba(90,200,90,0.3){% else %}rgba(90,158,248,0.3){% endif %}">{% if is_admin %}관리자{% else %}조회{% endif %}</span>
       <div class="xl-btn" id="btn-logout" title="로그아웃" onclick="doLogout()" style="background:rgba(200,80,80,0.12);border-color:rgba(200,80,80,0.3);color:#e07070">
         <span>⏻</span> 로그아웃
@@ -5276,6 +5302,38 @@ async function doLogout() {
   } catch(e) {}
   window.location.replace('/login');
 }
+
+// ─── 뷰 모드 토글 (고정뷰 ↔ 자동) ───
+function toggleViewMode() {
+  var m=null;
+  try{m=localStorage.getItem('_moldViewMode');}catch(e){}
+  var sw=screen.width;
+  var isTouch=('ontouchstart' in window)||navigator.maxTouchPoints>0;
+  var inFixedMode=(m==='pc')||(m===null&&isTouch&&sw<1400);
+  try{localStorage.setItem('_moldViewMode', inFixedMode?'auto':'pc');}catch(e){}
+  location.reload();
+}
+window.addEventListener('DOMContentLoaded', function(){
+  var btn=document.getElementById('btn-view-mode');
+  var icon=document.getElementById('view-mode-icon');
+  var lbl=document.getElementById('view-mode-label');
+  if(!btn)return;
+  var isTouch=('ontouchstart' in window)||navigator.maxTouchPoints>0;
+  if(!isTouch){btn.style.display='none';return;} /* 데스크톱에선 숨김 */
+  btn.style.display='flex';
+  var m=null;
+  try{m=localStorage.getItem('_moldViewMode');}catch(e){}
+  var sw=screen.width;
+  var isPhone=sw<480;
+  var inFixedMode=(m==='pc')||(m===null&&sw<1400);
+  if(inFixedMode){
+    icon.textContent=isPhone?'📱':'🖥';
+    lbl.textContent=isPhone?' 최적뷰':' PC뷰';
+  } else {
+    icon.textContent='↔';
+    lbl.textContent=' 자동';
+  }
+});
 
 // 일반사용자: 파일 input 비활성화
 if (!window._IS_ADMIN) {
