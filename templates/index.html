@@ -20,6 +20,16 @@
     /* ★ 핸드폰: viewport 절대 강제하지 않음 (device-width 유지)
        이전에 저장된 'pc' 모드값이 있으면 삭제하여 오작동 방지 */
     try{if(m)localStorage.removeItem('_moldViewMode');}catch(e){}
+    /* ★ CSS 미디어쿼리에 의존하지 않고, <style> 즉시 주입으로 핸드폰 레이아웃 강제 적용 */
+    var _ps=document.createElement('style');
+    _ps.id='mold-phone-css';
+    _ps.textContent=
+      '#panel{left:0!important;right:0!important;width:100%!important;top:86px!important}'+
+      '#cv,#legend,#hint,#top-spacer,#excel-main,#role-badge,#btn-view-mode{display:none!important}'+
+      '#search-wrap{width:auto!important;flex:1!important;min-width:0!important}'+
+      'body.full-3d #panel{display:none!important}'+
+      'body.full-3d #cv{display:block!important;left:0!important;right:0!important}';
+    document.head.appendChild(_ps);
   } else {
     /* 태블릿(480~1400px)만 1280px 강제 — PC와 동일한 화면 */
     var isTablet=isTouch&&sw>=480&&sw<1400;
@@ -986,6 +996,8 @@ body.full-3d #btn-back-panel { display:block !important; }
 <!-- ── 핸드폰 3D 뷰 전환 버튼 ── -->
 <div id="btn-3d-view" title="3D 전체화면 보기">🔷</div>
 <div id="btn-back-panel" onclick="toggle3DView(false)">⬅ 검색결과</div>
+<!-- 버전 표시: 새 코드 로드 확인용 (항상 표시) -->
+<div style="position:fixed;bottom:2px;right:4px;font-size:9px;color:rgba(255,255,255,0.25);z-index:9999;pointer-events:none">v9</div>
 <div id="loading">📊 데이터 불러오는 중...</div>
 
 <!-- ────── 레이아웃 편집기 ────── -->
@@ -5365,7 +5377,25 @@ async function doLogout() {
 // ─── 핸드폰 3D 전체화면 전환 ───
 function toggle3DView(on){
   document.body.classList.toggle('full-3d', on);
-  window.dispatchEvent(new Event('resize')); /* Three.js 캔버스 재조정 */
+  if(window._moldIsPhone){
+    /* 핸드폰: CSS 클래스 외 인라인 스타일도 함께 적용 (신뢰성 확보) */
+    var _panel=document.getElementById('panel');
+    var _cv=document.getElementById('cv');
+    var _b3=document.getElementById('btn-3d-view');
+    var _bp=document.getElementById('btn-back-panel');
+    if(on){
+      if(_panel)_panel.style.display='none';
+      if(_cv){_cv.style.display='block';_cv.style.left='0';_cv.style.right='0';}
+      if(_b3)_b3.style.display='none';
+      if(_bp)_bp.style.display='block';
+    } else {
+      if(_panel){_panel.style.display='';_panel.style.left='0';_panel.style.right='0';_panel.style.width='100%';}
+      if(_cv)_cv.style.display='none';
+      if(_b3)_b3.style.display='flex';
+      if(_bp)_bp.style.display='none';
+    }
+  }
+  window.dispatchEvent(new Event('resize'));
 }
 window.addEventListener('DOMContentLoaded', function(){
   /* device-width viewport이므로 window.innerWidth로 핸드폰 감지 */
