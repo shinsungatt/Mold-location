@@ -4,23 +4,22 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script>
-/* ── 모바일/태블릿 뷰포트 자동 설정 (렌더링 전 실행) ── */
-/* ★ screen.width 는 뷰포트 변경 전에 읽어 전역 플래그로 저장 */
+/* ── 뷰포트 설정 & 기기 플래그 (렌더링 전 실행) ── */
 (function(){
-  var sw=screen.width;                               /* 뷰포트 변경 BEFORE */
+  var sw=screen.width;                               /* 뷰포트 변경 전 실제 화면 너비 */
   var isTouch=('ontouchstart' in window)||navigator.maxTouchPoints>0;
-  window._moldIsPhone  = isTouch && sw<480;          /* 핸드폰 판별 플래그 */
-  window._moldIsMobile = isTouch && sw<1400;         /* 터치기기 전체 플래그 */
+  window._moldIsPhone  = isTouch && sw<480;          /* 핸드폰 (CSS 미디어쿼리로 처리) */
+  window._moldIsMobile = isTouch && sw<1400;         /* 터치기기 전체 */
 
   var m=null;
   try{m=localStorage.getItem('_moldViewMode');}catch(e){}
   var vp=document.querySelector('meta[name=viewport]');
   if(!vp)return;
-  /* 기기 너비별 강제 뷰포트:
-     핸드폰(< 480px)    →  900px
-     태블릿(480~1400px) → 1280px (PC와 동일) */
-  if(m==='pc'||(m===null&&window._moldIsMobile)){
-    vp.content='width='+(sw<480?900:1280)+',initial-scale=1.0';
+  /* 태블릿(480~1400px)만 1280px 강제 — PC와 동일한 화면
+     핸드폰(< 480px)은 device-width 유지 + CSS @media 로 처리 */
+  var isTablet=isTouch&&sw>=480&&sw<1400;
+  if(m==='pc'||(m===null&&isTablet)){
+    vp.content='width=1280,initial-scale=1.0';
   }
 })();
 </script>
@@ -352,26 +351,45 @@ body { background:#1e3a5c; color:#e8f0ff; font-family:'Malgun Gothic','맑은 �
   padding:4px 11px; font-size:11px; color:rgba(255,255,255,0.40); z-index:90;
   pointer-events:none; white-space:nowrap;
 }
-/* ── 핸드폰 3D 뷰 전환 버튼 ── */
+/* ── 3D 전환 플로팅 버튼 (핸드폰 전용, JS로 표시) ── */
 #btn-3d-view {
-  display:none; /* JS에서 핸드폰에만 표시 */
-  position:fixed; bottom:62px; right:10px; z-index:200;
-  background:rgba(80,140,255,0.85); border:none;
-  border-radius:50%; width:46px; height:46px;
+  display:none;
+  position:fixed; bottom:20px; right:14px; z-index:210;
+  background:rgba(80,140,255,0.9); border:none;
+  border-radius:50%; width:50px; height:50px;
   align-items:center; justify-content:center;
-  font-size:20px; cursor:pointer; box-shadow:0 2px 10px rgba(0,0,0,0.5);
+  font-size:22px; cursor:pointer; box-shadow:0 3px 12px rgba(0,0,0,0.55);
 }
 #btn-back-panel {
   display:none;
-  position:fixed; top:92px; left:50%; transform:translateX(-50%); z-index:200;
-  background:rgba(18,36,68,0.92); border:1px solid rgba(100,160,255,0.35);
-  border-radius:20px; padding:6px 18px;
-  color:#8ab4f8; font-size:12px; font-weight:600; cursor:pointer; white-space:nowrap;
+  position:fixed; top:92px; left:50%; transform:translateX(-50%); z-index:210;
+  background:rgba(18,36,68,0.94); border:1px solid rgba(100,160,255,0.4);
+  border-radius:20px; padding:8px 22px;
+  color:#8ab4f8; font-size:13px; font-weight:700; cursor:pointer; white-space:nowrap;
 }
-body.full-3d #panel { display:none !important; }
-body.full-3d #cv    { right:0 !important; }
-body.full-3d #btn-3d-view   { display:none !important; }
-body.full-3d #btn-back-panel{ display:block !important; }
+/* ── 태블릿 3D 전체화면 ── */
+body.full-3d #panel          { display:none !important; }
+body.full-3d #cv             { right:0 !important; }
+body.full-3d #btn-3d-view    { display:none !important; }
+body.full-3d #btn-back-panel { display:block !important; }
+/* ── 핸드폰 전용 레이아웃 (@media device-width 기준) ── */
+@media screen and (max-width:479px){
+  /* 상단바: 검색창이 남은 공간 차지, 불필요한 버튼 숨김 */
+  #top-spacer   { display:none !important; }
+  #search-wrap  { width:auto !important; flex:1 !important; min-width:0; flex-shrink:1 !important; }
+  #excel-main   { display:none !important; }
+  #btn-layout-upload,#btn-layout { display:none !important; }
+  #role-badge   { display:none !important; }
+  #btn-view-mode{ display:none !important; }
+  #btn-logout   { padding:5px 9px !important; font-size:11px !important; }
+  /* 패널이 전체 화면 차지, 캔버스·범례·hint 기본 숨김 */
+  #panel { left:0 !important; right:0 !important; width:100% !important; }
+  #cv    { display:none !important; }
+  #legend,#hint { display:none !important; }
+  /* 3D 전체화면 모드 */
+  body.full-3d #panel { display:none !important; }
+  body.full-3d #cv    { display:block !important; right:0 !important; }
+}
 /* ── 저장 완료 토스트 ── */
 #save-toast {
   position:fixed; bottom:52px; left:50%; transform:translateX(-50%) translateY(20px);
@@ -867,7 +885,7 @@ body.full-3d #btn-back-panel{ display:block !important; }
       <div id="autocomplete"></div>
     </div>
     <div id="st-diag" style="font-size:11px;color:rgba(100,180,255,0.7);padding:3px 8px;display:none;white-space:nowrap;cursor:pointer;background:rgba(80,140,255,0.1);border:1px solid rgba(80,140,255,0.25);border-radius:4px;flex-shrink:0" title="클릭하면 상세 매칭 진단 보기"></div>
-    <div style="flex:1"></div>
+    <div id="top-spacer" style="flex:1"></div>
     <div id="excel-main">
       <div class="xl-btn xl-upload" id="btn-upload" title="새 엑셀 파일로 업데이트">
         <span>⬆</span> 업로드
@@ -4228,8 +4246,8 @@ function renderResults(arr){
   var ra=document.getElementById('results-area');
   if(!arr.length){ra.innerHTML='<div class="r-header">검색 결과 없음</div>';return;}
   var html='<div class="r-header">'+arr.length+'개 금형 검색됨</div>';
-  /* ── 터치기기: 검색 결과 있을 때 범례·hint 숨김 ── */
-  if(window._moldIsMobile){
+  /* ── 태블릿: 검색 결과 있을 때 범례·hint 숨김 (핸드폰은 CSS로 항상 숨김) ── */
+  if(window._moldIsMobile&&!window._moldIsPhone){
     var _lg=document.getElementById('legend'),_ht=document.getElementById('hint');
     if(_lg)_lg.style.display='none'; if(_ht)_ht.style.display='none';
   }
@@ -4512,12 +4530,13 @@ function clearResults(){
   document.getElementById('results-area').innerHTML='<div class="r-header">검색 결과가 여기에 표시됩니다</div>';
   document.getElementById('detail').style.display='none';
   clearHL();
-  /* ── 터치기기: 범례·hint 복원 + 3D 전체화면 해제 ── */
-  if(window._moldIsMobile){
+  /* ── 태블릿: 범례·hint 복원 ── */
+  if(window._moldIsMobile&&!window._moldIsPhone){
     var _lg=document.getElementById('legend'),_ht=document.getElementById('hint');
     if(_lg)_lg.style.display=''; if(_ht)_ht.style.display='';
-    toggle3DView(false);
   }
+  /* ── 핸드폰: 3D 전체화면 해제 ── */
+  if(window.innerWidth<480) toggle3DView(false);
 }
 function esc(s){
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -5343,7 +5362,8 @@ function toggle3DView(on){
   window.dispatchEvent(new Event('resize')); /* Three.js 캔버스 재조정 */
 }
 window.addEventListener('DOMContentLoaded', function(){
-  if(window._moldIsPhone){                           /* 뷰포트 변경 전 플래그 사용 */
+  /* device-width viewport이므로 window.innerWidth로 핸드폰 감지 */
+  if(window.innerWidth<480){
     var btn=document.getElementById('btn-3d-view');
     if(btn){btn.style.display='flex'; btn.onclick=function(){toggle3DView(true);};}
   }
@@ -5353,7 +5373,9 @@ window.addEventListener('DOMContentLoaded', function(){
 function toggleViewMode() {
   var m=null;
   try{m=localStorage.getItem('_moldViewMode');}catch(e){}
-  var inFixedMode=(m==='pc')||(m===null&&window._moldIsMobile);  /* 플래그 사용 */
+  /* 태블릿 전용 — 핸드폰은 CSS @media로 처리하므로 제외 */
+  var isTablet=window._moldIsMobile&&!window._moldIsPhone;
+  var inFixedMode=(m==='pc')||(m===null&&isTablet);
   try{localStorage.setItem('_moldViewMode', inFixedMode?'auto':'pc');}catch(e){}
   location.reload();
 }
@@ -5362,18 +5384,15 @@ window.addEventListener('DOMContentLoaded', function(){
   var icon=document.getElementById('view-mode-icon');
   var lbl=document.getElementById('view-mode-label');
   if(!btn)return;
-  if(!window._moldIsMobile){btn.style.display='none';return;} /* 데스크톱 숨김 */
+  /* 태블릿에서만 표시 (핸드폰은 CSS가 처리, PC는 숨김) */
+  var isTablet=window._moldIsMobile&&!window._moldIsPhone;
+  if(!isTablet){btn.style.display='none';return;}
   btn.style.display='flex';
   var m=null;
   try{m=localStorage.getItem('_moldViewMode');}catch(e){}
-  var inFixedMode=(m==='pc')||(m===null&&window._moldIsMobile);
-  if(inFixedMode){
-    icon.textContent=window._moldIsPhone?'📱':'🖥';
-    lbl.textContent=window._moldIsPhone?' 최적뷰':' PC뷰';
-  } else {
-    icon.textContent='↔';
-    lbl.textContent=' 자동';
-  }
+  var inFixedMode=(m==='pc')||(m===null&&isTablet);
+  icon.textContent=inFixedMode?'🖥':'↔';
+  lbl.textContent=inFixedMode?' PC뷰':' 자동';
 });
 
 // 일반사용자: 파일 input 비활성화
