@@ -352,6 +352,26 @@ body { background:#1e3a5c; color:#e8f0ff; font-family:'Malgun Gothic','맑은 �
   padding:4px 11px; font-size:11px; color:rgba(255,255,255,0.40); z-index:90;
   pointer-events:none; white-space:nowrap;
 }
+/* ── 핸드폰 3D 뷰 전환 버튼 ── */
+#btn-3d-view {
+  display:none; /* JS에서 핸드폰에만 표시 */
+  position:fixed; bottom:62px; right:10px; z-index:200;
+  background:rgba(80,140,255,0.85); border:none;
+  border-radius:50%; width:46px; height:46px;
+  align-items:center; justify-content:center;
+  font-size:20px; cursor:pointer; box-shadow:0 2px 10px rgba(0,0,0,0.5);
+}
+#btn-back-panel {
+  display:none;
+  position:fixed; top:92px; left:50%; transform:translateX(-50%); z-index:200;
+  background:rgba(18,36,68,0.92); border:1px solid rgba(100,160,255,0.35);
+  border-radius:20px; padding:6px 18px;
+  color:#8ab4f8; font-size:12px; font-weight:600; cursor:pointer; white-space:nowrap;
+}
+body.full-3d #panel { display:none !important; }
+body.full-3d #cv    { right:0 !important; }
+body.full-3d #btn-3d-view   { display:none !important; }
+body.full-3d #btn-back-panel{ display:block !important; }
 /* ── 저장 완료 토스트 ── */
 #save-toast {
   position:fixed; bottom:52px; left:50%; transform:translateX(-50%) translateY(20px);
@@ -939,6 +959,9 @@ body { background:#1e3a5c; color:#e8f0ff; font-family:'Malgun Gothic','맑은 �
 </div>
 <div id="hint">🖱 드래그:회전 &nbsp;|&nbsp; 스크롤:줌 &nbsp;|&nbsp; 금형 클릭:상세정보 &nbsp;|&nbsp; 빈칸 클릭:등록</div>
 <div id="save-toast">✔ 저장 완료</div>
+<!-- ── 핸드폰 3D 뷰 전환 버튼 ── -->
+<div id="btn-3d-view" title="3D 전체화면 보기">🔷</div>
+<div id="btn-back-panel" onclick="toggle3DView(false)">⬅ 검색결과</div>
 <div id="loading">📊 데이터 불러오는 중...</div>
 
 <!-- ────── 레이아웃 편집기 ────── -->
@@ -4205,6 +4228,11 @@ function renderResults(arr){
   var ra=document.getElementById('results-area');
   if(!arr.length){ra.innerHTML='<div class="r-header">검색 결과 없음</div>';return;}
   var html='<div class="r-header">'+arr.length+'개 금형 검색됨</div>';
+  /* ── 터치기기: 검색 결과 있을 때 범례·hint 숨김 ── */
+  if(('ontouchstart' in window)||navigator.maxTouchPoints>0){
+    var _lg=document.getElementById('legend'),_ht=document.getElementById('hint');
+    if(_lg)_lg.style.display='none'; if(_ht)_ht.style.display='none';
+  }
   arr.slice(0,40).forEach(function(m,i){
     var badge;
     if(!m.location||m.location==='undefined') badge='<span class="r-loc none">위치 미등록</span>';
@@ -4484,6 +4512,12 @@ function clearResults(){
   document.getElementById('results-area').innerHTML='<div class="r-header">검색 결과가 여기에 표시됩니다</div>';
   document.getElementById('detail').style.display='none';
   clearHL();
+  /* ── 터치기기: 범례·hint 복원 + 3D 전체화면 해제 ── */
+  if(('ontouchstart' in window)||navigator.maxTouchPoints>0){
+    var _lg=document.getElementById('legend'),_ht=document.getElementById('hint');
+    if(_lg)_lg.style.display=''; if(_ht)_ht.style.display='';
+    toggle3DView(false);
+  }
 }
 function esc(s){
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -5302,6 +5336,20 @@ async function doLogout() {
   } catch(e) {}
   window.location.replace('/login');
 }
+
+// ─── 핸드폰 3D 전체화면 전환 ───
+function toggle3DView(on){
+  document.body.classList.toggle('full-3d', on);
+  window.dispatchEvent(new Event('resize')); /* Three.js 캔버스 재조정 */
+}
+window.addEventListener('DOMContentLoaded', function(){
+  var isPhone=(screen.width<480);
+  var isTouch=('ontouchstart' in window)||navigator.maxTouchPoints>0;
+  if(isPhone&&isTouch){
+    var btn=document.getElementById('btn-3d-view');
+    if(btn){btn.style.display='flex'; btn.onclick=function(){toggle3DView(true);};}
+  }
+});
 
 // ─── 뷰 모드 토글 (고정뷰 ↔ 자동) ───
 function toggleViewMode() {
