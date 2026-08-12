@@ -5,22 +5,22 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script>
 /* ── 모바일/태블릿 뷰포트 자동 설정 (렌더링 전 실행) ── */
+/* ★ screen.width 는 뷰포트 변경 전에 읽어 전역 플래그로 저장 */
 (function(){
+  var sw=screen.width;                               /* 뷰포트 변경 BEFORE */
+  var isTouch=('ontouchstart' in window)||navigator.maxTouchPoints>0;
+  window._moldIsPhone  = isTouch && sw<480;          /* 핸드폰 판별 플래그 */
+  window._moldIsMobile = isTouch && sw<1400;         /* 터치기기 전체 플래그 */
+
   var m=null;
   try{m=localStorage.getItem('_moldViewMode');}catch(e){}
   var vp=document.querySelector('meta[name=viewport]');
   if(!vp)return;
-  var isTouch=('ontouchstart' in window)||navigator.maxTouchPoints>0;
-  var sw=screen.width;
   /* 기기 너비별 강제 뷰포트:
-     태블릿(480~1400px) → 1280px (PC와 동일)
-     핸드폰(< 480px)   →  900px (레이아웃 유지하면서 최대 확대) */
-  function _forcedWidth(){
-    return sw<480 ? 900 : 1280;
-  }
-  /* 저장값='pc' 이거나, 저장값 없을 때 터치기기+좁은화면 → 강제 뷰포트 적용 */
-  if(m==='pc'||(m===null&&isTouch&&sw<1400)){
-    vp.content='width='+_forcedWidth()+',initial-scale=1.0';
+     핸드폰(< 480px)    →  900px
+     태블릿(480~1400px) → 1280px (PC와 동일) */
+  if(m==='pc'||(m===null&&window._moldIsMobile)){
+    vp.content='width='+(sw<480?900:1280)+',initial-scale=1.0';
   }
 })();
 </script>
@@ -248,7 +248,7 @@ body { background:#1e3a5c; color:#e8f0ff; font-family:'Malgun Gothic','맑은 �
 
 /* ── Canvas ── */
 #cv { position:fixed; top:86px; left:0; right:320px; bottom:0; }
-#cv canvas { width:100%!important; height:100%!important; }
+#cv canvas { width:100%!important; height:100%!important; touch-action:none; }
 
 /* ── Right Panel ── */
 #panel {
@@ -4229,7 +4229,7 @@ function renderResults(arr){
   if(!arr.length){ra.innerHTML='<div class="r-header">검색 결과 없음</div>';return;}
   var html='<div class="r-header">'+arr.length+'개 금형 검색됨</div>';
   /* ── 터치기기: 검색 결과 있을 때 범례·hint 숨김 ── */
-  if(('ontouchstart' in window)||navigator.maxTouchPoints>0){
+  if(window._moldIsMobile){
     var _lg=document.getElementById('legend'),_ht=document.getElementById('hint');
     if(_lg)_lg.style.display='none'; if(_ht)_ht.style.display='none';
   }
@@ -4513,7 +4513,7 @@ function clearResults(){
   document.getElementById('detail').style.display='none';
   clearHL();
   /* ── 터치기기: 범례·hint 복원 + 3D 전체화면 해제 ── */
-  if(('ontouchstart' in window)||navigator.maxTouchPoints>0){
+  if(window._moldIsMobile){
     var _lg=document.getElementById('legend'),_ht=document.getElementById('hint');
     if(_lg)_lg.style.display=''; if(_ht)_ht.style.display='';
     toggle3DView(false);
@@ -5343,9 +5343,7 @@ function toggle3DView(on){
   window.dispatchEvent(new Event('resize')); /* Three.js 캔버스 재조정 */
 }
 window.addEventListener('DOMContentLoaded', function(){
-  var isPhone=(screen.width<480);
-  var isTouch=('ontouchstart' in window)||navigator.maxTouchPoints>0;
-  if(isPhone&&isTouch){
+  if(window._moldIsPhone){                           /* 뷰포트 변경 전 플래그 사용 */
     var btn=document.getElementById('btn-3d-view');
     if(btn){btn.style.display='flex'; btn.onclick=function(){toggle3DView(true);};}
   }
@@ -5355,9 +5353,7 @@ window.addEventListener('DOMContentLoaded', function(){
 function toggleViewMode() {
   var m=null;
   try{m=localStorage.getItem('_moldViewMode');}catch(e){}
-  var sw=screen.width;
-  var isTouch=('ontouchstart' in window)||navigator.maxTouchPoints>0;
-  var inFixedMode=(m==='pc')||(m===null&&isTouch&&sw<1400);
+  var inFixedMode=(m==='pc')||(m===null&&window._moldIsMobile);  /* 플래그 사용 */
   try{localStorage.setItem('_moldViewMode', inFixedMode?'auto':'pc');}catch(e){}
   location.reload();
 }
@@ -5366,17 +5362,14 @@ window.addEventListener('DOMContentLoaded', function(){
   var icon=document.getElementById('view-mode-icon');
   var lbl=document.getElementById('view-mode-label');
   if(!btn)return;
-  var isTouch=('ontouchstart' in window)||navigator.maxTouchPoints>0;
-  if(!isTouch){btn.style.display='none';return;} /* 데스크톱에선 숨김 */
+  if(!window._moldIsMobile){btn.style.display='none';return;} /* 데스크톱 숨김 */
   btn.style.display='flex';
   var m=null;
   try{m=localStorage.getItem('_moldViewMode');}catch(e){}
-  var sw=screen.width;
-  var isPhone=sw<480;
-  var inFixedMode=(m==='pc')||(m===null&&sw<1400);
+  var inFixedMode=(m==='pc')||(m===null&&window._moldIsMobile);
   if(inFixedMode){
-    icon.textContent=isPhone?'📱':'🖥';
-    lbl.textContent=isPhone?' 최적뷰':' PC뷰';
+    icon.textContent=window._moldIsPhone?'📱':'🖥';
+    lbl.textContent=window._moldIsPhone?' 최적뷰':' PC뷰';
   } else {
     icon.textContent='↔';
     lbl.textContent=' 자동';
