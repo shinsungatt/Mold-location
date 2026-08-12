@@ -15,11 +15,17 @@
   try{m=localStorage.getItem('_moldViewMode');}catch(e){}
   var vp=document.querySelector('meta[name=viewport]');
   if(!vp)return;
-  /* 태블릿(480~1400px)만 1280px 강제 — PC와 동일한 화면
-     핸드폰(< 480px)은 device-width 유지 + CSS @media 로 처리 */
-  var isTablet=isTouch&&sw>=480&&sw<1400;
-  if(m==='pc'||(m===null&&isTablet)){
-    vp.content='width=1280,initial-scale=1.0';
+
+  if(window._moldIsPhone){
+    /* ★ 핸드폰: viewport 절대 강제하지 않음 (device-width 유지)
+       이전에 저장된 'pc' 모드값이 있으면 삭제하여 오작동 방지 */
+    try{if(m)localStorage.removeItem('_moldViewMode');}catch(e){}
+  } else {
+    /* 태블릿(480~1400px)만 1280px 강제 — PC와 동일한 화면 */
+    var isTablet=isTouch&&sw>=480&&sw<1400;
+    if(m==='pc'||(m===null&&isTablet)){
+      vp.content='width=1280,initial-scale=1.0';
+    }
   }
 })();
 </script>
