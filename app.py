@@ -201,8 +201,10 @@ def index():
         is_admin=_is_admin(),
         server_data=json.dumps(app_data, ensure_ascii=False)
     ))
-    r.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate'
+    r.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
     r.headers['Pragma'] = 'no-cache'
+    r.headers['Expires'] = '0'
+    r.headers['Surrogate-Control'] = 'no-store'
     return r
 
 # ─── 인증 API ───────────────────────────────────────────────
